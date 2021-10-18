@@ -9,6 +9,7 @@ import static game.Constants.*;
 
 public class Map extends JPanel {
 
+
     boolean running = true;
     boolean start = true;
     int TurnCounter = 0;
@@ -43,6 +44,8 @@ public class Map extends JPanel {
     };
 
     public Map(){
+
+
         int i = 0;
         for (int r = 0; r < ROWS; r++){
             for (int c = 0; c < COLS; c++){
@@ -89,12 +92,12 @@ public class Map extends JPanel {
         new Thread(this::loop).start();
 
     }
-
-    void charMove(Tile t){
+    
+    int moveCost(Tile t){
         int moveCost;
 
         if(t.x == CurrentPlayer.CurTile.x){
-             moveCost = t.y - CurrentPlayer.CurTile.y;
+            moveCost = t.y - CurrentPlayer.CurTile.y;
         }
         else if(t.y == CurrentPlayer.CurTile.y){
             moveCost = t.x - CurrentPlayer.CurTile.x;
@@ -102,13 +105,16 @@ public class Map extends JPanel {
         else{
             moveCost = Math.abs(t.x - CurrentPlayer.CurTile.x) + Math.abs(t.y - CurrentPlayer.CurTile.y);
         }
+        return Math.abs(moveCost);
+    }
 
+
+
+    void charMove(Tile t){
+        int cost = moveCost(t);
         CurrentPlayer.setTile(t, createPath(t,CurrentPlayer));
-        CurrentPlayer.MovePoints = CurrentPlayer.MovePoints - Math.abs(moveCost);
+        CurrentPlayer.MovePoints = CurrentPlayer.MovePoints - cost;
         CurrentPlayer.moving = true;
-
-
-
     }
 
     int distance(Tile t1, Tile t2){
@@ -142,7 +148,6 @@ public class Map extends JPanel {
         if(start == end){
             return false;
         }
-
         while(points>0) {
             int LowDis = 100;
 
@@ -152,7 +157,6 @@ public class Map extends JPanel {
                     return true;
                 }
             }
-
             neighbours.removeIf(t -> !t.CanMove);
             for(Tile t: neighbours){
 
@@ -160,13 +164,10 @@ public class Map extends JPanel {
                     LowDis = distance(t,end);
                     closest = t;
                 }
-
             }
-
             current = closest;
             points--;
         }
-
         return false;
 
     }
@@ -178,7 +179,6 @@ public class Map extends JPanel {
         while(current!=t){
             ArrayList<Tile> neighbours = neighbourTiles(current);
             int close = 100;
-
             neighbours.removeIf(tile -> !tile.CanMove);
 
             for(Tile tile: neighbours){
@@ -206,9 +206,7 @@ public class Map extends JPanel {
             neighbours.add(TileGrid[t.y - 1][t.x-1]);
             neighbours.add(TileGrid[t.y - 1][t.x]);
             neighbours.add(TileGrid[t.y - 1][t.x+1]);
-
         }
-
         return neighbours;
     }
 
@@ -252,7 +250,6 @@ public class Map extends JPanel {
                     if(i.moving){
                         i.move();
                     }
-
                 }
                 MoveDelay = 50000;
             }
@@ -260,12 +257,10 @@ public class Map extends JPanel {
                 MoveDelay--;
             }
             if (CurrentPlayer.MovePoints == 0){
+                CurrentPlayer.resetTurn();
                 TurnCounter++;
                 if (TurnCounter >= Characters.length){
                     TurnCounter = 0;
-                    for(Character i: Characters){
-                        i.resetTurn();
-                    }
                 }
                 CurrentPlayer = Characters[TurnCounter];
             }
@@ -294,12 +289,13 @@ public class Map extends JPanel {
         int width = getWidth() / COLS;
         int height = getHeight() / ROWS;
         int transparency = 40;
-        Color moveable = new Color(0,255,0, transparency);
+        Color underhalf = new Color(0,255,0, transparency);
+        Color overhalf = new Color(248, 223, 2, transparency);
+        Color all = new Color(246, 116, 0, transparency);
         Color grid = new Color(0, 0, 0, transparency);
         String tileName;
         String tileOccupant;
         String tileAccess;
-
 
         for (int r = 0; r < ROWS; r++) {
             for (int c = 0; c < COLS; c++) {
@@ -312,17 +308,36 @@ public class Map extends JPanel {
                 g.drawRect(x,y, width, height);
                 if(CurrentPlayer!=null) {
                     if (ValidMove(TileGrid[r][c], CurrentPlayer)) {
-                        g.setColor(moveable);
+                        if(moveCost(TileGrid[r][c]) == (CurrentPlayer.MovePoints)){
+                            g.setColor(all);
+                        }
+                        else if(moveCost(TileGrid[r][c]) > (CurrentPlayer.MovePoints / 2)){
+                            g.setColor(overhalf);
+                        }
+                        else{
+                            g.setColor(underhalf);
+                        }
+
                         g.fillRect(x, y, width, height);
                     }
                 }
-
                 TileGrid[r][c].setCenter(x,y);
                 TileGrid[r][c].setBounds(x,y,r,c);
             }
         }
-
         tileOccupant = "";
+
+        if(start){
+            SpawnJon(10,10);
+            SpawnJak(10 , 9);
+            CurrentPlayer = Characters[0];
+            start = false;
+        }
+
+        for(Character i: Characters){
+            g.setColor(i.image);
+            g.fillOval(i.x,i.y,10,10);
+        }
 
         if(Selected!=null){
             Graphics2D g2 = (Graphics2D) g;
@@ -334,8 +349,38 @@ public class Map extends JPanel {
             tileName = Selected.name;
             if(Selected.Occupant!=null){
                 tileOccupant = Selected.Occupant.name;
-            }
+                Selected.Occupant.updateHBar();
+                Selected.Occupant.updateSBar();
 
+                int Xhbars = Selected.CenterX - ((((Selected.Occupant.healthBar.length * 10) + (Selected.Occupant.healthBar.length - 1))/2) - 5)  ;
+                int Yhbars = Selected.CenterY - TILE_SIZE;
+
+                int Xsbars = Selected.CenterX - ((((Selected.Occupant.staminaBar.length * 10) + (Selected.Occupant.staminaBar.length - 1))/2) - 5)  ;
+                int Ysbars = Selected.CenterY - (TILE_SIZE - 10);
+
+                for(boolean i:Selected.Occupant.healthBar){
+                    if(i){
+                        g.setColor(Color.red);
+                    }
+                    else{
+                        g.setColor(Color.black);
+                    }
+                    g.fillRect(Xhbars,Yhbars,10,5);
+                    Xhbars = Xhbars + 11;
+                }
+                for(boolean i:Selected.Occupant.staminaBar){
+                    if(i){
+                        g.setColor(Color.blue);
+                    }
+                    else{
+                        g.setColor(Color.black);
+                    }
+
+                    g.fillRect(Xsbars,Ysbars,10,5);
+
+                    Xsbars = Xsbars + 11;
+                }
+            }
             tileAccess = Selected.accessible;
 
             Font font = new Font("Verdana", Font.PLAIN, 15);
@@ -345,22 +390,7 @@ public class Map extends JPanel {
             g.drawString(tileOccupant, TILE_SIZE / 2,getHeight() - (TILE_SIZE * 2) - font.getSize() );
             g.drawString(tileName, TILE_SIZE / 2,getHeight() - TILE_SIZE * 2 );
             g.drawString(tileAccess, TILE_SIZE / 2,getHeight() - (TILE_SIZE * 2) + font.getSize());
-        }
 
-
-
-
-        if(start){
-            SpawnJon(10,10);
-            SpawnJak(10 , 9);
-
-            CurrentPlayer = Characters[0];
-            start = false;
-        }
-
-        for(Character i: Characters){
-            g.setColor(i.image);
-            g.fillOval(i.x,i.y,10,10);
         }
     }
 }

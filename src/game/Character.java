@@ -11,10 +11,14 @@ public abstract class Character {
     Color image;
     int MovePoints;
     int MaxMove;
+    int Health;
+    int MaxHealth;
     String name;
     Tile[] movePath;
     int pathpos = 0;
     boolean moving = false;
+    boolean[] healthBar;
+    boolean[] staminaBar;
 
     Character(Tile t){
         this.x = t.CenterX;
@@ -23,6 +27,32 @@ public abstract class Character {
         CurTile.setOccupant(this);
     }
 
+    void printBar(){
+        for(boolean i:this.healthBar){
+            System.out.println(i);
+        }
+    }
+
+
+    void updateSBar(){
+        int sp = MovePoints;
+
+        for(int i = 0;i<staminaBar.length;i++){
+            staminaBar[i] = sp > 0;
+            sp--;
+        }
+
+    }
+
+    void updateHBar(){
+        int hp = Health;
+
+        for(int i = 0;i<healthBar.length;i++){
+            healthBar[i] = hp > 0;
+            hp--;
+        }
+
+    }
 
     void setTile(Tile t, Tile[] path) {
         movePath = path;
