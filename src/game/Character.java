@@ -19,20 +19,29 @@ public abstract class Character {
     boolean moving = false;
     boolean[] healthBar;
     boolean[] staminaBar;
+    Action[] moves;
 
     Character(Tile t){
         this.x = t.CenterX;
         this.y = t.CenterY;
         this.CurTile = t;
         CurTile.setOccupant(this);
+        moves = new Action[3];
+        moves[0] = new punch(this);
+        moves[1] = new superkick(this);
+        moves[2] = new SpineBuster(this);
+        movePath = new Tile[MaxMove];
     }
+
+    void changeHealth(int change){this.Health += change;}
+
+    void changeStam(int change){this.MovePoints += change;}
 
     void printBar(){
         for(boolean i:this.healthBar){
             System.out.println(i);
         }
     }
-
 
     void updateSBar(){
         int sp = MovePoints;
@@ -63,12 +72,21 @@ public abstract class Character {
         CurTile.Occupant = this;
     }
 
+    void setTile(Tile t) {
+        CurTile.CanMove = true;
+        CurTile.Occupant = null;
+        this.CurTile = t;
+        CurTile.CanMove = false;
+        CurTile.Occupant = this;
+
+    }
+
     void emptyPath(){
         Arrays.fill(movePath, null);
     }
 
     void resetTurn(){
-        MovePoints = MaxMove;
+        MovePoints += MaxMove;
     }
 
     void printPath(){
@@ -82,34 +100,49 @@ public abstract class Character {
 
     }
 
-    void move(){
-        if(x!=CurTile.CenterX || y!=CurTile.CenterY ){
-            if(x==movePath[pathpos].CenterX && y==movePath[pathpos].CenterY ){
-                pathpos++;
-            }
-            else{
-                if(x > movePath[pathpos].CenterX){
+    void move() {
+        if (movePath[0] == null) {
+            if (x != CurTile.CenterX || y != CurTile.CenterY) {
+                if (x > CurTile.CenterX){
                     x--;
                 }
-                if(x < movePath[pathpos].CenterX){
+                if (x < CurTile.CenterX) {
                     x++;
                 }
-                if(y > movePath[pathpos].CenterY){
+                if (y > CurTile.CenterY) {
                     y--;
                 }
-                if(y < movePath[pathpos].CenterY){
+                if (y < CurTile.CenterY) {
                     y++;
                 }
             }
+        } else {
+            if (x != CurTile.CenterX || y != CurTile.CenterY) {
+                if (x == movePath[pathpos].CenterX && y == movePath[pathpos].CenterY) {
+                    pathpos++;
+                } else {
+                    if (x > movePath[pathpos].CenterX) {
+                        x--;
+                    }
+                    if (x < movePath[pathpos].CenterX) {
+                        x++;
+                    }
+                    if (y > movePath[pathpos].CenterY) {
+                        y--;
+                    }
+                    if (y < movePath[pathpos].CenterY) {
+                        y++;
+                    }
+                }
 
 
+            } else {
+                moving = false;
+                emptyPath();
+                pathpos = 0;
+            }
         }
-        else{
-            moving = false;
-            emptyPath();
-            pathpos = 0;
-        }
-        }
+    }
 
 
 
