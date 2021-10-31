@@ -1,7 +1,10 @@
 package game;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public abstract class Character {
 
@@ -13,6 +16,21 @@ public abstract class Character {
     int MaxMove;
     int Health;
     int MaxHealth;
+    int painThresh;
+    int regen;
+    int stamregen;
+    int state;
+
+    // 0 = neutral , 1 = down 2 = pinning 3 = pinned
+    public final String[] states = {
+            "Neutral",
+            "Down",
+            "Pinning",
+            "Pinned"
+
+    };
+
+
     String name;
     Tile[] movePath;
     int pathpos = 0;
@@ -25,15 +43,30 @@ public abstract class Character {
         this.x = t.CenterX;
         this.y = t.CenterY;
         this.CurTile = t;
-        CurTile.setOccupant(this);
         moves = new Action[3];
         moves[0] = new punch(this);
         moves[1] = new superkick(this);
         moves[2] = new SpineBuster(this);
         movePath = new Tile[MaxMove];
+        state = 0;
+
     }
 
-    void changeHealth(int change){this.Health += change;}
+    void changeHealth(int change){this.Health += change;
+
+        if(Health<=0){
+            Health = 0;
+        }
+
+        if(Health<=painThresh){
+            if(state != 3){
+                state = 1;
+            }
+        }
+        else if(state != 2 && state !=3){
+            state = 0;
+        }
+    }
 
     void changeStam(int change){this.MovePoints += change;}
 
@@ -65,20 +98,48 @@ public abstract class Character {
 
     void setTile(Tile t, Tile[] path) {
         movePath = path;
-        CurTile.CanMove = true;
-        CurTile.Occupant = null;
         this.CurTile = t;
-        CurTile.CanMove = false;
-        CurTile.Occupant = this;
+
+    }
+
+    void setPin(Tile t){
+        this.CurTile = t;
+        CurTile.Pinner = this;
+        moving = true;
+        state = 2;
+    }
+
+    void cancelPin(ArrayList<Tile> adj, Action a){
+        Tile[] vacant = new Tile[adj.size()];
+        int i = 0;
+
+
+        CurTile.Occupant().state = 0;
+        CurTile.Occupant().changeHealth(0);
+        CurTile.Pinner = null;
+
+        if(!a.mover) {
+
+            for (Tile t : adj) {
+                if (t.canMove()) {
+                    vacant[i] = t;
+                    i++;
+                }
+            }
+
+
+            int randomNum = ThreadLocalRandom.current().nextInt(0, i);
+            this.CurTile = vacant[randomNum];
+            this.moving = true;
+        }
+        this.state = 0;
+
+        Map.pinCount = 0;
+
     }
 
     void setTile(Tile t) {
-        CurTile.CanMove = true;
-        CurTile.Occupant = null;
         this.CurTile = t;
-        CurTile.CanMove = false;
-        CurTile.Occupant = this;
-
     }
 
     void emptyPath(){
@@ -86,7 +147,18 @@ public abstract class Character {
     }
 
     void resetTurn(){
-        MovePoints += MaxMove;
+        if(this.MovePoints < 0){
+            this.MovePoints = 0;
+        }
+
+        changeStam(stamregen);
+        if(this.MovePoints > MaxMove){
+            this.MovePoints = MaxMove;
+        }
+        changeHealth(regen);
+        if(this.Health > MaxHealth){
+            this.Health = MaxHealth;
+        }
     }
 
     void printPath(){
@@ -100,8 +172,17 @@ public abstract class Character {
 
     }
 
+
+    void Update(){
+        updateHBar();
+        updateSBar();
+        if(moving){
+            move();
+        }
+    }
+
     void move() {
-        if (movePath[0] == null) {
+        if ( movePath.length == 0 || movePath==null || movePath[0] == null) {
             if (x != CurTile.CenterX || y != CurTile.CenterY) {
                 if (x > CurTile.CenterX){
                     x--;
@@ -118,6 +199,7 @@ public abstract class Character {
             }
         } else {
             if (x != CurTile.CenterX || y != CurTile.CenterY) {
+
                 if (x == movePath[pathpos].CenterX && y == movePath[pathpos].CenterY) {
                     pathpos++;
                 } else {
@@ -144,7 +226,15 @@ public abstract class Character {
         }
     }
 
-
-
+    @Override
+    public String toString() {
+        return "Character{" +
+                "CurTile=" + CurTile +
+                ", MovePoints=" + MovePoints +
+                ", Health=" + Health +
+                ", state=" + state +
+                ", name='" + name + '\'' +
+                '}';
     }
+}
 

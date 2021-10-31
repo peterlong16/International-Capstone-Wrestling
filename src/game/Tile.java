@@ -14,10 +14,11 @@ public class Tile {
     int CenterY;
     int HighX;
     int HighY;
-    Character Occupant;
+    Character Pinner;
     String accessible;
 
-    Boolean CanMove = true;
+
+
 
     public static final Color TL_CORNER = new Color(255, 0, 0);
     public static final Color TR_CORNER = new Color(255,255,255);
@@ -49,12 +50,10 @@ public class Tile {
             }
             case 6 -> {
                 this.name = "Crowd";
-                CanMove = false;
                 accessible = "Can be thrown into";
             }
             case 7 -> {
                 this.name = "Rope";
-                CanMove = false;
                 accessible = "Can Climb";
             }
             case 8 -> {
@@ -64,15 +63,28 @@ public class Tile {
 
             default -> {
                 this.name = "RingPost";
-                CanMove = false;
                 accessible = "Can Climb";
             }
         }
     }
 
-    void setOccupant(Character c){
-        Occupant = c;
-        CanMove = false;
+
+    Character Occupant(){
+        for(Character i: Map.Characters){
+            if(i.CurTile == this && i.state!=2){
+                return i;
+            }
+        }
+
+        return null;
+    }
+
+    boolean Occupied(){
+        return Occupant()!=null;
+    }
+
+    boolean canMove(){
+        return !Occupied() && (this.type == 5 || this.type == 8);
     }
 
     void setCenter(int x, int y){
@@ -88,6 +100,7 @@ public class Tile {
         this.y = r;
         this.x = c;
     }
+
 
     public String toString(){
         return "(" + this.x + "," + this.y + ")";

@@ -9,23 +9,24 @@ public class superkick extends Action {
         range[0] = 2;
         targets = new Character[1];
         mover = false;
+        type = "Strike";
     }
 
     @Override
     void addTarget(Character c) {
         super.addTarget(c);
 
-        if(c.CurTile.x > user.CurTile.x) {
-            this.CharMovex = 1;
-        }
-        else if(c.CurTile.x < user.CurTile.x){
-            this.CharMovex = -1;
-        }
-        else if(c.CurTile.y > user.CurTile.y){
-            this.CharMovey = 1;
-        }
-        else if(c.CurTile.y < user.CurTile.y){
-            this.CharMovey = -1;
+        if(c!=null) {
+
+            if (c.CurTile.x > user.CurTile.x) {
+                this.CharMovex = 1;
+            } else if (c.CurTile.x < user.CurTile.x) {
+                this.CharMovex = -1;
+            } else if (c.CurTile.y > user.CurTile.y) {
+                this.CharMovey = 1;
+            } else if (c.CurTile.y < user.CurTile.y) {
+                this.CharMovey = -1;
+            }
         }
     }
 
@@ -47,7 +48,10 @@ public class superkick extends Action {
     @Override
     void Execute() {
         for(Character i:targets){
+            i.cancelPin(Map.neighbourTiles(i.CurTile),  this);
+            i.state = 0;
             i.changeHealth(dmg * -1);
+
         }
         user.changeStam(cost * -1);
         user.setTile(CharMove);

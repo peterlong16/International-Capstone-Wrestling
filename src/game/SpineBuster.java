@@ -3,13 +3,14 @@ package game;
 public class SpineBuster extends Action{
     SpineBuster(Character c) {
         super(c);
-        cost = 3;
+        cost = 1;
         dmg = 3;
         stmdmg = 1;
         range = new int[1];
         range[0] = 1;
         targets = new Character[1];
         mover = true;
+        type = "Slam";
 
     }
 
@@ -29,7 +30,7 @@ public class SpineBuster extends Action{
 
     boolean canTargetMove(Tile t, int distance){
 
-        return distance==1;
+        return distance==1 && (t.canMove() || t.Occupant() == targets[0]);
     }
 
     boolean gotTargets(){
@@ -49,12 +50,26 @@ public class SpineBuster extends Action{
         path[0] = user.CurTile;
         path[1] = targetMove;
 
+        if(target.state==2){
+            target.cancelPin(Map.neighbourTiles(target.CurTile), this);
+            target.state=0;
+        }
+
         target.changeHealth(dmg * -1);
         target.changeStam(stmdmg * -1);
         target.setTile(targetMove,path);
+
+
+        if(target.x > user.x){
+            target.x--;
+        }
+        else{
+            target.x++;
+        }
         target.moving = true;
 
         user.changeStam(cost * -1);
         emptyTargets();
+        targetMove = null;
     }
 }

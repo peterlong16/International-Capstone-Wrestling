@@ -11,6 +11,7 @@ public abstract class Action {
     int stmdmg;
     int[] range;
     boolean mover;
+    String type;
 
     Tile CharMove;
     int CharMovex;
@@ -28,13 +29,19 @@ public abstract class Action {
     }
 
     void addTarget(Character c){
-        for(int i = 0;i<targets.length;i++){
-            if(targets[i] == null){
-                targets[i] = c;
-                break;
+        if(c!=null) {
+            for (int i = 0; i < targets.length; i++) {
+                if (targets[i] == null) {
+                    if(c.state == 3){
+                        targets[i] = c.CurTile.Pinner;
+                    }
+                    else {
+                        targets[i] = c;
+                    }
+                    break;
+                }
             }
         }
-
     }
 
     void emptyTargets(){

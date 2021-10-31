@@ -8,8 +8,8 @@ public class Button {
     Action action;
 
 
-    Button(Action action) {
-        this.size = 20;
+    Button(Action action, int size) {
+        this.size = size;
         this.action = action;
     }
 
@@ -23,4 +23,15 @@ public class Button {
         this.y2 = (y1 + size);
     }
 
+    @Override
+    public String toString() {
+        return "Button{" +
+                "x1=" + x1 +
+                ", x2=" + x2 +
+                ", y1=" + y1 +
+                ", y2=" + y2 +
+                ", size=" + size +
+                ", action=" + action +
+                '}';
+    }
 }
