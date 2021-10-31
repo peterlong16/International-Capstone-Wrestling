@@ -18,12 +18,16 @@ public class game {
                 frame.setVisible(true);
                 frame.setResizable(false);
 
+
+
             }
 
 
         });
 
     }
+
+
 
 
 

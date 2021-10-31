@@ -4,7 +4,7 @@ public class KickoutFail extends Action {
     KickoutFail(Character c) {
         super(c);
         mover = false;
-        type = "kickout";
+        type = "misc";
         cost = 0;
     }
 

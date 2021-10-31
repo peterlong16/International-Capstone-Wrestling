@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static game.Constants.*;
@@ -11,25 +12,29 @@ import static game.Constants.*;
 public class Map extends JPanel {
 
 
-    boolean running = true;
-    boolean start = true;
+    static boolean running = true;
+    static boolean start = true;
     boolean atkPrimed = false;
     boolean moverPrimed = false;
     boolean i = true;
+    static boolean ended = false;
 
     Action primedAtk;
 
-    int TurnCounter = 0;
+    static int TurnCounter = 0;
     int MoveDelay = 100000;
     static int pinCount = 0;
 
-    Character CurrentPlayer;
+    static Character CurrentPlayer;
     static Character[] Characters = new Character[3];
     public static final Tile[][] TileGrid = new Tile[ROWS][COLS];
     Tile Selected;
     Button[] buttons;
     Button[] context;
     Button[] Kickoutbuttons;
+    static String winText = "";
+    Button exitButton;
+    static Button[] resetButton = new Button[1];
 
 
     public static final int[] TileArray = {
@@ -86,11 +91,11 @@ public class Map extends JPanel {
             public void mousePressed(MouseEvent e) {
                 Tile TargetTile = FindTile(e.getX(), e.getY());
                 Button button = findButton(e.getX(),e.getY());
-
-                if(button!=null && button.action.type.equals("kickout")){
+                if(button!=null && (button.action.type.equals("misc") || button.action.type.equals("reset"))){
                     button.action.Execute();
-                    System.out.println("Called from kickout");
-                    changeTurn();
+                    if(button.action.type.equals("misc")) {
+                        changeTurn();
+                    }
                 }
                 else {
                     if (atkPrimed) {
@@ -176,6 +181,20 @@ public class Map extends JPanel {
             public void mouseExited(MouseEvent e) {}
         });
         new Thread(this::loop).start();
+
+    }
+
+    static void resetGame(){
+        start = true;
+        TurnCounter = 0;
+        pinCount = 0;
+        resetButton[0] = null;
+        ended = false;
+        winText = "";
+        CurrentPlayer = null;
+
+
+
 
     }
     
@@ -324,21 +343,20 @@ public class Map extends JPanel {
         int Tx = 0;
         int Ty = 0;
         for (int r = 0; r < ROWS; r++) {
-            if(y > TileGrid[r][0].HighY){
-            }
-            else{
+            if(y < TileGrid[r][0].HighY){
                 Ty = r;
                 break;
             }
+
         }
 
         for (int c = 0; c < COLS; c++) {
-            if(x > TileGrid[Ty][c].HighX){
-            }
-            else{
+            if(x < TileGrid[Ty][c].HighX){
                 Tx = c;
                 break;
             }
+
+
         }
         return TileGrid[Ty][Tx];
     }
@@ -349,9 +367,15 @@ public class Map extends JPanel {
 
         Button button = null;
 
+
         button = getButton(x, y, button, buttons);
         button = getButton(x,y,button,context);
         button = getButton(x, y, button, Kickoutbuttons);
+        button = getButton(x,y,button,resetButton);
+
+
+
+
 
         return button;
     }
@@ -364,6 +388,7 @@ public class Map extends JPanel {
                         && y > b.y1
                         && y < b.y2
                 ) {
+
                     button = b;
                     break;
                 }
@@ -372,72 +397,88 @@ public class Map extends JPanel {
         return button;
     }
 
+
     void update(){
-        repaint();
-        if(CurrentPlayer != null){
-            if(MoveDelay ==0) {
-                for(Character i: Characters){
-                    i.Update();
-                }
-                MoveDelay = 50000;
-            }
-             else{
-                MoveDelay--;
-            }
-            if (CurrentPlayer.MovePoints == 0 || CurrentPlayer.state==2){
-                System.out.println(CurrentPlayer);
-                if(CurrentPlayer.state==2){
-                    pinCount++;
-                }
+        if(running) {
+            repaint();
 
-                changeTurn();
 
+            if (CurrentPlayer != null && Characters[0]!=null) {
+                if (MoveDelay == 0) {
+                    for (Character i : Characters) {
+                        i.Update();
+                    }
+                    MoveDelay = 50000;
+                } else {
+                    MoveDelay--;
+                }
+                if (CurrentPlayer.MovePoints == 0 || CurrentPlayer.state == 2) {
+
+                    changeTurn();
+
+                }
             }
         }
+    }
+
+    void endGame(){
+        ended = true;
+        Kickoutbuttons = null;
+        winText = CurrentPlayer.teamname + " wins!";
+        resetButton[0] = new Button(new resetGame(CurrentPlayer), 40, getWidth()/2,getHeight()/2);
     }
 
 
 
     void changeTurn(){
-        TurnCounter++;
-        if (TurnCounter >= Characters.length){
-            System.out.println("-------------------------------------");
-            TurnCounter = 0;
+
+        if ((CurrentPlayer.state == 2 || CurrentPlayer.state == 3)  && !ended) {
+            pinCount++;
+
         }
-        System.out.println(Characters[0]);
-        Characters[TurnCounter].resetTurn();
-        CurrentPlayer = Characters[TurnCounter];
+
+        if (pinCount >= 3) {
+            endGame();
+            return;
+        }
+        if(!ended) {
+            TurnCounter++;
+            if (TurnCounter >= Characters.length) {
+
+                TurnCounter = 0;
+            }
+
+            Characters[TurnCounter].resetTurn();
+            CurrentPlayer = Characters[TurnCounter];
 
 
-
-        switch (CurrentPlayer.state) {
-            case 0 ->{
-                Kickoutbuttons = null;
-                buttons = new Button[CurrentPlayer.moves.length];
-                for (int i = 0; i < CurrentPlayer.moves.length; i++) {
-                    buttons[i] = new Button(CurrentPlayer.moves[i], 20);
+            switch (CurrentPlayer.state) {
+                case 0 -> {
+                    Kickoutbuttons = null;
+                    buttons = new Button[CurrentPlayer.moves.length];
+                    for (int i = 0; i < CurrentPlayer.moves.length; i++) {
+                        buttons[i] = new Button(CurrentPlayer.moves[i], 20);
+                    }
+                    createContextual();
                 }
-                createContextual();
-            }
-            case 1 -> {
-                changeTurn();
-                System.out.println("DOWN");
-                Kickoutbuttons = null;
-            }
-            case 2 -> {
-                pinCount++;
-                changeTurn();
-                System.out.println("PINNER");
+                case 1 -> {
+                    changeTurn();
 
-                buttons = null;
-            }
-            case 3 -> {
-                pinCount++;
-                createKickout();
-                buttons = null;
-            }
-            default -> {
+                    Kickoutbuttons = null;
+                }
+                case 2 -> {
+                    changeTurn();
 
+
+                    buttons = null;
+                }
+                case 3 -> {
+                    createKickout();
+                    buttons = null;
+                }
+                default -> {
+
+                }
             }
         }
 
@@ -446,13 +487,17 @@ public class Map extends JPanel {
     }
 
     Action[] findContextual(){
-        Action[] context = new Action[1];
+        Action[] context = new Action[2];
+        int i = 0;
 
        for(Tile t : neighbourTiles(CurrentPlayer.CurTile)){
-           if(t.Occupied() && t.Occupant().state==1){
-               context[0] = new Pin(CurrentPlayer);
+           if(t.Occupied() && t.Occupant().state==1 && !t.Occupant().teamname.equals(CurrentPlayer.teamname) && CurrentPlayer.state == 0){
+               context[i] = new Pin(CurrentPlayer);
+               i++;
            }
         }
+
+
 
        return context;
     }
@@ -465,12 +510,13 @@ public class Map extends JPanel {
     }
 
     void createKickout(){
+
         Kickoutbuttons = new Button[CurrentPlayer.MaxHealth - CurrentPlayer.Health];
 
         int randomNum = ThreadLocalRandom.current().nextInt(0, (CurrentPlayer.MaxHealth - CurrentPlayer.Health));
 
 
-
+        System.out.println("Kickout: " + randomNum);
         for(int i = 0;i<CurrentPlayer.MaxHealth - CurrentPlayer.Health;i++){
             if(i == randomNum){
                 Kickoutbuttons[i] = new Button(new Kickout(CurrentPlayer), 40);
@@ -571,7 +617,10 @@ public class Map extends JPanel {
             for(int i = 0; i < CurrentPlayer.moves.length; i++){
                 buttons[i] = new Button(CurrentPlayer.moves[i], 20);
             }
+            Kickoutbuttons = null;
+            pinCount = 0;
             start = false;
+            TurnCounter = 0;
         }
 
         for(Character i: Characters){
@@ -667,6 +716,26 @@ public class Map extends JPanel {
         if(Kickoutbuttons!=null) {
             drawButtons(g, (getWidth()) / 2, getHeight() - ((Kickoutbuttons[0].size) + 10), 30, Kickoutbuttons);
         }
+
+        if(resetButton[0]!=null){
+            Button reset = resetButton[0];
+
+            g.setColor(Color.black);
+            g.fillRect(reset.x1,reset.y1,reset.size,reset.size);
+
+        }
+
+        g.drawString(winText, getWidth()/2,20);
+        g.drawString(CurrentPlayer.toString(), 100,30);
+        int namex = 200;
+        int namey = 50;
+        g.drawString("Player order: ", 100,50);
+        for(Character i: Characters){
+            g.drawString(i.name,namex,namey);
+            namex += 40;
+        }
+        g.drawString("Pin count : " + pinCount,100,70);
+        g.drawString("Turn counter : " + TurnCounter,100, 90);
 
     }
 

@@ -11,6 +11,7 @@ public class jak extends Character {
         MovePoints = 6;
         MaxMove = 6;
         name = "blue";
+        teamname = "Blue";
         MaxHealth = 8;
         Health = 8;
         regen = 1;

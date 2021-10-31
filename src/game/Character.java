@@ -21,6 +21,7 @@ public abstract class Character {
     int stamregen;
     int state;
 
+
     // 0 = neutral , 1 = down 2 = pinning 3 = pinned
     public final String[] states = {
             "Neutral",
@@ -31,6 +32,7 @@ public abstract class Character {
     };
 
 
+    String teamname;
     String name;
     Tile[] movePath;
     int pathpos = 0;

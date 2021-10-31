@@ -10,6 +10,7 @@ public class jay extends Character{
         MovePoints = 6;
         MaxMove = 6;
         name = "Green";
+        teamname = "Red";
         MaxHealth = 8;
         Health = 8;
         regen = 1;

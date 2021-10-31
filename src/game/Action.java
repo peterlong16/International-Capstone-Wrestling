@@ -29,7 +29,7 @@ public abstract class Action {
     }
 
     void addTarget(Character c){
-        if(c!=null) {
+        if(c!=null && !c.teamname.equals(user.teamname)) {
             for (int i = 0; i < targets.length; i++) {
                 if (targets[i] == null) {
                     if(c.state == 3){

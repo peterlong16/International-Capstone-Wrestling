@@ -13,6 +13,15 @@ public class Button {
         this.action = action;
     }
 
+    Button(Action action, int size, int x, int y) {
+        this.x1 = x;
+        this.x2 = (x1 + size);
+        this.y1 = y;
+        this.y2 = (y1 + size);
+        this.size = size;
+        this.action = action;
+    }
+
     void setX(int x){
         this.x1 = x;
         this.x2 = (x1 + size);

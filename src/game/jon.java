@@ -13,6 +13,7 @@ public class jon extends Character {
         name = "red";
         MaxHealth = 10;
         Health = 10;
+        teamname = "Red";
         regen = 1;
         stamregen = 3;
         painThresh = 4;

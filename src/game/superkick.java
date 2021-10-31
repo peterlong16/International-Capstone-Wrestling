@@ -47,9 +47,12 @@ public class superkick extends Action {
 
     @Override
     void Execute() {
+
         for(Character i:targets){
-            i.cancelPin(Map.neighbourTiles(i.CurTile),  this);
-            i.state = 0;
+            if(i.state == 2) {
+                i.cancelPin(Map.neighbourTiles(i.CurTile), this);
+                i.state = 0;
+            }
             i.changeHealth(dmg * -1);
 
         }

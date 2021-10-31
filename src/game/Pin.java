@@ -13,7 +13,7 @@ public class Pin extends Action{
     }
 
     boolean canHit(Tile t, int distance) {
-        return range[0] == distance && t.Occupied() && t.Occupant().state == 1;
+        return range[0] == distance && t.Occupied() && t.Occupant().state == 1 && !t.Occupant().teamname.equals(user.teamname);
     }
 
     void Execute(){
