@@ -10,6 +10,7 @@ public class Pin extends Action{
         targets = new Character[1];
         mover = false;
         type = "pin";
+        name = "Pin";
     }
 
     boolean canHit(Tile t, int distance) {

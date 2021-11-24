@@ -18,6 +18,10 @@ public class Map extends JPanel {
     boolean moverPrimed = false;
     boolean i = true;
     static boolean ended = false;
+    static int MenuSelect = 0;
+
+
+    //0 = none, 1= strikes, 2= slams, 3 = context
 
     Action primedAtk;
 
@@ -26,14 +30,18 @@ public class Map extends JPanel {
     static int pinCount = 0;
 
     static Character CurrentPlayer;
-    static Character[] Characters = new Character[3];
+    static Character[] Characters = new Character[6];
     public static final Tile[][] TileGrid = new Tile[ROWS][COLS];
     Tile Selected;
-    Button[] buttons;
-    Button[] context;
+    Button[] menu;
+    static Button[] strikes;
+    static Button[] slams;
+    static Button[] context;
     Button[] Kickoutbuttons;
     static String winText = "";
     Button exitButton;
+    Boolean[] sequence;
+    int mousestep = 0;
     static Button[] resetButton = new Button[1];
 
 
@@ -66,6 +74,8 @@ public class Map extends JPanel {
             6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6,
             6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6,
             6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+            6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+            6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
     };
 
     public Map(){
@@ -91,86 +101,90 @@ public class Map extends JPanel {
             public void mousePressed(MouseEvent e) {
                 Tile TargetTile = FindTile(e.getX(), e.getY());
                 Button button = findButton(e.getX(),e.getY());
-                if(button!=null && (button.action.type.equals("misc") || button.action.type.equals("reset"))){
-                    button.action.Execute();
-                    if(button.action.type.equals("misc")) {
-                        changeTurn();
+
+                if (SwingUtilities.isRightMouseButton(e)){
+                    if(atkPrimed){
+                        switch (mousestep) {
+                            //Target Enemy
+                            case 0 -> {
+                                System.out.println("target enemy");
+                                if (sequence[0] && primedAtk.canHit(TargetTile, distance(TargetTile, CurrentPlayer.CurTile))) {
+                                    primedAtk.addTarget(TargetTile.Occupant());
+                                    primedAtk.setCharMove(TileGrid[CurrentPlayer.CurTile.y + primedAtk.CharMovey][CurrentPlayer.CurTile.x + primedAtk.CharMovex]);
+                                }
+
+                                System.out.println(primedAtk.gotTargets());
+
+                                if (sequence[1] && primedAtk.gotTargets()) {
+                                    mousestep++;
+                                }
+                                else if(primedAtk.gotTargets()){
+                                    ExecuteAttack();
+                                }
+
+                            }
+                            //Target Movement
+                            case 1 -> {
+                                System.out.println("target movement");
+                                if (primedAtk.canTargetMove(TargetTile, distance(TargetTile, CurrentPlayer.CurTile))) {
+                                    primedAtk.setTargetMove(TargetTile);
+                                }
+
+                                if(sequence[2] && primedAtk.targetMove !=null) {
+                                    mousestep++;
+                                }else if(primedAtk.targetMove !=null){
+                                    ExecuteAttack();
+                                }
+                            }
+                            //Character Movement
+                            case 2 -> {
+                                System.out.println("Character movement");
+                                if(primedAtk.canCharMove(TargetTile)){
+                                    primedAtk.setCharMove(TargetTile);
+                                }
+
+                                if(primedAtk.CharMove!=primedAtk.user.CurTile){
+                                    ExecuteAttack();
+                                }
+                            }
+                        }
+                    }
+                    else{
+                        if (ValidMove(TargetTile, CurrentPlayer) && CurrentPlayer.state == 0) {
+                            charMove(TargetTile);
+                        }
                     }
                 }
                 else {
                     if (atkPrimed) {
-
-                    /* Activates if the player has clicked an attack button. the next input from the right mouse button
-                       designates a target for the attack
-                     */
-
-                        if (SwingUtilities.isRightMouseButton(e)) {
-
-                        /* If an attack is labelled as a 'mover' it will move the target of the attack. If this is the
-                           case, an additional step is entered in which the next right click will designate the tile that
-                           the target will be moved to, in accordance with the parameters set in the attack's class. if
-                           a left click is registered while the attack or move target are primed, the attack is cancelled.
-                     */
-                            if (!moverPrimed) {
-                                if (primedAtk.canHit(TargetTile, distance(TargetTile, CurrentPlayer.CurTile))) {
-                                    primedAtk.addTarget(TargetTile.Occupant());
-                                    primedAtk.setCharMove(TileGrid[CurrentPlayer.CurTile.y + primedAtk.CharMovey][CurrentPlayer.CurTile.x + primedAtk.CharMovex]);
-                                }
-                            } else {
-                                if (primedAtk.canTargetMove(TargetTile, distance(TargetTile, CurrentPlayer.CurTile))) {
-                                    primedAtk.setTargetMove(TargetTile);
-                                }
-                            }
-                            if (primedAtk.mover && !moverPrimed) {
-                                moverPrimed = true;
-                            } else {
-
-                                if (primedAtk.gotTargets()) {
-                                    primedAtk.Execute();
-                                    atkPrimed = false;
-                                    primedAtk = null;
-                                    moverPrimed = false;
-                                    createContextual();
-                                }
-
-                            }
-                        } else {
-                            primedAtk.emptyTargets();
-                            atkPrimed = false;
-                            moverPrimed = false;
-                            primedAtk = null;
+                        primedAtk.emptyTargets();
+                        atkPrimed = false;
+                        primedAtk = null;
+                        sequence = null;
+                        mousestep = 0;
+                    }
+                    if (button != null && !button.active) {
+                        button = null;
+                    }
+                    if (button != null && (button.action.type.equals("misc") || button.action.type.equals("reset") || button.action.type.equals("menu"))) {
+                        strikes = null;
+                        slams = null;
+                        context = null;
+                        button.action.Execute();
+                        if (button.action.type.equals("misc")) {
+                            changeTurn();
                         }
-
-
                     } else {
-
-                        /*
-                         * If a click is registered over a button, selecting a tile is suppressed its corresponding action
-                         * is primed
-                         * */
-
-                        if (button != null && button.action.canAfford()) {
+                        if (button == null) {
+                            Selected = TargetTile;
+                        } else if (button.action.canAfford()) {
                             primedAtk = button.action;
                             atkPrimed = true;
-                        } else {
-                            if (SwingUtilities.isRightMouseButton(e)) {
-                                if (ValidMove(TargetTile, CurrentPlayer) && CurrentPlayer.state == 0) {
-                                    charMove(TargetTile);
-                                }
-                            } else {
-                                if (Selected == TargetTile) {
-                                    Selected = null;
-                                } else {
-                                    Selected = TargetTile;
-                                }
-
-
-                            }
+                            sequence = primedAtk.sequence;
                         }
                     }
                 }
             }
-
             @Override
             public void mouseReleased(MouseEvent e) {}
 
@@ -180,8 +194,16 @@ public class Map extends JPanel {
             @Override
             public void mouseExited(MouseEvent e) {}
         });
-        new Thread(this::loop).start();
 
+        Thread loop = new Thread(this::loop, "loop");
+        loop.start();
+    }
+
+    void ExecuteAttack(){
+        primedAtk.Execute();
+        mousestep = 0;
+        primedAtk = null;
+        atkPrimed = false;
     }
 
     static void resetGame(){
@@ -192,12 +214,11 @@ public class Map extends JPanel {
         ended = false;
         winText = "";
         CurrentPlayer = null;
-
-
-
-
+        strikes = null;
+        slams = null;
+        context = null;
     }
-    
+
     int moveCost(Tile t){
          // Calculates the cost of moving from the current player's tile to a given tile
         int moveCost;
@@ -221,10 +242,9 @@ public class Map extends JPanel {
         CurrentPlayer.MovePoints = CurrentPlayer.MovePoints - cost;
         CurrentPlayer.moving = true;
         context = new Button[1];
-        createContextual();
     }
 
-    int distance(Tile t1, Tile t2){
+    static int distance(Tile t1, Tile t2){
         return  Math.abs(t1.x-t2.x) + Math.abs(t1.y-t2.y);
     }
 
@@ -237,7 +257,7 @@ public class Map extends JPanel {
             return false;
         }
 
-        
+
 
         if(c.MovePoints<1){
             return false;
@@ -321,19 +341,20 @@ public class Map extends JPanel {
             neighbours.add(TileGrid[t.y - 1][t.x]);
             neighbours.add(TileGrid[t.y - 1][t.x+1]);
         }
+
         return neighbours;
     }
 
-    Character SpawnJon(int x, int y){
-        return new jon(TileGrid[x][y]);
+    Character SpawnJon(int x, int y,String name, String team, Color colour){
+        return new jon(TileGrid[x][y], name, team, colour);
     }
 
-    Character SpawnJak(int x, int y){
-        return new jak(TileGrid[x][y]);
+    Character SpawnJak(int x, int y, String name, String team, Color Colour){
+        return new jak(TileGrid[x][y], name,team, Colour);
     };
 
-    Character SpawnJay(int x, int y){
-        return new jay(TileGrid[x][y]);
+    Character SpawnJay(int x, int y, String name, String team, Color Colour){
+        return new Medium(TileGrid[x][y],name, team, Colour);
     };
 
     Tile FindTile(int x, int y){
@@ -367,8 +388,9 @@ public class Map extends JPanel {
 
         Button button = null;
 
-
-        button = getButton(x, y, button, buttons);
+        button = getButton(x,y,button,menu);
+        button = getButton(x, y, button, strikes);
+        button = getButton(x, y, button, slams);
         button = getButton(x,y,button,context);
         button = getButton(x, y, button, Kickoutbuttons);
         button = getButton(x,y,button,resetButton);
@@ -397,7 +419,6 @@ public class Map extends JPanel {
         return button;
     }
 
-
     void update(){
         if(running) {
             repaint();
@@ -412,7 +433,7 @@ public class Map extends JPanel {
                 } else {
                     MoveDelay--;
                 }
-                if (CurrentPlayer.MovePoints == 0 || CurrentPlayer.state == 2) {
+                if (CurrentPlayer.MovePoints <= 0 || CurrentPlayer.state == 2) {
 
                     changeTurn();
 
@@ -424,13 +445,21 @@ public class Map extends JPanel {
     void endGame(){
         ended = true;
         Kickoutbuttons = null;
+        menu = null;
+        strikes = null;
+        slams = null;
+        context = null;
         winText = CurrentPlayer.teamname + " wins!";
-        resetButton[0] = new Button(new resetGame(CurrentPlayer), 40, getWidth()/2,getHeight()/2);
+        resetButton[0] = new Button(new resetGame(CurrentPlayer), 40, 50, getWidth()/2,getHeight()/2);
+        resetButton[0].active = true;
     }
 
-
-
     void changeTurn(){
+        strikes = null;
+        slams = null;
+        context = null;
+        menu = null;
+        createMenu();
 
         if ((CurrentPlayer.state == 2 || CurrentPlayer.state == 3)  && !ended) {
             pinCount++;
@@ -455,11 +484,8 @@ public class Map extends JPanel {
             switch (CurrentPlayer.state) {
                 case 0 -> {
                     Kickoutbuttons = null;
-                    buttons = new Button[CurrentPlayer.moves.length];
-                    for (int i = 0; i < CurrentPlayer.moves.length; i++) {
-                        buttons[i] = new Button(CurrentPlayer.moves[i], 20);
-                    }
-                    createContextual();
+                    createMenu();
+
                 }
                 case 1 -> {
                     changeTurn();
@@ -470,11 +496,14 @@ public class Map extends JPanel {
                     changeTurn();
 
 
-                    buttons = null;
+                    strikes = null;
+                    slams = null;
                 }
                 case 3 -> {
                     createKickout();
-                    buttons = null;
+                    slams = null;
+                    strikes = null;
+                    context = null;
                 }
                 default -> {
 
@@ -486,12 +515,12 @@ public class Map extends JPanel {
 
     }
 
-    Action[] findContextual(){
+    static Action[] findContextual(){
         Action[] context = new Action[2];
         int i = 0;
 
        for(Tile t : neighbourTiles(CurrentPlayer.CurTile)){
-           if(t.Occupied() && t.Occupant().state==1 && !t.Occupant().teamname.equals(CurrentPlayer.teamname) && CurrentPlayer.state == 0){
+           if(distance(t,CurrentPlayer.CurTile)==1 && t.Occupied() && t.Occupant().state==1 && !t.Occupant().teamname.equals(CurrentPlayer.teamname) && CurrentPlayer.state == 0 && !pinning()){
                context[i] = new Pin(CurrentPlayer);
                i++;
            }
@@ -500,13 +529,6 @@ public class Map extends JPanel {
 
 
        return context;
-    }
-
-    void createContextual(){
-        context = new Button[1];
-        if(findContextual()[0]!=null){
-            context[0] = new Button(findContextual()[0], 20);
-        }
     }
 
     void createKickout(){
@@ -519,14 +541,34 @@ public class Map extends JPanel {
         System.out.println("Kickout: " + randomNum);
         for(int i = 0;i<CurrentPlayer.MaxHealth - CurrentPlayer.Health;i++){
             if(i == randomNum){
-                Kickoutbuttons[i] = new Button(new Kickout(CurrentPlayer), 40);
+                Kickoutbuttons[i] = new Button(new Kickout(CurrentPlayer), 40,40);
+                Kickoutbuttons[i].active = true;
             }
            else{
-                Kickoutbuttons[i] = new Button(new KickoutFail(CurrentPlayer), 40);
+                Kickoutbuttons[i] = new Button(new KickoutFail(CurrentPlayer), 40,40);
+                Kickoutbuttons[i].active = true;
             }
         }
 
 
+    }
+
+    void createMenu(){
+        menu = new Button[4];
+        menu[0] = new Button(new Strikes(CurrentPlayer),25,90);
+        menu[1] = new Button(new Slams(CurrentPlayer),25,90);
+        menu[2] = new Button(new Context(CurrentPlayer),25,90);
+        menu[3] = new Button(new EndTurn(CurrentPlayer),25,90);
+    }
+
+    static boolean pinning(){
+        for(Character i: Characters){
+            if(i.state == 2 || i.state == 3 ){
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public void loop(){
@@ -547,6 +589,8 @@ public class Map extends JPanel {
     }
 
     public void paintComponent(Graphics g) {
+        Font font = new Font("Verdana", Font.PLAIN, 15);
+        g.setFont(font);
         super.paintComponent(g);
         int width = getWidth() / COLS;
         int height = getHeight() / ROWS;
@@ -556,6 +600,8 @@ public class Map extends JPanel {
         Color all = new Color(246, 116, 0, transparency);
         Color grid = new Color(0, 0, 0, transparency);
         Color canHit = new Color(255,0,0, transparency);
+        Color canMove = new Color(69, 147, 234, transparency);
+
         String tileName;
         String tileOccupant;
         String tileAccess;
@@ -584,6 +630,10 @@ public class Map extends JPanel {
                             g.fillRect(x, y, width, height);
                         }
                     }
+                    if(TileGrid[r][c].Occupied() && TileGrid[r][c].Occupant() == CurrentPlayer){
+                        g.setColor(Color.GREEN);
+                        g.drawOval(x,y,40,40);
+                    }
                 }
 
                 if(atkPrimed){
@@ -595,12 +645,18 @@ public class Map extends JPanel {
                         g.fillRect(x, y, width, height);
                     }
                 }
-                if(moverPrimed){
+                if(mousestep == 1){
                     if(primedAtk.canTargetMove(TileGrid[r][c], distance(TileGrid[r][c],primedAtk.user.CurTile))){
                         g.setColor(canHit);
                         g.fillRect(x, y, width, height);
                     }
                 }
+                //if(mousestep == 2){
+               //     if(primedAtk.canCharMove(TileGrid[r][c])){
+                //        g.setColor(canMove);
+               //         g.fillRect(x, y, width, height);
+               //     }
+               // }
                 TileGrid[r][c].setCenter(x,y);
                 TileGrid[r][c].setBounds(x,y,r,c);
             }
@@ -609,14 +665,14 @@ public class Map extends JPanel {
         state = "";
 
         if(start){
-            Characters[0] = SpawnJon(10,9);
-            Characters[1] = SpawnJak(10, 8);
-            Characters[2] = SpawnJay(10, 7);
+            Characters[0] = SpawnJay(10, 9, "red2","red", Color.red);
+            Characters[1] = SpawnJay(10, 8, "blue2","blue", Color.blue);
+            Characters[2] = SpawnJon(6,6,"red1","red", Color.red);
+            Characters[3] = SpawnJon(13, 13, "blue1", "blue", Color.blue);
+            Characters[4] = SpawnJak(5, 7, "red3","red", Color.red);
+            Characters[5] = SpawnJak(14, 12, "blue3","blue", Color.blue);
             CurrentPlayer = Characters[0];
-            buttons = new Button[CurrentPlayer.moves.length];
-            for(int i = 0; i < CurrentPlayer.moves.length; i++){
-                buttons[i] = new Button(CurrentPlayer.moves[i], 20);
-            }
+            createMenu();
             Kickoutbuttons = null;
             pinCount = 0;
             start = false;
@@ -688,40 +744,68 @@ public class Map extends JPanel {
 
             tileAccess = Selected.accessible;
 
-            Font font = new Font("Verdana", Font.PLAIN, 15);
-            g.setFont(font);
+
+
             g.setColor(Color.white);
-            g.drawString(Selected.toString(), TILE_SIZE / 2,getHeight() - (TILE_SIZE * 2) - font.getSize() * 2 );
-            g.drawString(tileOccupant + "(" + state + ")", TILE_SIZE / 2,getHeight() - (TILE_SIZE * 2) - font.getSize() );
-            g.drawString(tileName, TILE_SIZE / 2,getHeight() - TILE_SIZE * 2 );
-            g.drawString(tileAccess, TILE_SIZE / 2,getHeight() - (TILE_SIZE * 2) + font.getSize());
+            g.drawString(Selected.toString(), TILE_SIZE / 2,getHeight() - (TILE_SIZE * 6) - font.getSize() * 2 );
+            g.drawString(tileOccupant + "(" + state + ")", TILE_SIZE / 2,getHeight() - (TILE_SIZE * 6) - font.getSize() );
+            g.drawString(tileName, TILE_SIZE / 2,getHeight() - TILE_SIZE * 6 );
+            g.drawString(tileAccess, TILE_SIZE / 2,getHeight() - (TILE_SIZE * 6) + font.getSize());
+        }
 
+        if(CurrentPlayer.state == 0) {
+            int menux = 10;
+            int menuy = getHeight() - (((menu[0].height) * 4) + 10);
+
+
+            DrawMenu(g, menux, menuy, menu);
+
+            int subMenux = 10 + menu[0].width + 5;
+            int subMenuy = menuy;
+
+            switch (MenuSelect) {
+                case 0 -> {
+                    strikes = null;
+                    slams = null;
+                    context = null;
+                }
+                case 1 -> {
+                    slams = null;
+                    context = null;
+                    if (strikes != null) {
+                        DrawMenu(g, subMenux, subMenuy, strikes);
+                    }
+                }
+                case 2 -> {
+                    strikes = null;
+                    context = null;
+                    if (slams != null) {
+                        DrawMenu(g, subMenux, subMenuy, slams);
+                    }
+                }
+                case 3 -> {
+                    strikes = null;
+                    slams = null;
+                    if (context != null) {
+                        DrawMenu(g, subMenux, subMenuy, context);
+                    }
+                }
+            }
         }
 
 
-        if(buttons!=null && !atkPrimed) {
-            int buttonx = CurrentPlayer.CurTile.CenterX - ((((buttons.length * buttons[0].size) + (buttons.length - 1))/2) - (buttons[0].size/2));
-            int buttony = CurrentPlayer.CurTile.CenterY + buttons[0].size;
-            drawButtons(g, buttonx, buttony, 10, buttons);
-        }
 
-        if(context!=null && context[0]!=null && !atkPrimed){
-
-            int contextx = CurrentPlayer.CurTile.CenterX - ((((context.length * context[0].size) + (context.length - 1))/2) - (context[0].size/2));
-            int contexty = CurrentPlayer.CurTile.CenterY + (context[0].size * 2) + 2;
-
-            drawButtons(g,contextx,contexty,10,context);
-        }
 
         if(Kickoutbuttons!=null) {
-            drawButtons(g, (getWidth()) / 2, getHeight() - ((Kickoutbuttons[0].size) + 10), 30, Kickoutbuttons);
+            drawButtons(g, ((getWidth()) / 2) - (Kickoutbuttons.length * Kickoutbuttons[0].width) , getHeight() - ((Kickoutbuttons[0].height) + 10), 30, Kickoutbuttons);
         }
 
         if(resetButton[0]!=null){
             Button reset = resetButton[0];
 
+
             g.setColor(Color.black);
-            g.fillRect(reset.x1,reset.y1,reset.size,reset.size);
+            g.fillRect(reset.x1,reset.y1,reset.width,reset.height);
 
         }
 
@@ -731,11 +815,51 @@ public class Map extends JPanel {
         int namey = 50;
         g.drawString("Player order: ", 100,50);
         for(Character i: Characters){
-            g.drawString(i.name,namex,namey);
+            g.drawString(i.name + " ",namex,namey);
             namex += 40;
         }
         g.drawString("Pin count : " + pinCount,100,70);
         g.drawString("Turn counter : " + TurnCounter,100, 90);
+
+    }
+
+    private void DrawMenu(Graphics g, int menux, int menuy, Button[] buttons) {
+        Graphics2D g2 = (Graphics2D) g;
+        g2.setStroke(new BasicStroke(1));
+
+
+        for(Button b: buttons){
+            if(b!=null) {
+                b.active = true;
+                g.setColor(Color.blue);
+                b.setX(menux);
+                b.setY(menuy);
+                if (b.action.name.equals("Context")) {
+                    if (findContextual()[0] == null) {
+                        g.setColor(Color.gray);
+                        b.active = false;
+                    } else {
+                        b.active = true;
+                    }
+                }
+                g.fillRect(menux, menuy, b.width, b.height);
+
+                String name = b.action.name;
+                FontMetrics fm = g.getFontMetrics();
+                int sWidth = fm.stringWidth(name);
+                int sHeight = fm.getHeight();
+
+                g.setColor(Color.white);
+
+                g.drawString(b.action.name, menux + (b.width / 2) - (sWidth / 2), menuy + ((b.height / 2) + sHeight / 4));
+
+
+                menuy += b.height + 2;
+            }
+        }
+
+
+
 
     }
 
@@ -745,9 +869,9 @@ public class Map extends JPanel {
             b.setX(x);
             b.setY(y);
             g.setColor(Color.black);
-            g.fillRect(b.x1,b.y1,b.size,b.size);
+            g.fillRect(b.x1,b.y1,b.width,b.height);
 
-            x += (buttons[0].size + gap);
+            x += (buttons[0].width + gap);
         }
     }
 }

@@ -1,25 +1,39 @@
 package game;
 
-public class SpineBuster extends Action{
-    SpineBuster(Character c) {
+public class suplex extends Action{
+
+    suplex(Character c) {
         super(c);
-        cost = 1;
-        dmg = 3;
-        stmdmg = 1;
+        cost = 3;
+        dmg = 4;
         range = new int[1];
         range[0] = 1;
         targets = new Character[1];
         mover = true;
         type = "Slam";
-        name = "Spinebuster";
+        name = "Suplex";
+        stmdmg = 1;
         sequence = new Boolean[]{true,true,false};
-
     }
 
-
     boolean canTargetMove(Tile t, int distance){
-
-        return distance==1 && (t.canMove() || t.Occupant() == targets[0]);
+        if(targets[0].CurTile.x == user.CurTile.x){
+            if(targets[0].CurTile.y > user.CurTile.y){
+                return distance==1 && t.canMove() && t.y == (user.CurTile.y - 1);
+            }
+            else{
+                return distance==1 && t.canMove() && t.y == (user.CurTile.y + 1);
+            }
+        }
+        else if(targets[0].CurTile.y == user.CurTile.y){
+            if(targets[0].CurTile.x > user.CurTile.x){
+                return distance==1 && t.canMove() && t.x == (user.CurTile.x - 1);
+            }
+            else{
+                return distance==1 && t.canMove() && t.x == (user.CurTile.x + 1);
+            }
+        }
+        return false;
     }
 
     boolean gotTargets(){
@@ -29,10 +43,9 @@ public class SpineBuster extends Action{
             }
         }
 
-        return targetMove != null;
+        return true;
     }
 
-    @Override
     void Execute() {
         Character target = targets[0];
         Tile[] path = new Tile[target.MaxMove];
@@ -61,4 +74,5 @@ public class SpineBuster extends Action{
         emptyTargets();
         targetMove = null;
     }
+
 }

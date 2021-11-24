@@ -11,6 +11,8 @@ public class punch extends Action{
         targets = new Character[1];
         mover = false;
         type = "strike";
+        name = "Forearm Smash";
+        sequence = new Boolean[]{true,false,false};
     }
 
     @Override

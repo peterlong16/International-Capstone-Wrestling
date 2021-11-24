@@ -5,15 +5,15 @@ import java.util.Arrays;
 
 public class jon extends Character {
 
-    jon(Tile t){
+    jon(Tile t, String name, String team,Color colour){
         super(t);
-        this.image = Color.red;
+        this.image = colour;
         MovePoints = 6;
         MaxMove = 6;
-        name = "red";
+        this.name = name;
         MaxHealth = 10;
         Health = 10;
-        teamname = "Red";
+        this.teamname = team;
         regen = 1;
         stamregen = 3;
         painThresh = 4;
@@ -21,6 +21,14 @@ public class jon extends Character {
         Arrays.fill(healthBar, true);
         this.staminaBar = new boolean[MaxMove];
         Arrays.fill(staminaBar, true);
+
+        strikes = new Action[2];
+
+        strikes[0] = new punch(this);
+        strikes[1] = new superkick(this);
+
+        slams = new Action[1];
+        slams[0] = new SpineBuster(this);
     }
 
 

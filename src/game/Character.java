@@ -39,18 +39,25 @@ public abstract class Character {
     boolean moving = false;
     boolean[] healthBar;
     boolean[] staminaBar;
-    Action[] moves;
+    Action[] strikes;
+    Action[] slams;
 
     Character(Tile t){
         this.x = t.CenterX;
         this.y = t.CenterY;
         this.CurTile = t;
-        moves = new Action[3];
-        moves[0] = new punch(this);
-        moves[1] = new superkick(this);
-        moves[2] = new SpineBuster(this);
         movePath = new Tile[MaxMove];
         state = 0;
+
+    }
+
+    Character(Tile t, String name){
+        this.x = t.CenterX;
+        this.y = t.CenterY;
+        this.CurTile = t;
+        movePath = new Tile[MaxMove];
+        state = 0;
+        this.name = name;
 
     }
 
@@ -184,7 +191,7 @@ public abstract class Character {
     }
 
     void move() {
-        if ( movePath.length == 0 || movePath==null || movePath[0] == null) {
+        if ( movePath.length == 0 || movePath==null || movePath[pathpos] == null) {
             if (x != CurTile.CenterX || y != CurTile.CenterY) {
                 if (x > CurTile.CenterX){
                     x--;

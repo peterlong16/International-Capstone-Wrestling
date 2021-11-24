@@ -10,6 +10,8 @@ public class superkick extends Action {
         targets = new Character[1];
         mover = false;
         type = "Strike";
+        name = "Superkick";
+        sequence = new Boolean[]{true,false,false};
     }
 
     @Override
@@ -42,7 +44,7 @@ public class superkick extends Action {
 
         }
 
-        return canHit;
+        return canHit && spaceBetween(t, user.CurTile);
     }
 
     @Override

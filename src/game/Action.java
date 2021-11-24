@@ -6,12 +6,16 @@ public abstract class Action {
 
     Character user;
     Character[] targets;
+    Boolean[] sequence = new Boolean[3];
+    // [ needs target, needs move target, needs character move ]
     int cost;
     int dmg;
     int stmdmg;
     int[] range;
     boolean mover;
     String type;
+    String name;
+    int CharMoveRange;
 
     Tile CharMove;
     int CharMovex;
@@ -44,8 +48,61 @@ public abstract class Action {
         }
     }
 
+    boolean spaceBetween(Tile t,Tile t2){
+        int dist = Map.distance(t,t2);
+
+        if(t.x==t2.x){
+            if(t.y<t2.y){
+                dist--;
+                while(dist!=0){
+                    if(Map.TileGrid[t.x + dist][t.y].Occupied()){
+                        return false;
+                    }
+                    dist--;
+                }
+            }
+            else{
+                dist = dist * -1;
+                dist++;
+                while(dist!=0){
+                    if(Map.TileGrid[t.x + dist][t.y].Occupied()){
+                        return false;
+                    }
+                    dist++;
+                }
+            }
+            return true;
+        }
+        else if(t.y==t2.y){
+            if(t.x<t2.x){
+                dist--;
+                while(dist!=0){
+                    if(Map.TileGrid[t.x][t.y + dist].Occupied()){
+                        return false;
+                    }
+                    dist--;
+                }
+            }
+            else{
+                dist = dist * -1;
+                dist++;
+                while(dist!=0){
+                    if(Map.TileGrid[t.x][t.y + dist].Occupied()){
+                        return false;
+                    }
+                    dist++;
+                }
+            }
+            return true;
+
+        }
+        return true;
+    }
+
     void emptyTargets(){
         Arrays.fill(targets,null);
+        CharMove = null;
+        targetMove = null;
     }
 
     void setCharMove(Tile t){
@@ -63,8 +120,21 @@ public abstract class Action {
         return true;
     }
 
+    boolean canCharMove(Tile t){
+        return true;
+    }
+
     boolean canHit(Tile t, int distance){
-        return false;
+        boolean canHit = false;
+
+        for(int i: range){
+            if (i == distance ) {
+                canHit = true;
+                break;
+            };
+        }
+
+        return canHit && t.Occupied() && !t.Occupant().teamname.equals(user.teamname);
     }
 
     boolean canTargetMove(Tile t, int distance){
