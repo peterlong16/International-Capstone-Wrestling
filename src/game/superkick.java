@@ -1,5 +1,7 @@
 package game;
 
+import java.awt.image.BufferedImage;
+
 public class superkick extends Action {
     superkick(Character c) {
         super(c);
@@ -12,6 +14,7 @@ public class superkick extends Action {
         type = "Strike";
         name = "Superkick";
         sequence = new Boolean[]{true,false,false};
+        img = user.sprites[4];
     }
 
     @Override
@@ -49,7 +52,10 @@ public class superkick extends Action {
 
     @Override
     void Execute() {
-
+        user.attacking = true;
+        user.orientation = user.FindDir(CharMove,user.CurTile);
+        user.orient(user.orientation);
+        user.sprite.setImage(user.rotate((BufferedImage) img,user.rot));
         for(Character i:targets){
             if(i.state == 2) {
                 i.cancelPin(Map.neighbourTiles(i.CurTile), this);

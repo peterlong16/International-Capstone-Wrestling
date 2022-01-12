@@ -1,5 +1,7 @@
 package game;
 
+import java.awt.image.BufferedImage;
+
 public class rana extends Action{
     rana(Character c) {
         super(c);
@@ -13,6 +15,7 @@ public class rana extends Action{
         name = "Hurricanrana";
         stmdmg = 1;
         sequence = new Boolean[]{true,true,true};
+        img = user.sprites[2];
     }
 
     boolean canTargetMove(Tile t, int distance){
@@ -40,11 +43,7 @@ public class rana extends Action{
 
         }
 
-        //for(Tile d:Map.neighbourTiles(t)){
-            //if(Map.distance(d,t)>1 && d.canMove()){
-          //      canMove = true;
-        //    }
-      // }
+
 
         return canHit && spaceBetween(t, user.CurTile); //&& canMove;
     }
@@ -66,6 +65,10 @@ public class rana extends Action{
     }
 
     void Execute() {
+        user.attacking = true;
+        user.orientation = user.FindDir(GetClosest(targets[0].CurTile, user.CurTile),user.CurTile);
+        user.orient(user.orientation);
+        user.sprite.setImage(user.rotate((BufferedImage) img,user.rot));
         Character target = targets[0];
         Tile[] path = new Tile[target.MaxMove];
         path[0] = user.CurTile;
@@ -73,6 +76,11 @@ public class rana extends Action{
         Tile[] path2 = new Tile[user.MaxMove];
         path2[0] = target.CurTile;
         path2[1] = CharMove;
+
+        user.setTile(CharMove,path2);
+        user.moving = true;
+
+
 
         if(target.state==2){
             target.cancelPin(Map.neighbourTiles(target.CurTile), this);
@@ -94,8 +102,7 @@ public class rana extends Action{
 
         user.changeStam(cost * -1);
         user.changeHealth(-1);
-        user.setTile(CharMove,path2);
-        user.moving = true;
+
         emptyTargets();
         targetMove = null;
     }

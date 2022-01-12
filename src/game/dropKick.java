@@ -1,5 +1,7 @@
 package game;
 
+import java.awt.image.BufferedImage;
+
 public class dropKick extends Action{
     dropKick(Character c) {
         super(c);
@@ -11,25 +13,14 @@ public class dropKick extends Action{
         mover = true;
         type = "Strike";
         name = "DropKick";
-        sequence = new Boolean[]{true,true,false};
+        sequence = new Boolean[]{true,true,true};
+        img = user.sprites[5];
     }
 
     @Override
     void addTarget(Character c) {
         super.addTarget(c);
 
-        if(c!=null) {
-
-            if (c.CurTile.x > user.CurTile.x) {
-                this.CharMovex = 1;
-            } else if (c.CurTile.x < user.CurTile.x) {
-                this.CharMovex = -1;
-            } else if (c.CurTile.y > user.CurTile.y) {
-                this.CharMovey = 1;
-            } else if (c.CurTile.y < user.CurTile.y) {
-                this.CharMovey = -1;
-            }
-        }
     }
 
     boolean canTargetMove(Tile t, int distance){
@@ -76,17 +67,28 @@ public class dropKick extends Action{
         return true;
     }
 
+    boolean canCharMove(Tile t){
+
+        return Map.distance(t, user.CurTile) == 1 && Map.distance(t, targets[0].CurTile) == 1 && t.canMove();
+    }
+
     @Override
     void Execute() {
+        user.attacking = true;
+        user.orientation = user.FindDir(CharMove,user.CurTile);
+        user.orient(user.orientation);
+        user.sprite.setImage(user.rotate((BufferedImage) img,user.rot));
         Character target = targets[0];
         Tile[] path = new Tile[target.MaxMove];
         path[0] = targetMove;
+
 
         user.changeStam(cost * -1);
         user.changeHealth(-1);
         user.setTile(CharMove);
         user.moving = true;
-        emptyTargets();
+
+
 
 
 
@@ -98,7 +100,9 @@ public class dropKick extends Action{
             }
 
         target.changeHealth(dmg * -1);
+
         target.setTile(targetMove,path);
+
         target.moving = true;
 
         if(target.x > user.x){
@@ -110,13 +114,16 @@ public class dropKick extends Action{
 
 
 
-        user.setTile(CharMove);
+
         target = null;
         targetMove = null;
         user.moving = true;
+
         emptyTargets();
         CharMovey = 0;
         CharMovex = 0;
+
         CharMove = null;
+
     }
 }

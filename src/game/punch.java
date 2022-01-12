@@ -1,5 +1,7 @@
 package game;
 
+import java.awt.image.BufferedImage;
+
 public class punch extends Action{
     punch(Character c) {
         super(c);
@@ -13,6 +15,7 @@ public class punch extends Action{
         type = "strike";
         name = "Forearm Smash";
         sequence = new Boolean[]{true,false,false};
+        img = user.sprites[3];
     }
 
     @Override
@@ -32,6 +35,10 @@ public class punch extends Action{
 
     @Override
     void Execute() {
+        user.attacking = true;
+        user.orientation = user.FindDir(targets[0].CurTile,user.CurTile);
+        user.orient(user.orientation);
+        user.sprite.setImage(user.rotate((BufferedImage) img,user.rot));
         for(Character i:targets){
             if(i.state==2){
                 i.cancelPin(Map.neighbourTiles(i.CurTile), this);

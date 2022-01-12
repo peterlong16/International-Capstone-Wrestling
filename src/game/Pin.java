@@ -1,5 +1,7 @@
 package game;
 
+import java.awt.image.BufferedImage;
+
 public class Pin extends Action{
 
     Pin(Character c) {
@@ -11,6 +13,8 @@ public class Pin extends Action{
         mover = false;
         type = "pin";
         name = "Pin";
+        sequence = new Boolean[]{true,false,false};
+        img = user.sprites[user.sprites.length-1];
     }
 
     boolean canHit(Tile t, int distance) {
@@ -18,6 +22,10 @@ public class Pin extends Action{
     }
 
     void Execute(){
+        user.pinning = true;
+        user.orientation = user.FindDir(targets[0].CurTile,user.CurTile);
+        user.orient(user.orientation);
+        user.sprite.setImage(user.rotate((BufferedImage) img,user.rot));
         targets[0].state = 3;
         user.state = 2;
         user.setPin(targets[0].CurTile);

@@ -3,8 +3,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static game.Constants.*;
@@ -238,6 +238,7 @@ public class Map extends JPanel {
     void charMove(Tile t){
         //Moves the current player to their selected tile
         int cost = moveCost(t);
+        CurrentPlayer.selfMove = true;
         CurrentPlayer.setTile(t, createPath(t,CurrentPlayer));
         CurrentPlayer.MovePoints = CurrentPlayer.MovePoints - cost;
         CurrentPlayer.moving = true;
@@ -346,11 +347,11 @@ public class Map extends JPanel {
     }
 
     Character SpawnJon(int x, int y,String name, String team, Color colour){
-        return new jon(TileGrid[x][y], name, team, colour);
+        return new Light(TileGrid[x][y], name, team, colour);
     }
 
     Character SpawnJak(int x, int y, String name, String team, Color Colour){
-        return new jak(TileGrid[x][y], name,team, Colour);
+        return new Heavy(TileGrid[x][y], name,team, Colour);
     };
 
     Character SpawnJay(int x, int y, String name, String team, Color Colour){
@@ -588,6 +589,35 @@ public class Map extends JPanel {
         }
     }
 
+    public static BufferedImage rotateClockwise(BufferedImage src, double dir) {
+        int width = src.getWidth();
+        int height = src.getHeight();
+
+        BufferedImage dest = new BufferedImage(height, width, src.getType());
+
+        Graphics2D graphics2D = dest.createGraphics();
+        graphics2D.translate((height - width) / 2, (height - width) / 2);
+        graphics2D.rotate(Math.PI * dir, height / 2, width / 2);
+        graphics2D.drawRenderedImage(src, null);
+
+        return dest;
+    }
+
+    public Character[] findPinned(){
+        Character[] pinned;
+        pinned = new Character[6];
+        int index = 0;
+
+        for(Character i: Characters){
+            if(i.state==3){
+                pinned[index]=i;
+                index++;
+            }
+        }
+
+        return pinned;
+    }
+
     public void paintComponent(Graphics g) {
         Font font = new Font("Verdana", Font.PLAIN, 15);
         g.setFont(font);
@@ -611,9 +641,25 @@ public class Map extends JPanel {
             for (int c = 0; c < COLS; c++) {
                 int y = r * width;
                 int x = c * height;
-                Color TileColour = TileGrid[r][c].image;
-                g.setColor(TileColour);
-                g.fillRect(x, y, width, height);
+                BufferedImage TileImage = (BufferedImage) TileGrid[r][c].image;
+                BufferedImage rotated;
+                if(TileGrid[r][c].type == 7) {
+                    if (c == 15) {
+                        rotated = rotateClockwise(TileImage, 1);
+                        TileImage = rotated;
+                    }
+                    if(r == 4){
+                        rotated = rotateClockwise(TileImage,0.5);
+                        TileImage = rotated;
+                    }
+
+                    if(r == 15){
+                        rotated = rotateClockwise(TileImage,-0.5);
+                        TileImage = rotated;
+                    }
+
+                }
+                g.drawImage(TileImage,x, y, width, height, null);
                 g.setColor(grid);
                 g.drawRect(x,y, width, height);
                 if(CurrentPlayer!=null) {
@@ -636,27 +682,28 @@ public class Map extends JPanel {
                     }
                 }
 
-                if(atkPrimed){
+                if(atkPrimed) {
                     Selected = null;
-                    if(primedAtk.canHit(TileGrid[r][c], distance(primedAtk.user.CurTile, TileGrid[r][c] ))
-                            && TileGrid[r][c].Occupant() != null){
+                    if (mousestep == 0 && primedAtk.canHit(TileGrid[r][c], distance(primedAtk.user.CurTile, TileGrid[r][c]))
+                            && TileGrid[r][c].Occupant() != null) {
 
                         g.setColor(canHit);
                         g.fillRect(x, y, width, height);
                     }
-                }
-                if(mousestep == 1){
-                    if(primedAtk.canTargetMove(TileGrid[r][c], distance(TileGrid[r][c],primedAtk.user.CurTile))){
-                        g.setColor(canHit);
-                        g.fillRect(x, y, width, height);
+
+                    if (mousestep == 1) {
+                        if (primedAtk.canTargetMove(TileGrid[r][c], distance(TileGrid[r][c], primedAtk.user.CurTile))) {
+                            g.setColor(canHit);
+                            g.fillRect(x, y, width, height);
+                        }
+                    }
+                    if (mousestep == 2) {
+                        if (primedAtk.canCharMove(TileGrid[r][c])) {
+                            g.setColor(canMove);
+                            g.fillRect(x, y, width, height);
+                        }
                     }
                 }
-                //if(mousestep == 2){
-               //     if(primedAtk.canCharMove(TileGrid[r][c])){
-                //        g.setColor(canMove);
-               //         g.fillRect(x, y, width, height);
-               //     }
-               // }
                 TileGrid[r][c].setCenter(x,y);
                 TileGrid[r][c].setBounds(x,y,r,c);
             }
@@ -679,9 +726,20 @@ public class Map extends JPanel {
             TurnCounter = 0;
         }
 
+        Character[] pinned = findPinned();
+        if(pinned[0]!=null){
+            for (Character character : pinned) {
+                if (character != null) {
+                    character.draw((Graphics2D) g);
+                } else {
+                    break;
+                }
+            }
+        }
         for(Character i: Characters){
-            g.setColor(i.image);
-            g.fillOval(i.x,i.y,10,10);
+            if(i.state!=3) {
+                i.draw((Graphics2D) g);
+            }
         }
 
         if(Selected!=null){
@@ -696,10 +754,10 @@ public class Map extends JPanel {
                 tileOccupant = Selected.Occupant().name;
                 state = Selected.Occupant().states[Selected.Occupant().state];
 
-                int Xhbars = Selected.CenterX - ((((Selected.Occupant().healthBar.length * 10) + (Selected.Occupant().healthBar.length - 1))/2) - 5)  ;
+                int Xhbars = (Selected.CenterX + (TILE_SIZE / 2) - 5) - ((((Selected.Occupant().healthBar.length * 10) + (Selected.Occupant().healthBar.length - 1))/2) - 5)  ;
                 int Yhbars = Selected.CenterY - TILE_SIZE;
 
-                int Xsbars = Selected.CenterX - ((((Selected.Occupant().staminaBar.length * 10) + (Selected.Occupant().staminaBar.length - 1))/2) - 5)  ;
+                int Xsbars = (Selected.CenterX + (TILE_SIZE / 2) - 5)  - ((((Selected.Occupant().staminaBar.length * 10) + (Selected.Occupant().staminaBar.length - 1))/2) - 5)  ;
                 int Ysbars = Selected.CenterY - (TILE_SIZE - 10);
                 int c = 0;
 

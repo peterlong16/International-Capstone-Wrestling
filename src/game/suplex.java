@@ -1,5 +1,7 @@
 package game;
 
+import java.awt.image.BufferedImage;
+
 public class suplex extends Action{
 
     suplex(Character c) {
@@ -14,6 +16,7 @@ public class suplex extends Action{
         name = "Suplex";
         stmdmg = 1;
         sequence = new Boolean[]{true,true,false};
+        img = user.sprites[2];
     }
 
     boolean canTargetMove(Tile t, int distance){
@@ -47,6 +50,10 @@ public class suplex extends Action{
     }
 
     void Execute() {
+        user.attacking = true;
+        user.orientation = user.FindDir(targets[0].CurTile,user.CurTile);
+        user.orient(user.orientation);
+        user.sprite.setImage(user.rotate((BufferedImage) img,user.rot));
         Character target = targets[0];
         Tile[] path = new Tile[target.MaxMove];
         path[0] = user.CurTile;

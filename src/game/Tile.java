@@ -1,14 +1,18 @@
 package game;
 
 
+import Utilities.ImageManager;
+
 import java.awt.*;
+import java.io.IOException;
+
 import static game.Constants.TILE_SIZE;
 
 public class Tile {
     int x, y;
     int AccX, AccY;
     Integer type;
-    Color image;
+    Image image;
     String name;
     int CenterX;
     int CenterY;
@@ -17,19 +21,34 @@ public class Tile {
     Character Pinner;
     String accessible;
 
+    public static Image TL_CORNER;
+    public static Image TR_CORNER;
+    public static Image BL_CORNER;
+    public static Image BR_CORNER;
+    public static Image GROUND;
+    public static Image CROWD;
+    public static Image ROPE;
+    public static Image CANVAS;
+
+    static {
+        try {
+            TL_CORNER = ImageManager.loadImage("ringpostTL");
+            TR_CORNER = ImageManager.loadImage("ringpostTR");
+            BL_CORNER = ImageManager.loadImage("ringpostBL");
+            BR_CORNER = ImageManager.loadImage("ringpostBR");
+            GROUND = ImageManager.loadImage("ground");
+            CROWD = ImageManager.loadImage("crowd");
+            ROPE = ImageManager.loadImage("rope");
+            CANVAS = ImageManager.loadImage("canvas");
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
 
+    }
 
-    public static final Color TL_CORNER = new Color(255, 0, 0);
-    public static final Color TR_CORNER = new Color(255,255,255);
-    public static final Color BL_CORNER = new Color(255,255,255);
-    public static final Color BR_CORNER = new Color(0,0,255);
-    public static final Color GROUND = new Color(48, 46, 97);
-    public static final Color CROWD = new Color(224, 186, 19);
-    public static final Color ROPE = new Color(15, 111, 5);
-    public static final Color CANVAS = new Color(177, 161, 148);
-
-    public static final Color[] CONTENTS = {
+    public static final Image[] CONTENTS = {
             TL_CORNER,
             TR_CORNER,
             BL_CORNER,
@@ -50,7 +69,7 @@ public class Tile {
             }
             case 6 -> {
                 this.name = "Crowd";
-                accessible = "Can be thrown into";
+                accessible = "Inaccessible";
             }
             case 7 -> {
                 this.name = "Rope";
@@ -88,8 +107,8 @@ public class Tile {
     }
 
     void setCenter(int x, int y){
-        this.CenterX = x + (TILE_SIZE / 2) - 5;
-        this.CenterY = y + (TILE_SIZE / 2) - 5;
+        this.CenterX = x;
+        this.CenterY = y;
     }
 
     void setBounds(int x, int y,int r, int c){

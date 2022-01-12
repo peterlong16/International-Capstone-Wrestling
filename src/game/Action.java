@@ -1,5 +1,6 @@
 package game;
 
+import java.awt.*;
 import java.util.Arrays;
 
 public abstract class Action {
@@ -16,6 +17,7 @@ public abstract class Action {
     String type;
     String name;
     int CharMoveRange;
+    Image img;
 
     Tile CharMove;
     int CharMovex;
@@ -46,6 +48,38 @@ public abstract class Action {
                 }
             }
         }
+    }
+
+    Tile GetClosest(Tile dest,Tile source){
+        //returns closest tile to source in direction of dest
+        int dist = Map.distance(dest,source);
+        int x = 0;
+        int y = 0;
+
+        if(dest.x==source.x){
+            x = dest.x;
+            if(dest.y<source.y){
+                y = dest.y + (dist - 1);
+            }
+            else{
+                y = dest.y - (dist - 1);
+            }
+        }
+        else if(dest.y==source.y){
+            y = dest.y;
+            if(dest.x<source.x){
+                x = dest.x + (dist - 1);
+            }
+            else{
+                x = dest.x - (dist - 1);
+            }
+
+        }
+        if(x == 0 && y == 0){
+            return null;
+        }
+
+        return Map.TileGrid[y][x];
     }
 
     boolean spaceBetween(Tile t,Tile t2){
