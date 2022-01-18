@@ -1,47 +1,41 @@
 package game;
 
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 
-public class SpineBuster extends Action{
-    SpineBuster(Character c) {
+public class Powerbomb extends Action{
+    Powerbomb(Character c) {
         super(c);
-        cost = 1;
-        dmg = 3;
-        stmdmg = 1;
+        cost = 3;
+        dmg = 4;
+        stmdmg = 2;
         range = new int[1];
         range[0] = 1;
         targets = new Character[1];
         mover = true;
-        type = "Slam";
-        name = "Spinebuster";
+        type = "slam";
+        name = "Powerbomb";
         sequence = new Boolean[]{true,true,false};
         img = user.sprites[2];
+    }
+
+    boolean canTargetMove(Tile t,int distance){
+        return (Map.distance(t,targets[0].CurTile) == 0 || Map.distance(t,targets[0].CurTile) == 1) &&
+                (!t.Occupied() || t==targets[0].CurTile) &&
+                (t.x == user.CurTile.x || t.y == user.CurTile.y );
 
     }
 
-
-    boolean canTargetMove(Tile t, int distance){
-
-        return distance==1 && (t.canMove() || t.Occupant() == targets[0]);
-    }
-
-    boolean gotTargets(){
-        for(Character i: targets){
-            if(i==null){
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    @Override
     void Execute() {
+
+        Character target = targets[0];
         user.attacking = true;
         user.orientation = user.FindDir(targets[0].CurTile,user.CurTile);
         user.orient(user.orientation);
+        target.orientation = target.FindDir(user.CurTile,target.CurTile);
+        target.orient(target.orientation);
         user.sprite.setImage(user.rotate((BufferedImage) img,user.rot));
-        Character target = targets[0];
+
         Tile[] path = new Tile[target.MaxMove];
         path[0] = user.CurTile;
         path[1] = targetMove;
@@ -68,5 +62,6 @@ public class SpineBuster extends Action{
         user.slammod++;
         emptyTargets();
         targetMove = null;
+
     }
 }

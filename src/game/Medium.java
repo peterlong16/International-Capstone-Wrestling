@@ -46,10 +46,11 @@ public class Medium extends Character{
                     Sprite.RedMPin
             };
         }
-        strikes = new Action[2];
+        strikes = new Action[3];
 
         strikes[0] = new punch(this);
         strikes[1] = new dropKick(this);
+        strikes[2] = new Spinkick(this);
 
         slams = new Action[1];
         slams[0] = new suplex(this);

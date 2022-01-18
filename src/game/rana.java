@@ -100,7 +100,8 @@ public class rana extends Action{
         }
         target.moving = true;
 
-        user.changeStam(cost * -1);
+        user.changeStam((cost + user.slammod) * -1);
+        user.slammod++;
         user.changeHealth(-1);
 
         emptyTargets();

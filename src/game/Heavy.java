@@ -23,8 +23,6 @@ public class Heavy extends Character {
         this.staminaBar = new boolean[MaxMove];
         Arrays.fill(staminaBar, true);
 
-
-
         if(teamname.equals("blue")){
             sprites = new Image[]{
                     Sprite.BlueHIdle,
@@ -49,14 +47,14 @@ public class Heavy extends Character {
         }
         sprite.setImage(sprites[0]);
 
-        strikes = new Action[2];
+        strikes = new Action[3];
+        strikes[0] = new GiantSlap(this);
+        strikes[1] = new HeadButt(this);
+        strikes[2] = new Bigboot(this);
 
-
-
-        strikes[1] = new superkick(this);
-
-        slams = new Action[1];
-        slams[0] = new SpineBuster(this);
+        slams = new Action[2];
+        slams[0] = new Powerbomb(this);
+        slams[1] = new SpineBuster(this);
     }
 
     public void draw(Graphics2D g){

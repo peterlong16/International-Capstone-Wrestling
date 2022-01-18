@@ -118,6 +118,9 @@ public class Map extends JPanel {
                                 if (sequence[1] && primedAtk.gotTargets()) {
                                     mousestep++;
                                 }
+                                else if(sequence[2] && primedAtk.gotTargets()){
+                                    mousestep+=2;
+                                }
                                 else if(primedAtk.gotTargets()){
                                     ExecuteAttack();
                                 }
@@ -791,18 +794,9 @@ public class Map extends JPanel {
 
                     Xsbars = Xsbars + 11;
                 }
-
-
-
-
-
-
-
             }
 
             tileAccess = Selected.accessible;
-
-
 
             g.setColor(Color.white);
             g.drawString(Selected.toString(), TILE_SIZE / 2,getHeight() - (TILE_SIZE * 6) - font.getSize() * 2 );
@@ -853,7 +847,6 @@ public class Map extends JPanel {
 
 
 
-
         if(Kickoutbuttons!=null) {
             drawButtons(g, ((getWidth()) / 2) - (Kickoutbuttons.length * Kickoutbuttons[0].width) , getHeight() - ((Kickoutbuttons[0].height) + 10), 30, Kickoutbuttons);
         }
@@ -884,12 +877,20 @@ public class Map extends JPanel {
     private void DrawMenu(Graphics g, int menux, int menuy, Button[] buttons) {
         Graphics2D g2 = (Graphics2D) g;
         g2.setStroke(new BasicStroke(1));
+        Color TeamCol;
+        if(CurrentPlayer.teamname.equals("blue")){
+            TeamCol = Color.blue;
+        }
+        else{
+            TeamCol = Color.red;
+        }
+
 
 
         for(Button b: buttons){
             if(b!=null) {
                 b.active = true;
-                g.setColor(Color.blue);
+                g.setColor(TeamCol);
                 b.setX(menux);
                 b.setY(menuy);
                 if (b.action.name.equals("Context")) {

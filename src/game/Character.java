@@ -24,6 +24,8 @@ public abstract class Character {
     int stamregen;
     int state;
     int orientation;
+    int strikemod = 0;
+    int slammod = 0;
     double rot;
     Image[] sprites;
     Sprite sprite;
@@ -191,6 +193,9 @@ public abstract class Character {
         if(this.Health > MaxHealth){
             this.Health = MaxHealth;
         }
+
+        this.strikemod = 0;
+        this.slammod = 0;
     }
 
     void printPath(){

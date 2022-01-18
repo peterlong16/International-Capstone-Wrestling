@@ -64,6 +64,8 @@ public class superkick extends Action {
             i.changeHealth(dmg * -1);
 
         }
+
+        user.strikemod++;
         user.changeStam(cost * -1);
         user.setTile(CharMove);
         user.moving = true;

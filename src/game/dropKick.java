@@ -99,7 +99,9 @@ public class dropKick extends Action{
                 target.state = 0;
             }
 
-        target.changeHealth(dmg * -1);
+        target.changeHealth((dmg + user.strikemod) * -1);
+
+        user.strikemod = 0;
 
         target.setTile(targetMove,path);
 

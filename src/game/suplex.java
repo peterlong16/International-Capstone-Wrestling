@@ -77,7 +77,8 @@ public class suplex extends Action{
         }
         target.moving = true;
 
-        user.changeStam(cost * -1);
+        user.changeStam((cost + user.slammod) * -1);
+        user.slammod++;
         emptyTargets();
         targetMove = null;
     }

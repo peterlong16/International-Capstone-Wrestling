@@ -111,8 +111,8 @@ public class Sprite {
             BlueHPin = ImageManager.loadImage("bluehevpin");
 
             RedHIdle = ImageManager.loadImage("redhevIdle");
-            RedHGrab = ImageManager.loadImage("redhevIdle");
-            RedHPunch = ImageManager.loadImage("redhevgrab");
+            RedHGrab = ImageManager.loadImage("redhevgrab");
+            RedHPunch = ImageManager.loadImage("redhevpunch");
             RedHKick = ImageManager.loadImage("redhevkick");
             RedHHbutt = ImageManager.loadImage("redhevheadbutt");
             RedHDown = ImageManager.loadImage("redhevlaying");

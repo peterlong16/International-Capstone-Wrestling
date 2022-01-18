@@ -1,6 +1,7 @@
 package game;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public abstract class Action {
@@ -35,7 +36,7 @@ public abstract class Action {
     }
 
     void addTarget(Character c){
-        if(c!=null && !c.teamname.equals(user.teamname)) {
+        if(c!=null) {
             for (int i = 0; i < targets.length; i++) {
                 if (targets[i] == null) {
                     if(c.state == 3){
@@ -88,8 +89,8 @@ public abstract class Action {
         if(t.x==t2.x){
             if(t.y<t2.y){
                 dist--;
-                while(dist!=0){
-                    if(Map.TileGrid[t.x + dist][t.y].Occupied()){
+                while(dist>0){
+                    if(Map.TileGrid[t.y + dist][t.x].Occupied()){
                         return false;
                     }
                     dist--;
@@ -98,8 +99,8 @@ public abstract class Action {
             else{
                 dist = dist * -1;
                 dist++;
-                while(dist!=0){
-                    if(Map.TileGrid[t.x + dist][t.y].Occupied()){
+                while(dist<0){
+                    if(Map.TileGrid[t.y + dist][t.x].Occupied()){
                         return false;
                     }
                     dist++;
@@ -110,8 +111,8 @@ public abstract class Action {
         else if(t.y==t2.y){
             if(t.x<t2.x){
                 dist--;
-                while(dist!=0){
-                    if(Map.TileGrid[t.x][t.y + dist].Occupied()){
+                while(dist>0){
+                    if(Map.TileGrid[t.y][t.x + dist].Occupied()){
                         return false;
                     }
                     dist--;
@@ -120,8 +121,8 @@ public abstract class Action {
             else{
                 dist = dist * -1;
                 dist++;
-                while(dist!=0){
-                    if(Map.TileGrid[t.x][t.y + dist].Occupied()){
+                while(dist<0){
+                    if(Map.TileGrid[t.y][t.x + dist].Occupied()){
                         return false;
                     }
                     dist++;
@@ -130,7 +131,7 @@ public abstract class Action {
             return true;
 
         }
-        return true;
+        return false;
     }
 
     void emptyTargets(){
@@ -168,7 +169,7 @@ public abstract class Action {
             };
         }
 
-        return canHit && t.Occupied() && !t.Occupant().teamname.equals(user.teamname);
+        return canHit && t.Occupied();
     }
 
     boolean canTargetMove(Tile t, int distance){
