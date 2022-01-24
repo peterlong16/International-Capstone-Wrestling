@@ -5,8 +5,9 @@ import java.util.Arrays;
 
 public class Light extends Character {
 
-    Light(Tile t, String name, String team, Color colour){
+    Light(Tile t, String name, String team, Color colour, int or){
         super(t);
+        this.orientation = or;
         this.image = colour;
         this.sprite = new Sprite(this,Constants.TILE_SIZE,Constants.TILE_SIZE);
         MovePoints = 6;
@@ -15,7 +16,7 @@ public class Light extends Character {
         MaxHealth = 10;
         Health = 10;
         this.teamname = team;
-        regen = 1;
+        regen = 2;
         stamregen = 3;
         painThresh = 4;
         this.healthBar = new boolean[MaxHealth];
@@ -56,6 +57,12 @@ public class Light extends Character {
         slams = new Action[2];
         slams[0] = new rana(this);
         slams[1] = new Slingblade(this);
+
+        dives = new Action[1];
+        dives[0] = new FrogSplash(this);
+
+        springs = new Action[1];
+        springs[0] = new SBrana(this);
     }
 
     public void draw(Graphics2D g){

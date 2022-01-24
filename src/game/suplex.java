@@ -50,6 +50,7 @@ public class suplex extends Action{
     }
 
     void Execute() {
+        user.atk = this;
         user.attacking = true;
         user.orientation = user.FindDir(targets[0].CurTile,user.CurTile);
         user.orient(user.orientation);
@@ -79,7 +80,6 @@ public class suplex extends Action{
 
         user.changeStam((cost + user.slammod) * -1);
         user.slammod++;
-        emptyTargets();
         targetMove = null;
     }
 

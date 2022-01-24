@@ -10,7 +10,7 @@ public class Slingblade extends Action {
         dmg = 4;
         range = new int[]{1, 2, 3, 4, 5};
         targets = new Character[1];
-        mover = true;
+        mover = false;
         type = "Slam";
         name = "Slingblade";
         stmdmg = 0;
@@ -39,6 +39,7 @@ public class Slingblade extends Action {
     }
 
     void Execute() {
+        user.atk = this;
         user.attacking = true;
         user.orientation = user.FindDir(GetClosest(targets[0].CurTile, user.CurTile),user.CurTile);
         user.orient(user.orientation);
@@ -48,8 +49,8 @@ public class Slingblade extends Action {
         path2[0] = target.CurTile;
         path2[1] = CharMove;
 
-        user.setTile(CharMove,path2);
-        user.moving = true;
+
+
 
 
 
@@ -57,6 +58,8 @@ public class Slingblade extends Action {
             target.cancelPin(Map.neighbourTiles(target.CurTile), this);
             target.state=0;
         }
+        user.setTile(CharMove,path2);
+        user.moving = true;
 
         target.changeHealth(dmg * -1);
         target.changeStam(stmdmg * -1);

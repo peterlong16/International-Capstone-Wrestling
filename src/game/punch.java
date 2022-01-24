@@ -6,7 +6,7 @@ public class punch extends Action{
     punch(Character c) {
         super(c);
         cost = 1;
-        dmg = 6;
+        dmg = 5;
         stmdmg = 0;
         range = new int[1];
         range[0] = 1;
@@ -35,6 +35,7 @@ public class punch extends Action{
 
     @Override
     void Execute() {
+        user.atk = this;
         user.attacking = true;
         user.orientation = user.FindDir(targets[0].CurTile,user.CurTile);
         user.orient(user.orientation);
@@ -47,6 +48,6 @@ public class punch extends Action{
             i.changeHealth(dmg * -1);
         }
         user.changeStam(cost * -1);
-        emptyTargets();
+
     }
 }

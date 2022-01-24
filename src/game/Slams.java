@@ -17,6 +17,7 @@ public class Slams extends Action{
     }
 
     void Execute(){
+        user.atk = this;
         slams = new Button[CurrentPlayer.slams.length];
         for (int i = 0; i < CurrentPlayer.slams.length; i++) {
             slams[i] = new Button(CurrentPlayer.slams[i], 25,120);

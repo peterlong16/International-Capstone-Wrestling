@@ -29,6 +29,7 @@ public class Enzugiri extends Action {
     }
 
     void Execute() {
+        user.atk = this;
         user.attacking = true;
         user.orientation = user.FindDir(targets[0].CurTile,user.CurTile);
         user.orient(user.orientation);

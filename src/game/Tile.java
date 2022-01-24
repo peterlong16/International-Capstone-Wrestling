@@ -103,7 +103,7 @@ public class Tile {
     }
 
     boolean canMove(){
-        return !Occupied() && (this.type == 5 || this.type == 8);
+        return !Occupied() && ((this.type == 5 || this.type == 8));
     }
 
     void setCenter(int x, int y){

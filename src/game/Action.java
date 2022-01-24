@@ -21,6 +21,8 @@ public abstract class Action {
     Image img;
 
     Tile CharMove;
+    Tile targetTile;
+    Tile DelayTrigger;
     int CharMovex;
     int CharMovey;
 
@@ -34,6 +36,8 @@ public abstract class Action {
         this.CharMovex = 0;
         this.CharMovey = 0;
     }
+
+
 
     void addTarget(Character c){
         if(c!=null) {
@@ -134,6 +138,10 @@ public abstract class Action {
         return false;
     }
 
+    void addTarget(Tile t) {
+        targetTile = t;
+    }
+
     void emptyTargets(){
         Arrays.fill(targets,null);
         CharMove = null;
@@ -176,15 +184,22 @@ public abstract class Action {
         return false;
     }
 
-    void Execute(){}
+    void Execute(){
+    }
 
     boolean canAfford(){
         return user.MovePoints >= cost;
     }
 
+    void DelayAction(){}
+
 
     void setUser(Character c){
         this.user = c;
+    }
+
+    public String toString(){
+        return "(" + "name= " + this.name + " user= " + this.user.name +  ")";
     }
 
 

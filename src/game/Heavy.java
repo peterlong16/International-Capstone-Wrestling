@@ -5,8 +5,9 @@ import java.util.Arrays;
 
 public class Heavy extends Character {
 
-    Heavy(Tile t, String name, String team, Color colour){
+    Heavy(Tile t, String name, String team, Color colour,int or){
         super(t);
+        this.orientation = or;
         this.image = colour;
         this.sprite = new Sprite(this,Constants.TILE_SIZE,Constants.TILE_SIZE);
         MovePoints = 6;
@@ -55,6 +56,12 @@ public class Heavy extends Character {
         slams = new Action[2];
         slams[0] = new Powerbomb(this);
         slams[1] = new SpineBuster(this);
+
+        dives = new Action[1];
+        dives[0] = new AxeHandle(this);
+
+        springs = new Action[1];
+        springs[0] = new SBChokeslam(this);
     }
 
     public void draw(Graphics2D g){

@@ -2,40 +2,32 @@ package game;
 
 import java.awt.image.BufferedImage;
 
-public class SpineBuster extends Action{
-    SpineBuster(Character c) {
+public class SBChokeslam extends Action{
+
+    SBChokeslam(Character c) {
         super(c);
-        cost = 1;
-        dmg = 3;
-        stmdmg = 1;
-        range = new int[1];
-        range[0] = 1;
+        cost = 3;
+        dmg = 4;
+        range = new int[]{1};
         targets = new Character[1];
         mover = true;
-        type = "Slam";
-        name = "Spinebuster";
+        type = "SpringBoard";
+        name = "OTR Chokeslam";
+        stmdmg = 2;
         sequence = new Boolean[]{true,true,false};
         img = user.sprites[2];
-
     }
 
+    boolean canHit(Tile t, int distance) {
+        return super.canHit(t, distance) && t.type != 5;
+    }
 
     boolean canTargetMove(Tile t, int distance){
-
-        return distance==1 && (t.canMove() || t.Occupant() == targets[0]);
+        return Map.distance(t,user.CurTile) == 1 &&
+                (t.type >= 5 && t.type!=6) &&
+                !t.Occupied();
     }
 
-    boolean gotTargets(){
-        for(Character i: targets){
-            if(i==null){
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    @Override
     void Execute() {
         user.atk = this;
         user.attacking = true;

@@ -29,6 +29,8 @@ public abstract class Character {
     double rot;
     Image[] sprites;
     Sprite sprite;
+    int diveint = 7;
+    int interv = diveint;
 
 
     // 0 = neutral , 1 = down 2 = pinning 3 = pinned
@@ -49,10 +51,14 @@ public abstract class Character {
     boolean attacking = false;
     boolean pinning = false;
     boolean selfMove;
+    boolean flying = false;
     boolean[] healthBar;
     boolean[] staminaBar;
+    Action atk;
     Action[] strikes;
     Action[] slams;
+    Action[] dives;
+    Action[] springs;
 
 
     Character(Tile t){
@@ -73,6 +79,8 @@ public abstract class Character {
         this.name = name;
 
     }
+
+
 
     void changeHealth(int change){this.Health += change;
 
@@ -144,7 +152,6 @@ public abstract class Character {
 
 
         CurTile.Occupant().state = 0;
-        CurTile.Occupant().finishedMove();
         CurTile.Occupant().changeHealth(0);
         CurTile.Pinner = null;
 
@@ -167,6 +174,8 @@ public abstract class Character {
         Map.pinCount = 0;
 
     }
+
+
 
     void setTile(Tile t) {
         this.PrevTile = CurTile;
@@ -216,10 +225,20 @@ public abstract class Character {
             move();
         }
         if(attacking){
-            if(!moving && !pinning){
-                finishedMove();
+            if(atk.targets!=null && atk.targets[0]!=null && !atk.targets[0].moving) {
+                if (!moving && !pinning) {
+                    finishedMove();
+                }
             }
         }
+
+        changeHealth(0);
+
+
+    }
+
+    void Dive(){
+        flying = true;
 
     }
 
@@ -230,8 +249,11 @@ public abstract class Character {
             e.printStackTrace();
         }
         orient(orientation);
-        sprite.setImage(rotate((BufferedImage)sprites[0], rot));
+        atk.emptyTargets();
         attacking = false;
+        atk.DelayTrigger = null;
+        atk = null;
+        changeHealth(0);
     }
 
     BufferedImage rotate(BufferedImage sprite, double rotation){
@@ -250,17 +272,37 @@ public abstract class Character {
     }
 
     void move() {
-        if ( movePath.length == 0 || movePath==null || movePath[pathpos] == null) {
+
+
+         if ( movePath.length == 0 || movePath==null || movePath[pathpos] == null) {
 
 
             if (x != CurTile.CenterX || y != CurTile.CenterY) {
 
+                if (x!= CurTile.CenterX && flying){
+                    interv--;
+                    if(interv == 0) {
+                        y= y - 2;
+                        interv = diveint;
+                    }
+                }
+
 
                 if (x > CurTile.CenterX){
-                    x--;
+                    if(flying){
+                        x= x -2;
+                    }
+                    else {
+                        x--;
+                    }
                 }
                 if (x < CurTile.CenterX) {
-                    x++;
+                    if(flying){
+                        x = x + 2;
+                    }
+                    else {
+                        x++;
+                    }
                 }
                 if (y > CurTile.CenterY) {
                     y--;
@@ -270,28 +312,33 @@ public abstract class Character {
                 }
             }
             else{
+                if(atk != null && atk.DelayTrigger!=null && CurTile == atk.DelayTrigger && attacking){
+                    atk.DelayAction();
+                }
                 selfMove = false;
                 moving = false;
                 emptyPath();
                 pathpos = 0;
             }
         } else {
-            if (x != CurTile.CenterX || y != CurTile.CenterY) {
+            if (x != movePath[pathpos].CenterX || y != movePath[pathpos].CenterY) {
 
-                if (x == movePath[pathpos].CenterX && y == movePath[pathpos].CenterY) {
-                    Tile prev = movePath[pathpos];
-                    pathpos++;
-                    if(selfMove && !attacking){
-                        MoveRot(movePath[pathpos], prev);
-                    }
-                } else {
+
                     if (x > movePath[pathpos].CenterX) {
-                        x--;
-
+                        if(flying){
+                            x= x -2;
+                        }
+                        else {
+                            x--;
+                        }
                     }
                     if (x < movePath[pathpos].CenterX) {
-                        x++;
-
+                        if(flying){
+                            x = x + 2;
+                        }
+                        else {
+                            x++;
+                        }
                     }
                     if (y > movePath[pathpos].CenterY) {
                         y--;
@@ -301,14 +348,30 @@ public abstract class Character {
                         y++;
 
                     }
-                }
 
 
-            } else {
+
+            } else if (x == movePath[pathpos].CenterX && y == movePath[pathpos].CenterY &&
+                     pathpos!=movePath.length-1) {
+
+            Tile prev = movePath[pathpos];
+
+            if(atk != null && atk.DelayTrigger!=null && prev == atk.DelayTrigger && attacking){
+                atk.DelayAction();
+            }
+            pathpos++;
+            if(selfMove && !attacking){
+                MoveRot(movePath[pathpos], prev);
+            }
+
+            }
+            else{
+
                 selfMove = false;
                 moving = false;
                 emptyPath();
                 pathpos = 0;
+                flying = false;
             }
         }
     }
@@ -350,8 +413,7 @@ public abstract class Character {
     }
 
     void draw(Graphics2D g){
-        g.setColor(this.image);
-        g.fillOval(this.x,this.y,10,10);
+        sprite.draw(g);
     }
 
     @Override

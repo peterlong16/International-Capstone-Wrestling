@@ -24,6 +24,7 @@ public class Spinkick extends Action{
     }
 
     void Execute() {
+        user.atk = this;
         user.attacking = true;
         user.orientation = user.FindDir(targets[0].CurTile,user.CurTile);
         user.orient(user.orientation);
@@ -52,7 +53,7 @@ public class Spinkick extends Action{
             target.x++;
         }
         target = null;
-        emptyTargets();
+
 
     }
 }

@@ -16,6 +16,7 @@ public class Strikes extends Action{
     }
 
     void Execute(){
+        user.atk = this;
         Map.strikes = new Button[CurrentPlayer.strikes.length];
         for (int i = 0; i < CurrentPlayer.strikes.length; i++) {
             Map.strikes[i] = new Button(CurrentPlayer.strikes[i], 25,130);

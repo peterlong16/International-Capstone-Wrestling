@@ -41,6 +41,7 @@ public class GiantSlap extends Action{
     }
 
     void Execute() {
+        user.atk = this;
         user.attacking = true;
         user.orientation = user.FindDir(targetMove,user.CurTile);
         user.orient(user.orientation);
@@ -63,7 +64,7 @@ public class GiantSlap extends Action{
             target.x++;
         }
         target = null;
-        emptyTargets();
+
 
     }
 }

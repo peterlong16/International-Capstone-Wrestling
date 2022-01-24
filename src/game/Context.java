@@ -17,9 +17,14 @@ public class Context extends Action{
     }
 
     void Execute(){
-        context = new Button[1];
+        user.atk = this;
+        context = new Button[4];
         if(findContextual()[0]!=null){
-            context[0] = new Button(findContextual()[0], 25,120);
+            for(int i = 0;i< findContextual().length;i++){
+                if(findContextual()[i]!=null) {
+                    context[i] = new Button(findContextual()[i], 25, 120);
+                }
+            }
         }
         Map.MenuSelect = 3;
     }

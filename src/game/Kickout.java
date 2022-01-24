@@ -13,6 +13,7 @@ public class Kickout extends Action{
     }
 
     void Execute(){
+        user.atk = this;
         Character pinner = user.CurTile.Pinner;
         pinner.cancelPin(Map.neighbourTiles(user.CurTile), this);
         pinner.changeHealth(0);

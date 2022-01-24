@@ -12,5 +12,7 @@ public class KickoutFail extends Action {
         return true;
     }
 
-    void Execute(){}
+    void Execute(){
+        user.atk = this;
+    }
 }

@@ -28,9 +28,11 @@ public class Map extends JPanel {
     static int TurnCounter = 0;
     int MoveDelay = 100000;
     static int pinCount = 0;
+    int Screenwidth;
 
     static Character CurrentPlayer;
     static Character[] Characters = new Character[6];
+    TurnOrder[] turnOrder = new TurnOrder[6];
     public static final Tile[][] TileGrid = new Tile[ROWS][COLS];
     Tile Selected;
     Button[] menu;
@@ -43,6 +45,7 @@ public class Map extends JPanel {
     Boolean[] sequence;
     int mousestep = 0;
     static Button[] resetButton = new Button[1];
+
 
 
     public static final int[] TileArray = {
@@ -111,6 +114,10 @@ public class Map extends JPanel {
                                 if (sequence[0] && primedAtk.canHit(TargetTile, distance(TargetTile, CurrentPlayer.CurTile))) {
                                     primedAtk.addTarget(TargetTile.Occupant());
                                     primedAtk.setCharMove(TileGrid[CurrentPlayer.CurTile.y + primedAtk.CharMovey][CurrentPlayer.CurTile.x + primedAtk.CharMovex]);
+                                }
+
+                                if(primedAtk.name.equals("Climb") && primedAtk.canHit(TargetTile,distance(TargetTile, CurrentPlayer.CurTile))){
+                                    primedAtk.addTarget(TargetTile);
                                 }
 
                                 System.out.println(primedAtk.gotTargets());
@@ -245,7 +252,7 @@ public class Map extends JPanel {
         CurrentPlayer.setTile(t, createPath(t,CurrentPlayer));
         CurrentPlayer.MovePoints = CurrentPlayer.MovePoints - cost;
         CurrentPlayer.moving = true;
-        context = new Button[1];
+        context = new Button[5];
     }
 
     static int distance(Tile t1, Tile t2){
@@ -349,16 +356,16 @@ public class Map extends JPanel {
         return neighbours;
     }
 
-    Character SpawnJon(int x, int y,String name, String team, Color colour){
-        return new Light(TileGrid[x][y], name, team, colour);
+    Character SpawnJon(int x, int y,String name, String team, Color colour, int or){
+        return new Light(TileGrid[x][y], name, team, colour, or);
     }
 
-    Character SpawnJak(int x, int y, String name, String team, Color Colour){
-        return new Heavy(TileGrid[x][y], name,team, Colour);
+    Character SpawnJak(int x, int y, String name, String team, Color Colour, int or){
+        return new Heavy(TileGrid[x][y], name,team, Colour , or);
     };
 
-    Character SpawnJay(int x, int y, String name, String team, Color Colour){
-        return new Medium(TileGrid[x][y],name, team, Colour);
+    Character SpawnJay(int x, int y, String name, String team, Color Colour, int or){
+        return new Medium(TileGrid[x][y],name, team, Colour, or);
     };
 
     Tile FindTile(int x, int y){
@@ -409,14 +416,16 @@ public class Map extends JPanel {
     private Button getButton(int x, int y, Button button, Button[] buttons) {
         if(buttons !=null && buttons[0]!=null) {
             for (Button b : buttons) {
-                if (x > b.x1
-                        && x < b.x2
-                        && y > b.y1
-                        && y < b.y2
-                ) {
+                if(b!=null) {
+                    if (x > b.x1
+                            && x < b.x2
+                            && y > b.y1
+                            && y < b.y2
+                    ) {
 
-                    button = b;
-                    break;
+                        button = b;
+                        break;
+                    }
                 }
             }
         }
@@ -427,19 +436,26 @@ public class Map extends JPanel {
         if(running) {
             repaint();
 
+            if(CurrentPlayer == null){
+                CurrentPlayer = Characters[0];
+            }
+
 
             if (CurrentPlayer != null && Characters[0]!=null) {
                 if (MoveDelay == 0) {
                     for (Character i : Characters) {
-                        i.Update();
+                        if(i!=null) {
+                            i.Update();
+                        }
                     }
                     MoveDelay = 50000;
                 } else {
                     MoveDelay--;
                 }
-                if (CurrentPlayer.MovePoints <= 0 || CurrentPlayer.state == 2) {
-
-                    changeTurn();
+                if ((CurrentPlayer.state == 0 && CurrentPlayer.MovePoints == 0) || CurrentPlayer.state == 2 || CurrentPlayer.state == 1) {
+                    if(CurrentPlayer!=null) {
+                        changeTurn();
+                    }
 
                 }
             }
@@ -458,7 +474,8 @@ public class Map extends JPanel {
         resetButton[0].active = true;
     }
 
-    void changeTurn(){
+    synchronized void changeTurn(){
+        rotateOrder();
         strikes = null;
         slams = null;
         context = null;
@@ -476,9 +493,10 @@ public class Map extends JPanel {
         }
         if(!ended) {
             TurnCounter++;
-            if (TurnCounter >= Characters.length) {
+            if (TurnCounter == Characters.length) {
 
                 TurnCounter = 0;
+                CurrentPlayer = Characters[TurnCounter];
             }
 
             Characters[TurnCounter].resetTurn();
@@ -492,12 +510,11 @@ public class Map extends JPanel {
 
                 }
                 case 1 -> {
-                    changeTurn();
-
                     Kickoutbuttons = null;
                 }
                 case 2 -> {
                     changeTurn();
+
 
 
                     strikes = null;
@@ -520,14 +537,38 @@ public class Map extends JPanel {
     }
 
     static Action[] findContextual(){
-        Action[] context = new Action[2];
+        Action[] context = new Action[4];
+        boolean pin = false;
+        boolean climb = false;
         int i = 0;
 
        for(Tile t : neighbourTiles(CurrentPlayer.CurTile)){
-           if(distance(t,CurrentPlayer.CurTile)==1 && t.Occupied() && t.Occupant().state==1 && !t.Occupant().teamname.equals(CurrentPlayer.teamname) && CurrentPlayer.state == 0 && !pinning()){
+           if((distance(t,CurrentPlayer.CurTile)==1 && t.Occupied() && t.Occupant().state==1 && !t.Occupant().teamname.equals(CurrentPlayer.teamname) && CurrentPlayer.state == 0 && !pinning()) && !pin){
                context[i] = new Pin(CurrentPlayer);
+               pin = true;
                i++;
            }
+
+           if((t.type < 5 || t.type == 7) && !climb){
+               context[i] = new Climb(CurrentPlayer);
+               climb = true;
+               i++;
+           }
+       }
+
+        if(CurrentPlayer.CurTile.type < 5){
+           for(Action x: CurrentPlayer.dives){
+
+               context[i] = x;
+               i++;
+           }
+       }
+
+        if(CurrentPlayer.CurTile.type == 7){
+            for(Action x: CurrentPlayer.springs){
+                context[i] = x;
+                i++;
+            }
         }
 
 
@@ -538,8 +579,9 @@ public class Map extends JPanel {
     void createKickout(){
 
         Kickoutbuttons = new Button[CurrentPlayer.MaxHealth - CurrentPlayer.Health];
-
+        System.out.println(CurrentPlayer);
         int randomNum = ThreadLocalRandom.current().nextInt(0, (CurrentPlayer.MaxHealth - CurrentPlayer.Health));
+
 
 
         System.out.println("Kickout: " + randomNum);
@@ -621,6 +663,21 @@ public class Map extends JPanel {
         return pinned;
     }
 
+    void rotateOrder(){
+        TurnOrder[] newOrder = new TurnOrder[6];
+
+        for(int i = 0; i<6;i++){
+            if(i == 0){
+                newOrder[5] = turnOrder[0];
+            }
+            else{
+                newOrder[i - 1] = turnOrder[i];
+            }
+        }
+
+        turnOrder = newOrder;
+    }
+
     public void paintComponent(Graphics g) {
         Font font = new Font("Verdana", Font.PLAIN, 15);
         g.setFont(font);
@@ -688,7 +745,7 @@ public class Map extends JPanel {
                 if(atkPrimed) {
                     Selected = null;
                     if (mousestep == 0 && primedAtk.canHit(TileGrid[r][c], distance(primedAtk.user.CurTile, TileGrid[r][c]))
-                            && TileGrid[r][c].Occupant() != null) {
+                            && (TileGrid[r][c].Occupant() != null || primedAtk.type.equals("Context"))) {
 
                         g.setColor(canHit);
                         g.fillRect(x, y, width, height);
@@ -715,18 +772,29 @@ public class Map extends JPanel {
         state = "";
 
         if(start){
-            Characters[0] = SpawnJay(10, 9, "red2","red", Color.red);
-            Characters[1] = SpawnJay(10, 8, "blue2","blue", Color.blue);
-            Characters[2] = SpawnJon(6,6,"red1","red", Color.red);
-            Characters[3] = SpawnJon(13, 13, "blue1", "blue", Color.blue);
-            Characters[4] = SpawnJak(5, 7, "red3","red", Color.red);
-            Characters[5] = SpawnJak(14, 12, "blue3","blue", Color.blue);
+            Characters[0] = SpawnJay(7, 5, "red2","red", Color.red, 1);
+            turnOrder[0] = new TurnOrder(Characters[0]);
+            Characters[1] = SpawnJay(12, 14, "blue2","blue", Color.blue, 5);
+            turnOrder[1] = new TurnOrder(Characters[1]);
+            Characters[2] = SpawnJon(6,6,"red1","red", Color.red,1);
+            turnOrder[2] = new TurnOrder(Characters[2]);
+            Characters[3] = SpawnJon(13, 13, "blue1", "blue", Color.blue,5);
+            turnOrder[3] = new TurnOrder(Characters[3]);
+            Characters[4] = SpawnJak(5, 7, "red3","red", Color.red,1);
+            turnOrder[4] = new TurnOrder(Characters[4]);
+            Characters[5] = SpawnJak(14, 12, "blue3","blue", Color.blue,5);
+            turnOrder[5] = new TurnOrder(Characters[5]);
             CurrentPlayer = Characters[0];
+            for(Character i: Characters){
+                i.orient(i.orientation);
+                i.sprite.setImage(i.rotate((BufferedImage) i.sprites[0], i.rot));
+            }
             createMenu();
             Kickoutbuttons = null;
             pinCount = 0;
             start = false;
             TurnCounter = 0;
+            rotateOrder();
         }
 
         Character[] pinned = findPinned();
@@ -740,6 +808,9 @@ public class Map extends JPanel {
             }
         }
         for(Character i: Characters){
+            if(i == CurrentPlayer){
+                g.drawImage(Sprite.TurnInd,i.x + ((TILE_SIZE/2) - 10),i.y - 20,20,20, null);
+            }
             if(i.state!=3) {
                 i.draw((Graphics2D) g);
             }
@@ -848,14 +919,14 @@ public class Map extends JPanel {
 
 
         if(Kickoutbuttons!=null) {
-            drawButtons(g, ((getWidth()) / 2) - (Kickoutbuttons.length * Kickoutbuttons[0].width) , getHeight() - ((Kickoutbuttons[0].height) + 10), 30, Kickoutbuttons);
+            drawButtons(g, ((getWidth()) / 2) - (Kickoutbuttons.length * Kickoutbuttons[0].width) , getHeight() - ((Kickoutbuttons[0].height) + 10), Kickoutbuttons);
         }
 
         if(resetButton[0]!=null){
             Button reset = resetButton[0];
 
 
-            g.setColor(Color.black);
+            g.setColor(Color.white);
             g.fillRect(reset.x1,reset.y1,reset.width,reset.height);
 
         }
@@ -871,6 +942,19 @@ public class Map extends JPanel {
         }
         g.drawString("Pin count : " + pinCount,100,70);
         g.drawString("Turn counter : " + TurnCounter,100, 90);
+
+        if(turnOrder!=null){
+            int TOx = getWidth() - turnOrder[0].width;
+            int TOy = (getHeight()/2) - ((turnOrder.length * turnOrder[0].height) / 2);
+            Font myFont = new Font("sans-serif", Font.BOLD,15);
+            g.setFont(myFont);
+            g.drawString("NEXT",TOx + (turnOrder[0].width/4),TOy - 10);
+
+            for(TurnOrder t:turnOrder){
+                t.draw(g,TOx,TOy);
+                TOy = TOy + t.height + 10;
+            }
+        }
 
     }
 
@@ -922,15 +1006,15 @@ public class Map extends JPanel {
 
     }
 
-    private void drawButtons(Graphics g, int x, int y, int gap, Button[] buttons) {
+    private void drawButtons(Graphics g, int x, int y, Button[] buttons) {
 
         for(Button b: buttons){
             b.setX(x);
             b.setY(y);
-            g.setColor(Color.black);
+            g.setColor(Color.white);
             g.fillRect(b.x1,b.y1,b.width,b.height);
 
-            x += (buttons[0].width + gap);
+            x += (buttons[0].width + 30);
         }
     }
 }

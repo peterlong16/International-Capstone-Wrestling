@@ -22,6 +22,7 @@ public class Pin extends Action{
     }
 
     void Execute(){
+        user.atk = this;
         user.pinning = true;
         user.orientation = user.FindDir(targets[0].CurTile,user.CurTile);
         user.orient(user.orientation);

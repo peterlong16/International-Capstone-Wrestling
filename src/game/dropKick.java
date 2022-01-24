@@ -74,13 +74,14 @@ public class dropKick extends Action{
 
     @Override
     void Execute() {
+        user.atk = this;
         user.attacking = true;
         user.orientation = user.FindDir(CharMove,user.CurTile);
         user.orient(user.orientation);
         user.sprite.setImage(user.rotate((BufferedImage) img,user.rot));
-        Character target = targets[0];
-        Tile[] path = new Tile[target.MaxMove];
-        path[0] = targetMove;
+
+        DelayTrigger = CharMove;
+
 
 
         user.changeStam(cost * -1);
@@ -94,10 +95,25 @@ public class dropKick extends Action{
 
 
 
-            if(target.state == 2) {
-                target.cancelPin(Map.neighbourTiles(target.CurTile), this);
-                target.state = 0;
-            }
+
+
+
+        CharMovey = 0;
+        CharMovex = 0;
+
+        CharMove = null;
+
+    }
+
+    void DelayAction(){
+        Character target = targets[0];
+        Tile[] path = new Tile[target.MaxMove];
+        path[0] = targetMove;
+
+        if(target.state == 2) {
+            target.cancelPin(Map.neighbourTiles(target.CurTile), this);
+            target.state = 0;
+        }
 
         target.changeHealth((dmg + user.strikemod) * -1);
 
@@ -119,13 +135,5 @@ public class dropKick extends Action{
 
         target = null;
         targetMove = null;
-        user.moving = true;
-
-        emptyTargets();
-        CharMovey = 0;
-        CharMovex = 0;
-
-        CharMove = null;
-
     }
 }

@@ -27,6 +27,7 @@ public class Powerbomb extends Action{
     }
 
     void Execute() {
+        user.atk = this;
 
         Character target = targets[0];
         user.attacking = true;

@@ -52,10 +52,16 @@ public class superkick extends Action {
 
     @Override
     void Execute() {
+        user.atk = this;
         user.attacking = true;
         user.orientation = user.FindDir(CharMove,user.CurTile);
         user.orient(user.orientation);
         user.sprite.setImage(user.rotate((BufferedImage) img,user.rot));
+
+
+        user.strikemod++;
+        user.changeStam(cost * -1);
+        user.setTile(CharMove);
         for(Character i:targets){
             if(i.state == 2) {
                 i.cancelPin(Map.neighbourTiles(i.CurTile), this);
@@ -64,12 +70,7 @@ public class superkick extends Action {
             i.changeHealth(dmg * -1);
 
         }
-
-        user.strikemod++;
-        user.changeStam(cost * -1);
-        user.setTile(CharMove);
         user.moving = true;
-        emptyTargets();
         CharMovey = 0;
         CharMovex = 0;
         CharMove = null;

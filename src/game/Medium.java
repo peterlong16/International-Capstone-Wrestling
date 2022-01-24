@@ -6,11 +6,12 @@ import java.util.Arrays;
 public class Medium extends Character{
 
 
-    Medium(Tile t, String name, String team, Color colour){
+    Medium(Tile t, String name, String team, Color colour, int or){
         super(t);
         this.image = colour;
+        this.orientation = or;
         this.sprite = new Sprite(this,Constants.TILE_SIZE,Constants.TILE_SIZE);
-        MovePoints = 50;
+        MovePoints = 8;
         MaxMove = 8;
         this.name = name;
         this.teamname = team;
@@ -55,6 +56,12 @@ public class Medium extends Character{
         slams = new Action[1];
         slams[0] = new suplex(this);
         sprite.setImage(sprites[0]);
+
+        dives = new Action[1];
+        dives[0] = new ElbowDrop(this);
+
+        springs = new Action[1];
+        springs[0] = new SBforearm(this);
 
 
     }

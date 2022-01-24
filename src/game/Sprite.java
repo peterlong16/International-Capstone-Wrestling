@@ -58,6 +58,15 @@ public class Sprite {
     public static Image RedLDown;
     public static Image RedLPin;
 
+    public static Image RedTurnOrder;
+    public static Image BlueTurnOrder;
+    public static Image Inactive;
+    public static Image TurnInd;
+    public static Image Win;
+    public static Image Pin;
+
+
+
 
     public Image image;
     public int width;
@@ -131,6 +140,14 @@ public class Sprite {
             RedLKick = ImageManager.loadImage("redlightkick");
             RedLDown = ImageManager.loadImage("redlightlaying");
             RedLPin = ImageManager.loadImage("redlightpin");
+
+            RedTurnOrder = ImageManager.loadImage("redturnorder");
+            BlueTurnOrder = ImageManager.loadImage("blueturnorder");
+            Inactive = ImageManager.loadImage("inactive");
+            TurnInd = ImageManager.loadImage("turnmarker");
+            Win = ImageManager.loadImage("win");
+            Pin = ImageManager.loadImage("pinned");
+
 
         } catch (IOException var1) {
             var1.printStackTrace();
