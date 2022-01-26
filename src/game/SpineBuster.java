@@ -14,6 +14,7 @@ public class SpineBuster extends Action{
         mover = true;
         type = "Slam";
         name = "Spinebuster";
+        desc = "Pick up a target and slam them on an adjacent tile 1 space away";
         sequence = new Boolean[]{true,true,false};
         img = user.sprites[2];
 

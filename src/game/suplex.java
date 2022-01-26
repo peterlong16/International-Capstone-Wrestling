@@ -14,7 +14,8 @@ public class suplex extends Action{
         mover = true;
         type = "Slam";
         name = "Suplex";
-        stmdmg = 1;
+        desc = "Pick up a target and slam them towards your back, moving them to the opposite adjacent tile.";
+        stmdmg = 0;
         sequence = new Boolean[]{true,true,false};
         img = user.sprites[2];
     }

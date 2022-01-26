@@ -64,6 +64,9 @@ public class Sprite {
     public static Image TurnInd;
     public static Image Win;
     public static Image Pin;
+    public static Image KickoutGuess;
+    public static Image KickoutPass;
+    public static Image KickoutFail;
 
 
 
@@ -147,6 +150,11 @@ public class Sprite {
             TurnInd = ImageManager.loadImage("turnmarker");
             Win = ImageManager.loadImage("win");
             Pin = ImageManager.loadImage("pinned");
+            KickoutGuess = ImageManager.loadImage("kickoutguess");
+            KickoutPass = ImageManager.loadImage("kickoutpass");
+            KickoutFail = ImageManager.loadImage("kickoutfail");
+
+
 
 
         } catch (IOException var1) {

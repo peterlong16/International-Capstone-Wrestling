@@ -4,7 +4,8 @@ public class Kickout extends Action{
     Kickout(Character c) {
         super(c);
         mover = false;
-        type = "misc";
+        name = "pass";
+        type = "kickout";
         cost = 0;
     }
 

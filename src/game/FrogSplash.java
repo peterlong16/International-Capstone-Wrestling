@@ -12,6 +12,7 @@ public class FrogSplash extends Action{
         mover = false;
         type = "Dive";
         name = "Frog Splash";
+        desc = "Dive onto the target with all of your body weight.";
         stmdmg = 0;
         sequence = new Boolean[]{true,false,true};
         img = user.sprites[user.sprites.length - 1];

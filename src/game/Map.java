@@ -3,6 +3,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
@@ -17,8 +18,11 @@ public class Map extends JPanel {
     boolean atkPrimed = false;
     boolean moverPrimed = false;
     boolean i = true;
+    boolean PinCountUpdate = false;
     static boolean ended = false;
     static int MenuSelect = 0;
+    static boolean reveal;
+  
 
 
     //0 = none, 1= strikes, 2= slams, 3 = context
@@ -39,12 +43,16 @@ public class Map extends JPanel {
     static Button[] strikes;
     static Button[] slams;
     static Button[] context;
-    Button[] Kickoutbuttons;
+    static Button[] Kickoutbuttons;
     static String winText = "";
     Button exitButton;
     Boolean[] sequence;
     int mousestep = 0;
     static Button[] resetButton = new Button[1];
+    String desc;
+    Action hoverA;
+    Character hoverC;
+    int transparencyVal = 0;
 
 
 
@@ -96,6 +104,30 @@ public class Map extends JPanel {
         int GridWidth = COLS * TILE_SIZE;
         int GridHeight = ROWS * TILE_SIZE;
         setPreferredSize(new Dimension(GridWidth,GridHeight));
+        addMouseMotionListener(new MouseMotionListener() {
+            @Override
+            public void mouseDragged(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                Button hoverbut = findButton(e.getX(),e.getY());
+                TurnOrder turn = findturnOrder(e.getX(),e.getY());
+
+                if(hoverbut!=null && hoverbut.action!=null){
+                    hoverA = hoverbut.action;
+                    Selected = null;
+                    hoverC = null;
+                }
+
+                if(turn!=null){
+                    hoverC = turn.c;
+                    Selected = hoverC.CurTile;
+                    hoverA = null;
+                }
+            }
+        });
         addMouseListener(new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {}
@@ -104,6 +136,10 @@ public class Map extends JPanel {
             public void mousePressed(MouseEvent e) {
                 Tile TargetTile = FindTile(e.getX(), e.getY());
                 Button button = findButton(e.getX(),e.getY());
+                if(reveal){
+                    reveal = false;
+                    Kickoutbuttons = null;
+                }
 
                 if (SwingUtilities.isRightMouseButton(e)){
                     if(atkPrimed){
@@ -176,11 +212,18 @@ public class Map extends JPanel {
                     if (button != null && !button.active) {
                         button = null;
                     }
-                    if (button != null && (button.action.type.equals("misc") || button.action.type.equals("reset") || button.action.type.equals("menu"))) {
+                    if (button != null && (button.action.type.equals("misc") || button.action.type.equals("reset") || button.action.type.equals("menu") || button.action.type.equals("kickout") )) {
                         strikes = null;
                         slams = null;
                         context = null;
                         button.action.Execute();
+                        if(button.action.type.equals("kickout")){
+                            reveal = true;
+                            repaint();
+                            changeTurn();
+
+
+                        }
                         if (button.action.type.equals("misc")) {
                             changeTurn();
                         }
@@ -220,6 +263,7 @@ public class Map extends JPanel {
         start = true;
         TurnCounter = 0;
         pinCount = 0;
+        Kickoutbuttons = null;
         resetButton[0] = null;
         ended = false;
         winText = "";
@@ -253,6 +297,21 @@ public class Map extends JPanel {
         CurrentPlayer.MovePoints = CurrentPlayer.MovePoints - cost;
         CurrentPlayer.moving = true;
         context = new Button[5];
+    }
+
+    TurnOrder findturnOrder(int x, int y){
+
+        TurnOrder turn = null;
+        for(TurnOrder t: turnOrder){
+            if(x>t.lowx &&
+               x<t.highx &&
+               y>t.lowy &&
+               y<t.highy){
+                turn = t;
+            }
+        }
+
+        return turn;
     }
 
     static int distance(Tile t1, Tile t2){
@@ -464,70 +523,75 @@ public class Map extends JPanel {
 
     void endGame(){
         ended = true;
-        Kickoutbuttons = null;
         menu = null;
         strikes = null;
         slams = null;
         context = null;
-        winText = CurrentPlayer.teamname + " wins!";
-        resetButton[0] = new Button(new resetGame(CurrentPlayer), 40, 50, getWidth()/2,getHeight()/2);
+        winText = "Team " +CurrentPlayer.teamname + " Wins!";
+        resetButton[0] = new Button(new resetGame(CurrentPlayer), 25, 90, (getWidth()/2) - (90/2),getHeight()/2);
         resetButton[0].active = true;
     }
 
     synchronized void changeTurn(){
-        rotateOrder();
+        if(!ended) {
+            rotateOrder();
+        }
         strikes = null;
         slams = null;
         context = null;
         menu = null;
         createMenu();
 
-        if ((CurrentPlayer.state == 2 || CurrentPlayer.state == 3)  && !ended) {
-            pinCount++;
+        if(CurrentPlayer!=null) {
+            if ((CurrentPlayer.state == 2 || CurrentPlayer.state == 3) && !ended) {
+                pinCount++;
+                PinCountUpdate = true;
 
-        }
-
-        if (pinCount >= 3) {
-            endGame();
-            return;
-        }
-        if(!ended) {
-            TurnCounter++;
-            if (TurnCounter == Characters.length) {
-
-                TurnCounter = 0;
-                CurrentPlayer = Characters[TurnCounter];
             }
 
-            Characters[TurnCounter].resetTurn();
-            CurrentPlayer = Characters[TurnCounter];
+            if (pinCount >= 3) {
+                endGame();
+                return;
+            }
+            if (!ended) {
+                TurnCounter++;
+                if (TurnCounter == Characters.length) {
 
-
-            switch (CurrentPlayer.state) {
-                case 0 -> {
-                    Kickoutbuttons = null;
-                    createMenu();
-
+                    TurnCounter = 0;
+                    CurrentPlayer = Characters[TurnCounter];
                 }
-                case 1 -> {
-                    Kickoutbuttons = null;
-                }
-                case 2 -> {
-                    changeTurn();
+
+                Characters[TurnCounter].resetTurn();
+                CurrentPlayer = Characters[TurnCounter];
 
 
 
-                    strikes = null;
-                    slams = null;
-                }
-                case 3 -> {
-                    createKickout();
-                    slams = null;
-                    strikes = null;
-                    context = null;
-                }
-                default -> {
+                switch (CurrentPlayer.state) {
+                    case 0 -> {
 
+                        createMenu();
+
+                    }
+                    case 1 -> {
+
+
+                    }
+                    case 2 -> {
+                        changeTurn();
+
+
+                        strikes = null;
+                        slams = null;
+                    }
+                    case 3 -> {
+                        createKickout();
+                        slams = null;
+                        strikes = null;
+                        context = null;
+                    }
+                    default -> {
+
+                    }
                 }
             }
         }
@@ -587,11 +651,11 @@ public class Map extends JPanel {
         System.out.println("Kickout: " + randomNum);
         for(int i = 0;i<CurrentPlayer.MaxHealth - CurrentPlayer.Health;i++){
             if(i == randomNum){
-                Kickoutbuttons[i] = new Button(new Kickout(CurrentPlayer), 40,40);
+                Kickoutbuttons[i] = new Button(new Kickout(CurrentPlayer), 50,50);
                 Kickoutbuttons[i].active = true;
             }
            else{
-                Kickoutbuttons[i] = new Button(new KickoutFail(CurrentPlayer), 40,40);
+                Kickoutbuttons[i] = new Button(new KickoutFail(CurrentPlayer), 50,50);
                 Kickoutbuttons[i].active = true;
             }
         }
@@ -678,8 +742,21 @@ public class Map extends JPanel {
         turnOrder = newOrder;
     }
 
+    public boolean isNumeric(String strNum) {
+        if (strNum == null) {
+            return false;
+        }
+        try {
+            double d = Double.parseDouble(strNum);
+        } catch (NumberFormatException nfe) {
+            return false;
+        }
+        return true;
+    }
+
     public void paintComponent(Graphics g) {
         Font font = new Font("Verdana", Font.PLAIN, 15);
+        Font myFont = new Font("sans-serif", Font.BOLD,15);
         g.setFont(font);
         super.paintComponent(g);
         int width = getWidth() / COLS;
@@ -691,6 +768,7 @@ public class Map extends JPanel {
         Color grid = new Color(0, 0, 0, transparency);
         Color canHit = new Color(255,0,0, transparency);
         Color canMove = new Color(69, 147, 234, transparency);
+        Color infoBox = new Color(64, 64, 64, 129);
 
         String tileName;
         String tileOccupant;
@@ -772,17 +850,17 @@ public class Map extends JPanel {
         state = "";
 
         if(start){
-            Characters[0] = SpawnJay(7, 5, "red2","red", Color.red, 1);
+            Characters[0] = SpawnJay(7, 5, "Texas Redd","Red", Color.red, 1);
             turnOrder[0] = new TurnOrder(Characters[0]);
-            Characters[1] = SpawnJay(12, 14, "blue2","blue", Color.blue, 5);
+            Characters[1] = SpawnJay(12, 14, "Tommy Bluford","Blue", Color.blue, 5);
             turnOrder[1] = new TurnOrder(Characters[1]);
-            Characters[2] = SpawnJon(6,6,"red1","red", Color.red,1);
+            Characters[2] = SpawnJon(6,6,"Crimson Lightning","Red", Color.red,1);
             turnOrder[2] = new TurnOrder(Characters[2]);
-            Characters[3] = SpawnJon(13, 13, "blue1", "blue", Color.blue,5);
+            Characters[3] = SpawnJon(13, 13, "El Mono Azul", "Blue", Color.blue,5);
             turnOrder[3] = new TurnOrder(Characters[3]);
-            Characters[4] = SpawnJak(5, 7, "red3","red", Color.red,1);
+            Characters[4] = SpawnJak(5, 7, "Brock Redstone","Red", Color.red,1);
             turnOrder[4] = new TurnOrder(Characters[4]);
-            Characters[5] = SpawnJak(14, 12, "blue3","blue", Color.blue,5);
+            Characters[5] = SpawnJak(14, 12, "Karl Kobalt","Blue", Color.blue,5);
             turnOrder[5] = new TurnOrder(Characters[5]);
             CurrentPlayer = Characters[0];
             for(Character i: Characters){
@@ -816,6 +894,8 @@ public class Map extends JPanel {
             }
         }
 
+        //SELECTED TILE
+
         if(Selected!=null){
             Graphics2D g2 = (Graphics2D) g;
             g2.setStroke(new BasicStroke(5));
@@ -825,6 +905,8 @@ public class Map extends JPanel {
 
             tileName = Selected.name;
             if(Selected.Occupant()!=null){
+                hoverC = Selected.Occupant();
+                hoverA = null;
                 tileOccupant = Selected.Occupant().name;
                 state = Selected.Occupant().states[Selected.Occupant().state];
 
@@ -916,42 +998,199 @@ public class Map extends JPanel {
             }
         }
 
+        //  INFORMATION BOX
 
+        int infoBoxx = 250;
+        int infoBoxy = getHeight() - 115;
+        int textY = infoBoxy + 55;
+        int textX = infoBoxx + 10;
+        int maxWidth = 420;
+        int curWidth = 0;
+        int statTextx = infoBoxx + 10;
+        int statTexty = infoBoxy + 20;
+
+        g.setColor(infoBox);
+        g.fillRect(infoBoxx, infoBoxy,510,110);
+        g.setColor(Color.white);
+        Font infoFont = new Font("sans-serif", Font.PLAIN,15);
+        g.setFont(infoFont);
+        if(hoverA!=null) {
+            if (hoverA.range != null) {
+                StringBuilder strb = new StringBuilder();
+                strb.append("Range: ");
+
+                for (int r = 0; r < hoverA.range.length; r++) {
+                    strb.append(hoverA.range[r]);
+                    if (r != hoverA.range.length - 1) {
+                        strb.append("/");
+                    }
+                }
+
+                g.drawString(String.valueOf(strb), statTextx, statTexty);
+                statTextx = statTextx + g.getFontMetrics().stringWidth(String.valueOf(strb) + 5);
+            }
+            if(hoverA.dmg>0){
+
+                g.drawString("Damage: " + hoverA.dmg,statTextx,statTexty);
+                statTextx = statTextx + g.getFontMetrics().stringWidth("Damage: " + hoverA.dmg) + 5;
+                if(hoverA.finisher){
+                    g.setColor(Color.yellow);
+                    g.drawString("+" + hoverA.user.strikemod,statTextx,statTexty);
+                    statTextx = statTextx + g.getFontMetrics().stringWidth("+" + hoverA.user.strikemod + 5);
+                    g.setColor(Color.white);
+                }
+                g.setColor(Color.white);
+            }
+
+            if(hoverA.stmdmg > 0){
+                g.drawString("Stamina Damage: " + hoverA.stmdmg,statTextx,statTexty);
+                statTextx = statTextx + g.getFontMetrics().stringWidth("Stamina Damage: " + hoverA.stmdmg + 5);
+            }
+
+            if(hoverA.cost>0){
+                g.drawString("Cost: " + hoverA.cost,statTextx,statTexty);
+                statTextx = statTextx + g.getFontMetrics().stringWidth("Cost: " + hoverA.cost + 5);
+                if(hoverA.type.equals("Slam")){
+                    g.setColor(new Color(138,43,226));
+                    g.drawString("+" + hoverA.user.slammod,statTextx,statTexty);
+                    statTextx = statTextx + g.getFontMetrics().stringWidth("+" + hoverA.user.strikemod + 5);
+                    g.setColor(Color.white);
+                }
+            }
+
+
+            if (hoverA.desc != null) {
+                String[] descsplit = hoverA.desc.split(" ");
+                for (String str : descsplit) {
+                    int strwidth = g.getFontMetrics().stringWidth(str);
+                    curWidth = curWidth + strwidth;
+                    if (curWidth > maxWidth) {
+                        curWidth = 0;
+                        textY = textY + 15;
+                        textX = infoBoxx + 10;
+                    }
+                    if(str.equals("Strike") ||
+                       str.equals("combo")  ||
+                       str.equals("finisher.")){
+                        g.setColor(Color.yellow);
+                    }
+                    else if(isNumeric(str)){
+                        g.setColor(Color.GREEN);
+                    }
+                    else{
+                        g.setColor(Color.white);
+                    }
+
+
+                    g.drawString(str, textX, textY);
+                    textX = textX + strwidth + 5;
+
+                }
+            }
+        }
+
+        if(hoverC!=null){
+            g.drawString(hoverC.name + " (" + hoverC.states[hoverC.state] + ")", statTextx,statTexty);
+            statTexty = statTexty + 30;
+            g.drawString("Health: " + hoverC.Health,statTextx,statTexty);
+            statTexty = statTexty + 20;
+            g.drawString("Max Health: " + hoverC.MaxHealth,statTextx,statTexty);
+            statTexty = statTexty + 20;
+            g.drawString("Stamina: " + hoverC.MovePoints,statTextx,statTexty);
+            statTextx = statTextx + 100;
+            statTexty = infoBoxy + 50;
+            g.drawString("Max Stamina: " + hoverC.MaxMove,statTextx,statTexty);
+            statTexty = statTexty + 20;
+            g.drawString("HP regeneration: " + hoverC.regen, statTextx,statTexty);
+            statTexty = statTexty + 20;
+            g.drawString("Stamina regeneration: " + hoverC.stamregen,statTextx,statTexty);
+
+            statTextx = statTextx + 200;
+            statTexty = statTexty = infoBoxy;
+            g.drawImage(hoverC.sprite.image, statTextx,statTexty,null);
+
+        }
 
         if(Kickoutbuttons!=null) {
-            drawButtons(g, ((getWidth()) / 2) - (Kickoutbuttons.length * Kickoutbuttons[0].width) , getHeight() - ((Kickoutbuttons[0].height) + 10), Kickoutbuttons);
+            int kowidth = (Kickoutbuttons.length * Kickoutbuttons[0].width) + (30 * (Kickoutbuttons.length - 1));
+            drawButtons(g,(getWidth()/2) - (kowidth/2) , getHeight() - 200, Kickoutbuttons);
         }
 
         if(resetButton[0]!=null){
             Button reset = resetButton[0];
 
 
-            g.setColor(Color.white);
+            g.setColor(Color.black);
             g.fillRect(reset.x1,reset.y1,reset.width,reset.height);
+            g.setColor(Color.white);
+            g.drawString("Reset",reset.x1 + (reset.width/2) - (g.getFontMetrics().stringWidth("Reset")/2),reset.y1 +
+                    ((reset.height / 2) + g.getFontMetrics().getHeight()/4));
+
 
         }
 
-        g.drawString(winText, getWidth()/2,20);
-        g.drawString(CurrentPlayer.toString(), 100,30);
-        int namex = 200;
-        int namey = 50;
-        g.drawString("Player order: ", 100,50);
-        for(Character i: Characters){
-            g.drawString(i.name + " ",namex,namey);
-            namex += 40;
+        //PIN COUNTER
+
+        if(pinCount>0) {
+            Color col = null;
+            g.setFont(new Font("sans-serif", Font.BOLD, 90));
+            g.drawString(winText, (getWidth() / 2) - (g.getFontMetrics().stringWidth(winText)/2), (getHeight()/2) - (g.getFontMetrics().getHeight()/2));
+            g.setColor(Color.white);
+            g.setFont(font);
+            g.drawString("Pin Count:", 20, 20);
+            int Pstrwidth = g.getFontMetrics().stringWidth("Pin Count:");
+            g.setFont(new Font("sans-serif", Font.BOLD, 50));
+            switch (pinCount) {
+                case 1 -> {
+                    col = new Color(255,255,255);
+                    g.setColor(col);
+                    g.drawString(String.valueOf(pinCount), (Pstrwidth + 10) / 2, 70);
+                }
+                case 2 -> {
+                    col = new Color(255, 234, 0);
+                    g.setColor(col);
+                    g.drawString(String.valueOf(pinCount), (Pstrwidth + 10) / 2, 70);
+                }
+                case 3 -> {
+                    col = new Color(212, 95, 10);
+                    g.setColor(col);
+                    g.drawString(String.valueOf(pinCount), (Pstrwidth + 10) / 2, 70);
+                }
+
+            }
+
+            if(PinCountUpdate){
+                transparencyVal = 100;
+                PinCountUpdate = false;
+            }
+
+            g.setFont(new Font("sans-serif",Font.BOLD,200));
+            assert col != null;
+            g.setColor(new Color(col.getRed(),col.getGreen(),col.getBlue(),transparencyVal));
+            g.drawString(String.valueOf(pinCount),(getWidth()/2) - (g.getFontMetrics().stringWidth(String.valueOf(pinCount))/2),(getHeight()/2) - 50) ;
+
+            if(transparencyVal> 0){
+                transparencyVal--;
+            }
+
+
+            g.setFont(font);
         }
-        g.drawString("Pin count : " + pinCount,100,70);
-        g.drawString("Turn counter : " + TurnCounter,100, 90);
+
+
+        //TURN ORDER
 
         if(turnOrder!=null){
             int TOx = getWidth() - turnOrder[0].width;
             int TOy = (getHeight()/2) - ((turnOrder.length * turnOrder[0].height) / 2);
-            Font myFont = new Font("sans-serif", Font.BOLD,15);
+
             g.setFont(myFont);
+            g.setColor(Color.white);
             g.drawString("NEXT",TOx + (turnOrder[0].width/4),TOy - 10);
 
             for(TurnOrder t:turnOrder){
                 t.draw(g,TOx,TOy);
+                t.setBounds(TOx,TOy);
                 TOy = TOy + t.height + 10;
             }
         }
@@ -962,7 +1201,7 @@ public class Map extends JPanel {
         Graphics2D g2 = (Graphics2D) g;
         g2.setStroke(new BasicStroke(1));
         Color TeamCol;
-        if(CurrentPlayer.teamname.equals("blue")){
+        if(CurrentPlayer.teamname.equals("Blue")){
             TeamCol = Color.blue;
         }
         else{
@@ -974,7 +1213,13 @@ public class Map extends JPanel {
         for(Button b: buttons){
             if(b!=null) {
                 b.active = true;
-                g.setColor(TeamCol);
+                if(b.action.canAfford()){
+                    g.setColor(TeamCol);
+                }
+                else{
+                    g.setColor(Color.gray);
+                }
+
                 b.setX(menux);
                 b.setY(menuy);
                 if (b.action.name.equals("Context")) {
@@ -996,6 +1241,23 @@ public class Map extends JPanel {
 
                 g.drawString(b.action.name, menux + (b.width / 2) - (sWidth / 2), menuy + ((b.height / 2) + sHeight / 4));
 
+                if(b.action.finisher) {
+                    g.setColor(Color.yellow);
+                    Font myFont = new Font("sans-serif", Font.BOLD, 15);
+                    g.setFont(myFont);
+                    g.drawString("+" + b.action.user.strikemod, menux + (b.width - 5), menuy + 10);
+                    Font font = new Font("Verdana", Font.PLAIN, 15);
+                    g.setFont(font);
+                }
+
+                if(b.action.type.equals("Slam")){
+                    g.setColor(new Color(138,43,226));
+                    Font myFont = new Font("sans-serif", Font.BOLD, 15);
+                    g.setFont(myFont);
+                    g.drawString("-" + b.action.user.slammod, menux + (b.width - 5), menuy + 10);
+                    Font font = new Font("Verdana", Font.PLAIN, 15);
+                    g.setFont(font);
+                }
 
                 menuy += b.height + 2;
             }
@@ -1008,11 +1270,25 @@ public class Map extends JPanel {
 
     private void drawButtons(Graphics g, int x, int y, Button[] buttons) {
 
+
+
         for(Button b: buttons){
             b.setX(x);
             b.setY(y);
             g.setColor(Color.white);
-            g.fillRect(b.x1,b.y1,b.width,b.height);
+            if(reveal){
+                switch(b.action.name){
+                    case "pass" -> {
+                        g.drawImage(Sprite.KickoutPass,b.x1,b.y1,b.width,b.height,null);
+                    }
+                    case "fail" -> {
+                        g.drawImage(Sprite.KickoutFail,b.x1,b.y1,b.width,b.height,null);
+                    }
+                }
+            }
+            else {
+                g.drawImage(Sprite.KickoutGuess, b.x1, b.y1, b.width, b.height, null);
+            }
 
             x += (buttons[0].width + 30);
         }

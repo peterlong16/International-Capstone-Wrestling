@@ -13,6 +13,7 @@ public class Pin extends Action{
         mover = false;
         type = "pin";
         name = "Pin";
+        desc = "Attempt to Pin the target, match can be won on your next turn";
         sequence = new Boolean[]{true,false,false};
         img = user.sprites[user.sprites.length-1];
     }

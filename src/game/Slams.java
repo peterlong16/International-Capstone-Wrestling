@@ -10,6 +10,7 @@ public class Slams extends Action{
         type = "menu";
         cost = 0;
         name = "Slams";
+        desc = "Display list of slams. Using multiple slams in the same turn will incur a stamina penalty of 1 for each additional slam.";
     }
 
     boolean canAfford(){

@@ -2,33 +2,33 @@ package game;
 
 import java.awt.image.BufferedImage;
 
-public class SBChokeslam extends Action{
-
-    SBChokeslam(Character c) {
+public class Uranage extends Action{
+    Uranage(Character c) {
         super(c);
-        cost = 3;
-        dmg = 4;
-        range = new int[]{1};
+        cost = 1;
+        dmg = 3;
+        stmdmg = 0;
+        range = new int[1];
+        range[0] = 1;
         targets = new Character[1];
         mover = true;
-        type = "SpringBoard";
-        name = "OTR Chokeslam";
-        desc = "Grab and slam a target inside the ring from the apron. Targets can be slammed onto the canvas or the outside of the ring.";
-        stmdmg = 2;
+        type = "Slam";
+        name = "Uranage";
+        desc = "Pick up an adjacent target and slam them on an adjacent tile to the target 1 space away";
         sequence = new Boolean[]{true,true,false};
         img = user.sprites[2];
+
     }
 
-    boolean canHit(Tile t, int distance) {
-        return super.canHit(t, distance) && t.type != 5;
-    }
 
     boolean canTargetMove(Tile t, int distance){
-        return Map.distance(t,user.CurTile) == 1 &&
-                (t.type >= 5 && t.type!=6) &&
-                !t.Occupied();
+
+        return Map.distance(t,user.CurTile)==1 && t.canMove()  &&
+                t.x!=targets[0].CurTile.x &&
+                t.y!=targets[0].CurTile.y;
     }
 
+    @Override
     void Execute() {
         user.atk = this;
         user.attacking = true;

@@ -26,7 +26,7 @@ public class Light extends Character {
 
 
 
-        if(teamname.equals("blue")){
+        if(teamname.equals("Blue")){
             sprites = new Image[]{
                     Sprite.BlueLIdle,
                     Sprite.BlueLDown,

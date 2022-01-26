@@ -12,6 +12,7 @@ public class SBrana extends Action{
         mover = true;
         type = "SpringBoard";
         name = "SB Hurricanrana";
+        desc = "Springboard from the ropes and perform a hurricanrana on the target, throwing the target up to 2 tiles away.";
         stmdmg = 0;
         sequence = new Boolean[]{true,true,true};
         img = user.sprites[2];

@@ -13,6 +13,7 @@ public class Slingblade extends Action {
         mover = false;
         type = "Slam";
         name = "Slingblade";
+        desc = "Run through the target, using your momentum to slam them. You move up to 5 spaces in the direction of the target";
         stmdmg = 0;
         sequence = new Boolean[]{true,false,true};
         img = user.sprites[2];

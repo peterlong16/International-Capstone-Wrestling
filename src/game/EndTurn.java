@@ -6,6 +6,7 @@ public class EndTurn extends Action{
         mover = false;
         type = "misc";
         cost = 0;
+        desc = "End your turn";
         name = "End Turn";
     }
 

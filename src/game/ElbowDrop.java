@@ -12,6 +12,7 @@ public class ElbowDrop extends Action{
         mover = false;
         type = "Dive";
         name = "Elbow Drop";
+        desc = "Drive your elbow into the target from the turnbuckle";
         stmdmg = 0;
         sequence = new Boolean[]{true,false,true};
         img = user.sprites[user.sprites.length - 1];

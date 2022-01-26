@@ -13,6 +13,7 @@ public class Spinkick extends Action{
         mover = true;
         type = "Strike";
         name = "Spin Kick";
+        desc = "Deliver a spinning kick which pushes a target backwards 1 tile";
         sequence = new Boolean[]{true,true,false};
         img = user.sprites[4];
     }

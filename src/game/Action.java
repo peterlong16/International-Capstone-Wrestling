@@ -9,6 +9,7 @@ public abstract class Action {
     Character user;
     Character[] targets;
     Boolean[] sequence = new Boolean[3];
+    boolean finisher;
     // [ needs target, needs move target, needs character move ]
     int cost;
     int dmg;
@@ -17,7 +18,7 @@ public abstract class Action {
     boolean mover;
     String type;
     String name;
-    int CharMoveRange;
+    String desc;
     Image img;
 
     Tile CharMove;
@@ -188,6 +189,9 @@ public abstract class Action {
     }
 
     boolean canAfford(){
+        if(this.type.equals("Slam")){
+            return user.MovePoints >= cost + user.slammod;
+        }
         return user.MovePoints >= cost;
     }
 

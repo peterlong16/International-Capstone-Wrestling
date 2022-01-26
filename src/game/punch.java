@@ -13,6 +13,7 @@ public class punch extends Action{
         targets = new Character[1];
         mover = false;
         type = "strike";
+        desc = "Smash the target with your forearm";
         name = "Forearm Smash";
         sequence = new Boolean[]{true,false,false};
         img = user.sprites[3];

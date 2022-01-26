@@ -13,6 +13,7 @@ public class superkick extends Action {
         mover = false;
         type = "Strike";
         name = "Superkick";
+        desc = "Take a stride forwards and deliver a big kick to a target";
         sequence = new Boolean[]{true,false,false};
         img = user.sprites[4];
     }

@@ -15,6 +15,7 @@ public class GiantSlap extends Action{
         mover = true;
         type = "Strike";
         name = "Giant Slap";
+        desc = "Slap a neighbouring target with such force they are moved. Can be moved 1 space to a neighbouring tile.";
         sequence = new Boolean[]{true,true,false};
         img = user.sprites[3];
     }

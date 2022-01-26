@@ -12,6 +12,7 @@ public class AxeHandle extends Action{
         mover = false;
         type = "Dive";
         name = "Axe Handle";
+        desc = "Jump from the turnbuckle and deliver a large blow with both hands";
         stmdmg = 0;
         sequence = new Boolean[]{true,false,true};
         img = user.sprites[3];

@@ -13,7 +13,9 @@ public class dropKick extends Action{
         mover = true;
         type = "Strike";
         name = "DropKick";
+        desc = "Jump forward 1 space with both legs and kick the target backwards 1 space. Deals 1 damage to the user. Strike combo finisher.";
         sequence = new Boolean[]{true,true,true};
+        finisher = true;
         img = user.sprites[5];
     }
 

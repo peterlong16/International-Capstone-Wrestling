@@ -12,6 +12,7 @@ public class SBforearm extends Action {
         mover = false;
         type = "SpringBoard";
         name = "SB Forearm";
+        desc = "Springboard from the ropes and deliver a flying forearm smash";
         stmdmg = 0;
         sequence = new Boolean[]{true,false,true};
         img = user.sprites[3];

@@ -24,7 +24,7 @@ public class Heavy extends Character {
         this.staminaBar = new boolean[MaxMove];
         Arrays.fill(staminaBar, true);
 
-        if(teamname.equals("blue")){
+        if(teamname.equals("Blue")){
             sprites = new Image[]{
                     Sprite.BlueHIdle,
                     Sprite.BlueHDown,

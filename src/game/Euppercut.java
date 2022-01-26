@@ -14,6 +14,7 @@ public class Euppercut extends Action{
         targets = new Character[1];
         mover = true;
         type = "Strike";
+        desc = "Deliver an uppercut to the target while swivelling around them, moving you to an adjacent tile";
         name = "Euro Uppercut";
         sequence = new Boolean[]{true,false,true};
         img = user.sprites[3];

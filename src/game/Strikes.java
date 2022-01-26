@@ -9,6 +9,7 @@ public class Strikes extends Action{
         type = "menu";
         cost = 0;
         name = "Strikes";
+        desc = "Display a list of all strikes. Using multiple strikes in the same turn will increase the damage of your Strike combo finisher.";
     }
 
     boolean canAfford(){

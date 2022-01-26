@@ -9,6 +9,7 @@ public class Context extends Action{
         mover = false;
         type = "menu";
         cost = 0;
+        desc = "Display all contextual actions";
         name = "Context";
     }
 

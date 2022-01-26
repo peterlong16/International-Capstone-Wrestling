@@ -13,6 +13,7 @@ public class rana extends Action{
         mover = true;
         type = "Slam";
         name = "Hurricanrana";
+        desc = "Use all your body weight to throw the target to your original position and move to a tile adjacent to the targets starting position.";
         stmdmg = 1;
         sequence = new Boolean[]{true,true,true};
         img = user.sprites[2];

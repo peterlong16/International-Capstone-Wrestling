@@ -14,6 +14,7 @@ public class HeadButt extends Action{
         mover = false;
         type = "strike";
         name = "Headbutt";
+        desc = "Hit the target with your head. Damaging the stamina and health of the enemy. Deals 2 damage to the user.";
         sequence = new Boolean[]{true,false,false};
         img = user.sprites[5];
     }

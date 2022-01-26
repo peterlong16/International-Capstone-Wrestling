@@ -25,7 +25,7 @@ public class Medium extends Character{
         this.staminaBar = new boolean[MaxMove];
         Arrays.fill(staminaBar, true);
 
-        if(teamname.equals("blue")){
+        if(teamname.equals("Blue")){
             sprites = new Image[]{
                     Sprite.BlueMIdle,
                     Sprite.BlueMDown,
@@ -53,8 +53,9 @@ public class Medium extends Character{
         strikes[1] = new dropKick(this);
         strikes[2] = new Spinkick(this);
 
-        slams = new Action[1];
+        slams = new Action[2];
         slams[0] = new suplex(this);
+        slams[1] = new Uranage(this);
         sprite.setImage(sprites[0]);
 
         dives = new Action[1];
