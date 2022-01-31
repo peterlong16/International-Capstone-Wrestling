@@ -60,6 +60,10 @@ public class dropKick extends Action{
         return canHit && t.Occupied() && spaceBetween(user.CurTile, t);
     }
 
+    boolean exitmod(){
+        return true;
+    }
+
     boolean gotTargets(){
         for(Character i: targets){
             if(i==null){
@@ -117,7 +121,7 @@ public class dropKick extends Action{
             target.state = 0;
         }
 
-        target.changeHealth((dmg + user.strikemod) * -1);
+        target.changeHealth((dmg + user.strikemod + SlamExit(targetMove,target.CurTile)) * -1);
 
         user.strikemod = 0;
 

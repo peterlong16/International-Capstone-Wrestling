@@ -10,8 +10,8 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public abstract class Character {
 
-    int x;
-    int y;
+    float x;
+    float y;
     Tile CurTile;
     Tile PrevTile;
     Color image;
@@ -26,6 +26,7 @@ public abstract class Character {
     int orientation;
     int strikemod = 0;
     int slammod = 0;
+
     double rot;
     Image[] sprites;
     Sprite sprite;
@@ -78,6 +79,10 @@ public abstract class Character {
         state = 0;
         this.name = name;
 
+    }
+
+    boolean Arrived(Tile t){
+        return (Math.abs(t.CenterX - x) + Math.abs(t.CenterY - y) < 1);
     }
 
 
@@ -221,7 +226,10 @@ public abstract class Character {
     void Update(){
         updateHBar();
         updateSBar();
-        if(moving){
+        if(flying){
+            fly();
+        }
+        else if(moving){
             move();
         }
         if(attacking){
@@ -279,30 +287,17 @@ public abstract class Character {
 
             if (x != CurTile.CenterX || y != CurTile.CenterY) {
 
-                if (x!= CurTile.CenterX && flying){
-                    interv--;
-                    if(interv == 0) {
-                        y= y - 2;
-                        interv = diveint;
-                    }
-                }
-
 
                 if (x > CurTile.CenterX){
-                    if(flying){
-                        x= x -2;
-                    }
-                    else {
+
+
                         x--;
-                    }
+
                 }
                 if (x < CurTile.CenterX) {
-                    if(flying){
-                        x = x + 2;
-                    }
-                    else {
+
                         x++;
-                    }
+
                 }
                 if (y > CurTile.CenterY) {
                     y--;
@@ -373,6 +368,51 @@ public abstract class Character {
                 pathpos = 0;
                 flying = false;
             }
+        }
+    }
+
+    void fly(){
+        float dx;
+        float dy;
+
+        if(atk != null && atk.DelayTrigger!=null && Arrived(atk.DelayTrigger) && attacking){
+            atk.DelayAction();
+        }
+
+        if(Arrived(CurTile)){
+            x = CurTile.CenterX;
+            y = CurTile.CenterY;
+            flying = false;
+            moving = false;
+            attacking = false;
+            emptyPath();
+        }
+        else {
+            if(movePath!=null && movePath[pathpos] != null) {
+                if(Arrived(movePath[pathpos])){
+                    pathpos++;
+                }
+                dx = movePath[pathpos].CenterX - x;
+                dy = movePath[pathpos].CenterY - y;
+            }
+            else {
+                dx = CurTile.CenterX - x;
+                dy = CurTile.CenterY - y;
+            }
+
+                float length = (float) Math.sqrt(dx * dx + dy * dy);
+
+                dx /= length;
+                dy /= length;
+
+
+                dx *= 1.5;
+                dy *= 1.5;
+
+
+                x += dx;
+                y += dy;
+
         }
     }
 

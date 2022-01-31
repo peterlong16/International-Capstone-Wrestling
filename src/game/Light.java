@@ -10,14 +10,14 @@ public class Light extends Character {
         this.orientation = or;
         this.image = colour;
         this.sprite = new Sprite(this,Constants.TILE_SIZE,Constants.TILE_SIZE);
-        MovePoints = 6;
-        MaxMove = 6;
+        MovePoints = 8;
+        MaxMove = 8;
         this.name = name;
         MaxHealth = 10;
         Health = 10;
         this.teamname = team;
         regen = 2;
-        stamregen = 3;
+        stamregen = 5;
         painThresh = 4;
         this.healthBar = new boolean[MaxHealth];
         Arrays.fill(healthBar, true);

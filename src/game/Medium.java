@@ -18,7 +18,7 @@ public class Medium extends Character{
         MaxHealth = 8;
         Health = 8;
         regen = 2;
-        stamregen = 3;
+        stamregen = 4;
         painThresh = 3;
         this.healthBar = new boolean[MaxHealth];
         Arrays.fill(healthBar, true);

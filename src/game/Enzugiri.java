@@ -47,8 +47,5 @@ public class Enzugiri extends Action {
         user.strikemod = 0;
         target.changeStam(stmdmg * -1);
 
-        target = null;
-        emptyTargets();
-
     }
 }

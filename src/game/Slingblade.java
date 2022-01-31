@@ -28,6 +28,11 @@ public class Slingblade extends Action {
         return false;
     }
 
+    @Override
+    boolean entrymod() {
+        return true;
+    }
+
     boolean canCharMove(Tile t){
         return Map.distance(t,user.CurTile) > Map.distance(user.CurTile,targets[0].CurTile)  &&
                 Map.distance(t, user.CurTile) < 6 &&
@@ -62,7 +67,7 @@ public class Slingblade extends Action {
         user.setTile(CharMove,path2);
         user.moving = true;
 
-        target.changeHealth(dmg * -1);
+        target.changeHealth((dmg + target.CurTile.SlamEntryModifier)* -1);
         target.changeStam(stmdmg * -1);
 
 
@@ -73,7 +78,7 @@ public class Slingblade extends Action {
         user.slammod++;
         user.changeHealth(-1);
 
-        emptyTargets();
+
         targetMove = null;
     }
 }

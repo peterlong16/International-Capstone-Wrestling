@@ -92,7 +92,7 @@ public class Sprite {
 
 
     public void draw(Graphics2D g) {
-        g.drawImage(this.image, character.x, character.y,this.width,this.height, null);
+        g.drawImage(this.image, (int)character.x, (int)character.y,this.width,this.height, null);
 
     }
 

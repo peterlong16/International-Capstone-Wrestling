@@ -27,6 +27,7 @@ public abstract class Action {
     int CharMovex;
     int CharMovey;
 
+
     Tile targetMove;
 
 
@@ -143,10 +144,42 @@ public abstract class Action {
         targetTile = t;
     }
 
+    boolean entrymod()
+    {
+        return false;
+    }
+
+    boolean exitmod(){
+        return false;
+    }
+
     void emptyTargets(){
         Arrays.fill(targets,null);
         CharMove = null;
         targetMove = null;
+    }
+
+    int SlamExit(Tile dest, Tile start){
+        switch(start.type){
+            case 1,2,3,4,5 ->{
+                return start.SlamExitModifier;
+            }
+            case 7 ->{
+                if(dest.type == 5){
+                    return start.SlamExitModifier;
+                }
+                else{return 0;}
+            }
+            case 8->{
+                if(!start.type.equals(dest.type)){
+                    return start.SlamExitModifier;
+                }
+                else {return 0;}
+            }
+
+        }
+
+        return 0;
     }
 
     void setCharMove(Tile t){
@@ -167,6 +200,8 @@ public abstract class Action {
     boolean canCharMove(Tile t){
         return true;
     }
+
+
 
     boolean canHit(Tile t, int distance){
         boolean canHit = false;

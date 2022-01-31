@@ -12,7 +12,6 @@ public class Euppercut extends Action{
         range = new int[1];
         range[0] = 1;
         targets = new Character[1];
-        mover = true;
         type = "Strike";
         desc = "Deliver an uppercut to the target while swivelling around them, moving you to an adjacent tile";
         name = "Euro Uppercut";
@@ -60,13 +59,8 @@ public class Euppercut extends Action{
 
         target.changeHealth(dmg * -1);
 
-
-        target = null;
         user.moving = true;
 
-
-
-        CharMove = null;
 
     }
 

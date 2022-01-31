@@ -27,6 +27,11 @@ public class FrogSplash extends Action{
         return false;
     }
 
+    @Override
+    boolean entrymod() {
+        return true;
+    }
+
     void Execute(){
         user.atk = this;
         Character target = targets[0];
@@ -35,6 +40,7 @@ public class FrogSplash extends Action{
         user.orient(user.orientation);
         user.sprite.setImage(user.rotate((BufferedImage) img,user.rot));
         Tile[] path = {target.CurTile,CharMove};
+        DelayTrigger = target.CurTile;
 
         user.setTile(CharMove, path );
         if(target.state==2){
@@ -44,7 +50,11 @@ public class FrogSplash extends Action{
 
         user.moving = true;
         user.Dive();
-        target.changeHealth(dmg * -1);
-        emptyTargets();
+        target.changeHealth((dmg + target.CurTile.SlamEntryModifier) * -1);
+    }
+
+    @Override
+    void DelayAction() {
+        user.changeHealth((2 + targets[0].CurTile.SlamEntryModifier) * -1);
     }
 }

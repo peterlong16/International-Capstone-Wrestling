@@ -7,7 +7,7 @@ public class ElbowDrop extends Action{
         super(c);
         cost = 3;
         dmg = 4;
-        range = new int[]{1, 2, 3, 4, 5, 6, 7, 8};
+        range = new int[]{1, 2, 3, 4, 5, 6, 7, 8,9,10,11,12,13,14};
         targets = new Character[1];
         mover = false;
         type = "Dive";
@@ -28,6 +28,11 @@ public class ElbowDrop extends Action{
         return false;
     }
 
+    @Override
+    boolean entrymod() {
+        return true;
+    }
+
     void Execute(){
         user.atk = this;
         Character target = targets[0];
@@ -37,6 +42,8 @@ public class ElbowDrop extends Action{
         user.sprite.setImage(user.rotate((BufferedImage) img,user.rot));
         Tile[] path = {target.CurTile,CharMove};
 
+        DelayTrigger = target.CurTile;
+
         user.setTile(CharMove, path );
         if(target.state==2){
             target.cancelPin(Map.neighbourTiles(target.CurTile), this);
@@ -45,7 +52,11 @@ public class ElbowDrop extends Action{
 
         user.moving = true;
         user.Dive();
-        target.changeHealth(dmg * -1);
-        emptyTargets();
+        target.changeHealth((dmg + target.CurTile.SlamEntryModifier) * -1);
+    }
+
+    @Override
+    void DelayAction() {
+        user.changeHealth((2 + targets[0].CurTile.SlamEntryModifier) * -1);
     }
 }

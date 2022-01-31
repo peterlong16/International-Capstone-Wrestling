@@ -1,11 +1,16 @@
 package game;
+import Utilities.ImageManager;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.PriorityQueue;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static game.Constants.*;
@@ -22,7 +27,7 @@ public class Map extends JPanel {
     static boolean ended = false;
     static int MenuSelect = 0;
     static boolean reveal;
-  
+
 
 
     //0 = none, 1= strikes, 2= slams, 3 = context
@@ -274,7 +279,7 @@ public class Map extends JPanel {
     }
 
     int moveCost(Tile t){
-         // Calculates the cost of moving from the current player's tile to a given tile
+        // Calculates the cost of moving from the current player's tile to a given tile
         int moveCost;
 
         if(t.x == CurrentPlayer.CurTile.x){
@@ -289,6 +294,8 @@ public class Map extends JPanel {
         return Math.abs(moveCost);
     }
 
+
+
     void charMove(Tile t){
         //Moves the current player to their selected tile
         int cost = moveCost(t);
@@ -298,6 +305,7 @@ public class Map extends JPanel {
         CurrentPlayer.moving = true;
         context = new Button[5];
     }
+
 
     TurnOrder findturnOrder(int x, int y){
 
@@ -393,6 +401,7 @@ public class Map extends JPanel {
         }
         return path;
     }
+
 
     static ArrayList<Tile> neighbourTiles(Tile t){
 
@@ -712,19 +721,19 @@ public class Map extends JPanel {
         return dest;
     }
 
-    public Character[] findPinned(){
-        Character[] pinned;
-        pinned = new Character[6];
+    public Character[] findDowned(){
+        Character[] downed;
+        downed = new Character[6];
         int index = 0;
 
         for(Character i: Characters){
-            if(i.state==3){
-                pinned[index]=i;
+            if(i.state==3 || i.state == 1){
+                downed[index]=i;
                 index++;
             }
         }
 
-        return pinned;
+        return downed;
     }
 
     void rotateOrder(){
@@ -770,10 +779,14 @@ public class Map extends JPanel {
         Color canMove = new Color(69, 147, 234, transparency);
         Color infoBox = new Color(64, 64, 64, 129);
 
+        Tile[] ropeTiles = new Tile[40];
+        int ropeindex = 0;
         String tileName;
         String tileOccupant;
         String tileAccess;
         String state;
+
+        //TILE HIGHLIGHT
 
         for (int r = 0; r < ROWS; r++) {
             for (int c = 0; c < COLS; c++) {
@@ -781,21 +794,31 @@ public class Map extends JPanel {
                 int x = c * height;
                 BufferedImage TileImage = (BufferedImage) TileGrid[r][c].image;
                 BufferedImage rotated;
+                BufferedImage ropes = (BufferedImage) Tile.ROPEFG;
+                BufferedImage rotropes = ropes;
                 if(TileGrid[r][c].type == 7) {
                     if (c == 15) {
                         rotated = rotateClockwise(TileImage, 1);
                         TileImage = rotated;
+                        rotropes = rotateClockwise(ropes,1);
                     }
                     if(r == 4){
                         rotated = rotateClockwise(TileImage,0.5);
                         TileImage = rotated;
+                        rotropes = rotateClockwise(ropes,0.5);
+
                     }
 
                     if(r == 15){
                         rotated = rotateClockwise(TileImage,-0.5);
                         TileImage = rotated;
+                        rotropes = rotateClockwise(ropes,-0.5);
+
                     }
 
+                    TileGrid[r][c].rope = rotropes;
+                    ropeTiles[ropeindex] = TileGrid[r][c];
+                    ropeindex++;
                 }
                 g.drawImage(TileImage,x, y, width, height, null);
                 g.setColor(grid);
@@ -818,6 +841,7 @@ public class Map extends JPanel {
                         g.setColor(Color.GREEN);
                         g.drawOval(x,y,40,40);
                     }
+
                 }
 
                 if(atkPrimed) {
@@ -831,6 +855,22 @@ public class Map extends JPanel {
 
                     if (mousestep == 1) {
                         if (primedAtk.canTargetMove(TileGrid[r][c], distance(TileGrid[r][c], primedAtk.user.CurTile))) {
+
+                            int val = 0;
+                            if(primedAtk.exitmod()){
+                                val = val + primedAtk.SlamExit(TileGrid[r][c],primedAtk.targets[0].CurTile);
+                            }
+                            if(primedAtk.entrymod()){
+                                val = val + TileGrid[r][c].SlamEntryModifier;
+                            }
+
+                            if(val > 0){
+                                g.setColor(Color.yellow);
+                                g.setFont(new Font("sans-serif",Font.BOLD,15));
+
+                                g.drawString("+" + val,x + TILE_SIZE/3,y + TILE_SIZE/2 );
+
+                            }
                             g.setColor(canHit);
                             g.fillRect(x, y, width, height);
                         }
@@ -846,21 +886,19 @@ public class Map extends JPanel {
                 TileGrid[r][c].setBounds(x,y,r,c);
             }
         }
-        tileOccupant = "";
-        state = "";
 
         if(start){
-            Characters[0] = SpawnJay(7, 5, "Texas Redd","Red", Color.red, 1);
+            Characters[0] = SpawnJay(8, 10, "Texas Redd","Red", Color.red, 1);
             turnOrder[0] = new TurnOrder(Characters[0]);
-            Characters[1] = SpawnJay(12, 14, "Tommy Bluford","Blue", Color.blue, 5);
+            Characters[1] = SpawnJay(10, 11, "Tommy Bluford","Blue", Color.blue, 5);
             turnOrder[1] = new TurnOrder(Characters[1]);
-            Characters[2] = SpawnJon(6,6,"Crimson Lightning","Red", Color.red,1);
+            Characters[2] = SpawnJon(8,11,"Crimson Lightning","Red", Color.red,1);
             turnOrder[2] = new TurnOrder(Characters[2]);
-            Characters[3] = SpawnJon(13, 13, "El Mono Azul", "Blue", Color.blue,5);
+            Characters[3] = SpawnJon(9, 11, "El Mono Azul", "Blue", Color.blue,5);
             turnOrder[3] = new TurnOrder(Characters[3]);
-            Characters[4] = SpawnJak(5, 7, "Brock Redstone","Red", Color.red,1);
+            Characters[4] = SpawnJak(6, 11, "Brock Redstone","Red", Color.red,1);
             turnOrder[4] = new TurnOrder(Characters[4]);
-            Characters[5] = SpawnJak(14, 12, "Karl Kobalt","Blue", Color.blue,5);
+            Characters[5] = SpawnJak(7, 11, "Karl Kobalt","Blue", Color.blue,5);
             turnOrder[5] = new TurnOrder(Characters[5]);
             CurrentPlayer = Characters[0];
             for(Character i: Characters){
@@ -875,9 +913,9 @@ public class Map extends JPanel {
             rotateOrder();
         }
 
-        Character[] pinned = findPinned();
-        if(pinned[0]!=null){
-            for (Character character : pinned) {
+        Character[] downed = findDowned();
+        if(downed[0]!=null){
+            for (Character character : downed) {
                 if (character != null) {
                     character.draw((Graphics2D) g);
                 } else {
@@ -885,11 +923,18 @@ public class Map extends JPanel {
                 }
             }
         }
+
+        for(Tile t:ropeTiles){
+            if(t!=null){
+                g.drawImage(t.rope,t.CenterX,t.CenterY,TILE_SIZE,TILE_SIZE,null);
+            }
+        }
+
         for(Character i: Characters){
             if(i == CurrentPlayer){
-                g.drawImage(Sprite.TurnInd,i.x + ((TILE_SIZE/2) - 10),i.y - 20,20,20, null);
+                g.drawImage(Sprite.TurnInd,(int)i.x + ((TILE_SIZE/2) - 10),(int)i.y - 20,20,20, null);
             }
-            if(i.state!=3) {
+            if(i.state!=3 && i.state!=1) {
                 i.draw((Graphics2D) g);
             }
         }
@@ -907,8 +952,6 @@ public class Map extends JPanel {
             if(Selected.Occupant()!=null){
                 hoverC = Selected.Occupant();
                 hoverA = null;
-                tileOccupant = Selected.Occupant().name;
-                state = Selected.Occupant().states[Selected.Occupant().state];
 
                 int Xhbars = (Selected.CenterX + (TILE_SIZE / 2) - 5) - ((((Selected.Occupant().healthBar.length * 10) + (Selected.Occupant().healthBar.length - 1))/2) - 5)  ;
                 int Yhbars = Selected.CenterY - TILE_SIZE;
@@ -952,10 +995,31 @@ public class Map extends JPanel {
             tileAccess = Selected.accessible;
 
             g.setColor(Color.white);
-            g.drawString(Selected.toString(), TILE_SIZE / 2,getHeight() - (TILE_SIZE * 6) - font.getSize() * 2 );
-            g.drawString(tileOccupant + "(" + state + ")", TILE_SIZE / 2,getHeight() - (TILE_SIZE * 6) - font.getSize() );
-            g.drawString(tileName, TILE_SIZE / 2,getHeight() - TILE_SIZE * 6 );
-            g.drawString(tileAccess, TILE_SIZE / 2,getHeight() - (TILE_SIZE * 6) + font.getSize());
+
+            int texty = getHeight() - (TILE_SIZE * 4) - font.getSize() * 2;
+            g.drawString(Selected.toString(), TILE_SIZE / 2,texty);
+            texty = texty + font.getSize();
+            g.drawString(tileName, TILE_SIZE / 2,texty );
+            texty = texty + font.getSize();
+            g.drawString("+" + Selected.SlamEntryModifier + " damage to slams on this tile",TILE_SIZE / 2,texty);
+            texty = texty + font.getSize();
+            switch(Selected.type){
+                case 7 -> {
+                    g.drawString("+" + Selected.SlamExitModifier + " damage to targets moved to ground tiles",TILE_SIZE / 2,texty);
+                    texty = texty + font.getSize();
+                }
+                case 1,2,3,4 -> {
+                    g.drawString("+" + Selected.SlamExitModifier + " damage to targets moved from this tile",TILE_SIZE / 2,texty);
+                    texty = texty + font.getSize();
+                }
+                case 8 -> {
+                    g.drawString("+" + Selected.SlamExitModifier + " damage to targets moved to a non-canvas tile",TILE_SIZE / 2,texty);
+                    texty = texty + font.getSize();
+                }
+            }
+
+
+            g.drawString(tileAccess, TILE_SIZE / 2,texty);
         }
 
         if(CurrentPlayer.state == 0) {

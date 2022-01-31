@@ -44,13 +44,23 @@ public class SBforearm extends Action {
         Tile[] path = {target.CurTile,CharMove};
 
         user.setTile(CharMove, path );
+        DelayTrigger = user.CurTile;
         if(target.state==2){
             target.cancelPin(Map.neighbourTiles(target.CurTile), this);
             target.state=0;
         }
 
         user.moving = true;
-        target.changeHealth(dmg * -1);
-        emptyTargets();
+        target.changeHealth((dmg + target.CurTile.SlamEntryModifier) * -1);
+    }
+
+    @Override
+    boolean entrymod() {
+        return true;
+    }
+
+    @Override
+    void DelayAction() {
+        user.changeHealth((1 + targetMove.SlamEntryModifier) * -1);
     }
 }

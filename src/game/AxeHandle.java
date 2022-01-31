@@ -6,7 +6,7 @@ public class AxeHandle extends Action{
     AxeHandle(Character c) {
         super(c);
         cost = 3;
-        dmg = 6;
+        dmg = 5;
         range = new int[]{1, 2, 3, 4, 5, 6};
         targets = new Character[1];
         mover = false;
@@ -28,6 +28,11 @@ public class AxeHandle extends Action{
         return false;
     }
 
+    @Override
+    boolean entrymod() {
+        return true;
+    }
+
     void Execute(){
         user.atk = this;
         Character target = targets[0];
@@ -35,9 +40,10 @@ public class AxeHandle extends Action{
         user.orientation = user.FindDir(target.CurTile, CharMove);
         user.orient(user.orientation);
         user.sprite.setImage(user.rotate((BufferedImage) img,user.rot));
+        Tile[] path = {target.CurTile,CharMove};
+        DelayTrigger = target.CurTile;
 
-
-        user.setTile(CharMove);
+        user.setTile(CharMove,path);
         if(target.state==2){
             target.cancelPin(Map.neighbourTiles(target.CurTile), this);
             target.state=0;
@@ -45,7 +51,11 @@ public class AxeHandle extends Action{
 
         user.moving = true;
         user.Dive();
-        target.changeHealth(dmg * -1);
-        emptyTargets();
+        target.changeHealth((dmg + target.CurTile.SlamEntryModifier) * -1);
+    }
+
+    @Override
+    void DelayAction() {
+        user.changeHealth((2 + targets[0].CurTile.SlamEntryModifier) * -1);
     }
 }

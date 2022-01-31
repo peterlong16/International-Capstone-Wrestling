@@ -24,6 +24,11 @@ public class Spinkick extends Action{
                 (t.x == user.CurTile.x || t.y == user.CurTile.y);
     }
 
+    @Override
+    boolean exitmod() {
+        return true;
+    }
+
     void Execute() {
         user.atk = this;
         user.attacking = true;
@@ -37,7 +42,7 @@ public class Spinkick extends Action{
             target.cancelPin(Map.neighbourTiles(target.CurTile), this);
             target.state = 0;
         }
-        target.changeHealth(dmg * -1);
+        target.changeHealth((dmg +SlamExit(targetMove,target.CurTile)) * -1);
         target.changeStam(stmdmg * -1);
         if(targetMove.Occupied()){
             targetMove.Occupant().changeHealth(-2);

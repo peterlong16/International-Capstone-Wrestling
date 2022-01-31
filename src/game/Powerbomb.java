@@ -27,6 +27,16 @@ public class Powerbomb extends Action{
 
     }
 
+    @Override
+    boolean exitmod() {
+        return true;
+    }
+
+    @Override
+    boolean entrymod() {
+        return true;
+    }
+
     void Execute() {
         user.atk = this;
 
@@ -47,7 +57,7 @@ public class Powerbomb extends Action{
             target.state=0;
         }
 
-        target.changeHealth(dmg * -1);
+        target.changeHealth((dmg + targetMove.SlamEntryModifier + SlamExit(targetMove,target.CurTile)) * -1);
         target.changeStam(stmdmg * -1);
         target.setTile(targetMove,path);
 

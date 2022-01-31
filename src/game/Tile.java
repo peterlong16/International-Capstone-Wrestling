@@ -4,6 +4,7 @@ package game;
 import Utilities.ImageManager;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 import static game.Constants.TILE_SIZE;
@@ -16,8 +17,11 @@ public class Tile {
     String name;
     int CenterX;
     int CenterY;
+    BufferedImage rope;
     int HighX;
     int HighY;
+    int SlamEntryModifier;
+    int SlamExitModifier;
     Character Pinner;
     String accessible;
 
@@ -28,6 +32,7 @@ public class Tile {
     public static Image GROUND;
     public static Image CROWD;
     public static Image ROPE;
+    public static Image ROPEFG;
     public static Image CANVAS;
 
     static {
@@ -39,6 +44,7 @@ public class Tile {
             GROUND = ImageManager.loadImage("ground");
             CROWD = ImageManager.loadImage("crowd");
             ROPE = ImageManager.loadImage("rope");
+            ROPEFG = ImageManager.loadImage("ropefg");
             CANVAS = ImageManager.loadImage("canvas");
 
         } catch (IOException e) {
@@ -66,23 +72,33 @@ public class Tile {
             case 5 -> {
                 this.name = "Ground";
                 accessible = "";
+                this.SlamEntryModifier = 2;
+                this.SlamExitModifier = 0;
             }
             case 6 -> {
                 this.name = "Crowd";
                 accessible = "Inaccessible";
+
             }
             case 7 -> {
                 this.name = "Rope";
+                this.rope = (BufferedImage) ROPEFG;
                 accessible = "Can Climb";
+                this.SlamEntryModifier = 1;
+                this.SlamExitModifier = 1;
             }
             case 8 -> {
                 this.name = "Canvas";
                 accessible = "";
+                this.SlamEntryModifier = 0;
+                this.SlamExitModifier = 1;
             }
 
             default -> {
                 this.name = "RingPost";
                 accessible = "Can Climb";
+                this.SlamEntryModifier = 1;
+                this.SlamExitModifier = 2;
             }
         }
     }

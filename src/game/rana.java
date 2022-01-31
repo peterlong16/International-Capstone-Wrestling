@@ -91,6 +91,16 @@ public class rana extends Action{
 
     }
 
+    @Override
+    boolean entrymod() {
+        return true;
+    }
+
+    @Override
+    boolean exitmod() {
+        return true;
+    }
+
     void DelayAction(){
         System.out.println("yes");
         DelayTrigger = null;
@@ -100,7 +110,7 @@ public class rana extends Action{
             target.state=0;
         }
 
-        target.changeHealth(dmg * -1);
+        target.changeHealth((dmg + targetMove.SlamEntryModifier + SlamExit(targetMove,target.CurTile)) * -1);
         target.changeStam(stmdmg * -1);
         target.setTile(targetMove);
 

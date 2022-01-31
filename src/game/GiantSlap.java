@@ -41,6 +41,11 @@ public class GiantSlap extends Action{
         return false;
     }
 
+    @Override
+    boolean exitmod() {
+        return true;
+    }
+
     void Execute() {
         user.atk = this;
         user.attacking = true;
@@ -54,7 +59,7 @@ public class GiantSlap extends Action{
             target.cancelPin(Map.neighbourTiles(target.CurTile), this);
             target.state = 0;
         }
-        target.changeHealth(dmg * -1);
+        target.changeHealth((dmg + SlamExit(targetMove,target.CurTile)) * -1);
         target.changeStam(stmdmg * -1);
         target.setTile(targetMove);
         target.moving = true;
@@ -64,7 +69,7 @@ public class GiantSlap extends Action{
         else{
             target.x++;
         }
-        target = null;
+
 
 
     }
