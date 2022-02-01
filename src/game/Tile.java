@@ -9,7 +9,7 @@ import java.io.IOException;
 
 import static game.Constants.TILE_SIZE;
 
-public class Tile {
+public class Tile implements Comparable<Tile> {
     int x, y;
     int AccX, AccY;
     Integer type;
@@ -24,6 +24,12 @@ public class Tile {
     int SlamExitModifier;
     Character Pinner;
     String accessible;
+    Path path;
+
+    int cost;
+    Tile parent;
+    int heuristic;
+    int depth;
 
     public static Image TL_CORNER;
     public static Image TR_CORNER;
@@ -103,6 +109,12 @@ public class Tile {
         }
     }
 
+    public int setParent(Tile parent){
+        depth = parent.depth + 1;
+        this.parent = parent;
+
+        return depth;
+    }
 
     Character Occupant(){
         for(Character i: Map.Characters){
@@ -112,6 +124,20 @@ public class Tile {
         }
 
         return null;
+    }
+
+    public int compareTo(Tile other) {
+
+        float f = heuristic + cost;
+        float of = other.heuristic + other.cost;
+
+        if (f < of) {
+            return -1;
+        } else if (f > of) {
+            return 1;
+        } else {
+            return 0;
+        }
     }
 
     boolean Occupied(){

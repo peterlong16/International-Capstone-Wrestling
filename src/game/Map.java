@@ -1,5 +1,6 @@
 package game;
 import Utilities.ImageManager;
+import Utilities.SortedList;
 
 import javax.swing.*;
 import java.awt.*;
@@ -262,6 +263,7 @@ public class Map extends JPanel {
         mousestep = 0;
         primedAtk = null;
         atkPrimed = false;
+        CalculatePaths();
     }
 
     static void resetGame(){
@@ -300,10 +302,12 @@ public class Map extends JPanel {
         //Moves the current player to their selected tile
         int cost = moveCost(t);
         CurrentPlayer.selfMove = true;
-        CurrentPlayer.setTile(t, createPath(t,CurrentPlayer));
-        CurrentPlayer.MovePoints = CurrentPlayer.MovePoints - cost;
+        Path movepath = t.path;
+        CurrentPlayer.MovePoints = CurrentPlayer.MovePoints - movepath.cost;
+        CurrentPlayer.setTile(t, movepath.Tiles);
         CurrentPlayer.moving = true;
         context = new Button[5];
+        CalculatePaths();
     }
 
 
@@ -326,22 +330,12 @@ public class Map extends JPanel {
         return  Math.abs(t1.x-t2.x) + Math.abs(t1.y-t2.y);
     }
 
-    Boolean ValidMove(Tile t, Character c){
-        if(!t.canMove()){
-           return false;
-        }
+    Boolean ValidMove(Tile t, Character c) {
 
-        if(distance(t, c.CurTile) > c.MovePoints){
-            return false;
-        }
+        return t.canMove() &&
+                t.path != null &&
+                t.path.cost <= c.MovePoints;
 
-
-
-        if(c.MovePoints<1){
-            return false;
-        }
-
-        return checkTiles(c.CurTile,t,c.MovePoints);
     }
 
     boolean checkTiles(Tile start, Tile end, int moves){
@@ -378,30 +372,77 @@ public class Map extends JPanel {
 
     }
 
-    Tile[] createPath(Tile t, Character c){
+    static Path createPath(Tile t, Character c){
 
         //creates a movement path for the player character
 
-        Tile[] path = new Tile[c.MovePoints];
-        Tile current = c.CurTile;
-        int i = 0;
-        while(current!=t){
-            ArrayList<Tile> neighbours = neighbourTiles(current);
-            int close = 100;
-            neighbours.removeIf(tile -> !tile.canMove());
+        if(distance(t,c.CurTile)>c.MovePoints || !t.canMove()){
+            return null;
+        }
+        ArrayList<Tile> Closed = new ArrayList<>();
+        SortedList Open = new SortedList();
 
-            for(Tile tile: neighbours){
-                if(distance(tile, t) < close){
-                    close = distance(tile, t);
-                    current = tile;
+        int MaxSearch = 100;
+        c.CurTile.cost = 0;
+        Open.add(c.CurTile);
+        Closed.clear();
+        t.parent = null;
+
+        int depth = 0;
+        while(Open.size()!=0 && depth<MaxSearch){
+            Tile current = Open.first();
+            if(current == t){
+                break;
+            }
+            Open.remove(current);
+            Closed.add(current);
+            for(Tile n: neighbourTiles(current)){
+                if(n.canMove()) {
+                    int nextStepCost = current.cost + distance(n, current);
+
+                    if (nextStepCost < n.cost) {
+                        if (Open.contains(n)) {
+                            Open.remove(n);
+                        }
+                        Closed.remove(n);
+
+                    }
+
+                    if (!Open.contains(n) && !Closed.contains(n)) {
+                        n.cost = nextStepCost;
+                        depth = Math.max(depth, n.setParent(current));
+                        n.heuristic = distance(n, t);
+                        Open.add(n);
+                    }
                 }
             }
-            path[i]=current;
-            i++;
+
         }
+
+        if(t.parent==null){
+            return null;
+        }
+
+        Path path = new Path(t);
+        path.cost = t.parent.cost + distance(t,t.parent);
+        Tile target = t;
+        while(target!=c.CurTile){
+            path.prependStep(target);
+            target = target.parent;
+        }
+        path.prependStep(c.CurTile);
+
         return path;
+
     }
 
+    static void CalculatePaths(){
+        for (int r = 0; r < ROWS; r++) {
+            for (int c = 0; c < COLS; c++){
+                TileGrid[r][c].path = createPath(TileGrid[r][c],CurrentPlayer);
+            }
+        }
+    }
 
     static ArrayList<Tile> neighbourTiles(Tile t){
 
@@ -574,7 +615,7 @@ public class Map extends JPanel {
                 CurrentPlayer = Characters[TurnCounter];
 
 
-
+                CalculatePaths();
                 switch (CurrentPlayer.state) {
                     case 0 -> {
 
@@ -826,15 +867,17 @@ public class Map extends JPanel {
                 if(CurrentPlayer!=null) {
                     if(!atkPrimed) {
                         if (ValidMove(TileGrid[r][c], CurrentPlayer) && CurrentPlayer.state == 0) {
-                            if (moveCost(TileGrid[r][c]) == (CurrentPlayer.MovePoints)) {
-                                g.setColor(all);
-                            } else if (moveCost(TileGrid[r][c]) > (CurrentPlayer.MovePoints / 2)) {
-                                g.setColor(overhalf);
-                            } else {
-                                g.setColor(underhalf);
-                            }
+                            if(TileGrid[r][c].path!=null) {
+                                if (TileGrid[r][c].path.cost == (CurrentPlayer.MovePoints)) {
+                                    g.setColor(all);
+                                } else if (TileGrid[r][c].path.cost > (CurrentPlayer.MovePoints / 2)) {
+                                    g.setColor(overhalf);
+                                } else {
+                                    g.setColor(underhalf);
+                                }
 
-                            g.fillRect(x, y, width, height);
+                                g.fillRect(x, y, width, height);
+                            }
                         }
                     }
                     if(TileGrid[r][c].Occupied() && TileGrid[r][c].Occupant() == CurrentPlayer){
@@ -901,6 +944,7 @@ public class Map extends JPanel {
             Characters[5] = SpawnJak(7, 11, "Karl Kobalt","Blue", Color.blue,5);
             turnOrder[5] = new TurnOrder(Characters[5]);
             CurrentPlayer = Characters[0];
+            CalculatePaths();
             for(Character i: Characters){
                 i.orient(i.orientation);
                 i.sprite.setImage(i.rotate((BufferedImage) i.sprites[0], i.rot));
