@@ -14,9 +14,13 @@ public class Uranage extends Action{
         mover = true;
         type = "Slam";
         name = "Uranage";
+        hype = 8;
         desc = "Pick up an adjacent target and slam them on an adjacent tile to the target 1 space away";
         sequence = new Boolean[]{true,true,false};
         img = user.sprites[2];
+        if(user.teamname.equals("Red")){
+            this.hype = this.hype * -1;
+        }
 
     }
 
@@ -71,6 +75,6 @@ public class Uranage extends Action{
 
         user.changeStam((cost + user.slammod) * -1);
         user.slammod++;
-        targetMove = null;
+
     }
 }

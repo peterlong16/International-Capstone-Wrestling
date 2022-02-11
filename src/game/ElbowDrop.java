@@ -11,11 +11,15 @@ public class ElbowDrop extends Action{
         targets = new Character[1];
         mover = false;
         type = "Dive";
+        hype = 12;
         name = "Elbow Drop";
         desc = "Drive your elbow into the target from the turnbuckle";
         stmdmg = 0;
         sequence = new Boolean[]{true,false,true};
         img = user.sprites[user.sprites.length - 1];
+        if(user.teamname.equals("Red")){
+            this.hype = this.hype * -1;
+        }
     }
 
     @Override
@@ -41,10 +45,9 @@ public class ElbowDrop extends Action{
         user.orient(user.orientation);
         user.sprite.setImage(user.rotate((BufferedImage) img,user.rot));
         Tile[] path = {target.CurTile,CharMove};
-
         DelayTrigger = target.CurTile;
 
-        user.setTile(CharMove, path );
+        user.setTile(target.CurTile);
         if(target.state==2){
             target.cancelPin(Map.neighbourTiles(target.CurTile), this);
             target.state=0;
@@ -57,6 +60,9 @@ public class ElbowDrop extends Action{
 
     @Override
     void DelayAction() {
+        DelayTrigger = null;
+        user.setTile(CharMove);
         user.changeHealth((2 + targets[0].CurTile.SlamEntryModifier) * -1);
+
     }
 }

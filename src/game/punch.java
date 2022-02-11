@@ -12,11 +12,15 @@ public class punch extends Action{
         range[0] = 1;
         targets = new Character[1];
         mover = false;
+        hype = 2;
         type = "strike";
         desc = "Smash the target with your forearm";
         name = "Forearm Smash";
         sequence = new Boolean[]{true,false,false};
         img = user.sprites[3];
+        if(user.teamname.equals("Red")){
+            this.hype = this.hype * -1;
+        }
     }
 
     @Override

@@ -15,9 +15,13 @@ public class Powerbomb extends Action{
         mover = true;
         type = "Slam";
         name = "Powerbomb";
+        hype = 7;
         desc = "Pickup the target and slam them back down up to 2 tiles away in the direction of the attack.";
         sequence = new Boolean[]{true,true,false};
         img = user.sprites[2];
+        if(user.teamname.equals("Red")){
+            this.hype = this.hype * -1;
+        }
     }
 
     boolean canTargetMove(Tile t,int distance){
@@ -72,9 +76,6 @@ public class Powerbomb extends Action{
 
         user.changeStam((cost + user.slammod) * -1);
         user.slammod++;
-
-        emptyTargets();
-        targetMove = null;
 
     }
 }

@@ -13,9 +13,13 @@ public class superkick extends Action {
         mover = false;
         type = "Strike";
         name = "Superkick";
+        hype = 10;
         desc = "Take a stride forwards and deliver a big kick to a target";
         sequence = new Boolean[]{true,false,false};
         img = user.sprites[4];
+        if(user.teamname.equals("Red")){
+            this.hype = this.hype * -1;
+        }
     }
 
     @Override
@@ -72,8 +76,6 @@ public class superkick extends Action {
 
         }
         user.moving = true;
-        CharMovey = 0;
-        CharMovex = 0;
-        CharMove = null;
+
     }
 }

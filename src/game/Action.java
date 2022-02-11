@@ -14,6 +14,7 @@ public abstract class Action {
     int cost;
     int dmg;
     int stmdmg;
+    int hype;
     int[] range;
     boolean mover;
     String type;
@@ -59,85 +60,39 @@ public abstract class Action {
 
     Tile GetClosest(Tile dest,Tile source){
         //returns closest tile to source in direction of dest
-        int dist = Map.distance(dest,source);
-        int x = 0;
-        int y = 0;
-
-        if(dest.x==source.x){
-            x = dest.x;
-            if(dest.y<source.y){
-                y = dest.y + (dist - 1);
-            }
-            else{
-                y = dest.y - (dist - 1);
+        int dist = 100;
+        Tile closest = dest;
+        for(Tile t:Map.neighbourTiles(source)){
+            if(Map.distance(t,dest) < dist){
+                dist = Map.distance(t,dest);
+                closest = t;
             }
         }
-        else if(dest.y==source.y){
-            y = dest.y;
-            if(dest.x<source.x){
-                x = dest.x + (dist - 1);
-            }
-            else{
-                x = dest.x - (dist - 1);
-            }
 
-        }
-        if(x == 0 && y == 0){
-            return null;
-        }
-
-        return Map.TileGrid[y][x];
+        return closest;
     }
 
     boolean spaceBetween(Tile t,Tile t2){
-        int dist = Map.distance(t,t2);
+       Tile cur = GetClosest(t2,t);
 
-        if(t.x==t2.x){
-            if(t.y<t2.y){
-                dist--;
-                while(dist>0){
-                    if(Map.TileGrid[t.y + dist][t.x].Occupied()){
-                        return false;
-                    }
-                    dist--;
-                }
-            }
-            else{
-                dist = dist * -1;
-                dist++;
-                while(dist<0){
-                    if(Map.TileGrid[t.y + dist][t.x].Occupied()){
-                        return false;
-                    }
-                    dist++;
-                }
-            }
-            return true;
-        }
-        else if(t.y==t2.y){
-            if(t.x<t2.x){
-                dist--;
-                while(dist>0){
-                    if(Map.TileGrid[t.y][t.x + dist].Occupied()){
-                        return false;
-                    }
-                    dist--;
-                }
-            }
-            else{
-                dist = dist * -1;
-                dist++;
-                while(dist<0){
-                    if(Map.TileGrid[t.y][t.x + dist].Occupied()){
-                        return false;
-                    }
-                    dist++;
-                }
-            }
-            return true;
 
-        }
-        return false;
+       while(cur!=t2){
+           System.out.println( "--------------");
+           System.out.println( t2 );
+           System.out.println( cur);
+           System.out.println( "--------------");
+
+           if(cur.canMove() ){
+               cur = GetClosest(t2,cur);
+
+           }
+           else{
+               //System.out.println(cur);
+               return false;
+           }
+       }
+
+       return true;
     }
 
     void addTarget(Tile t) {

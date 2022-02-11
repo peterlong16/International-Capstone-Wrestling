@@ -12,12 +12,16 @@ public class Bigboot extends Action {
         range[0] = 1;
         targets = new Character[1];
         mover = true;
+        hype = 4;
         type = "Strike";
         desc = "Move through target while delivering a big kick, moving you to the opposite adjacent tile to the target. Strike combo finisher. ";
         name = "Big Boot";
         finisher = true;
         sequence = new Boolean[]{true,false,true};
         img = user.sprites[4];
+        if(user.teamname.equals("Red")){
+            this.hype = this.hype * -1;
+        }
     }
 
     boolean canCharMove(Tile t) {

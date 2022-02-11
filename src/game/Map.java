@@ -7,6 +7,7 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -19,15 +20,23 @@ import static game.Constants.*;
 public class Map extends JPanel {
 
 
+    static int HYPE_STAGE_1 = 25;
+    static int HYPE_STAGE_2 = 40;
+    static int MAX_HYPE = 50;
+
     static boolean running = true;
     static boolean start = true;
     boolean atkPrimed = false;
-    boolean moverPrimed = false;
     boolean i = true;
     boolean PinCountUpdate = false;
+    boolean HoverHype = false;
     static boolean ended = false;
     static int MenuSelect = 0;
     static boolean reveal;
+
+    int HypeBarWidth = 400;
+    int HypeX = getWidth() + (HypeBarWidth/2);
+    int HypeY = 10;
 
 
 
@@ -38,7 +47,7 @@ public class Map extends JPanel {
     static int TurnCounter = 0;
     int MoveDelay = 100000;
     static int pinCount = 0;
-    int Screenwidth;
+
 
     static Character CurrentPlayer;
     static Character[] Characters = new Character[6];
@@ -51,14 +60,16 @@ public class Map extends JPanel {
     static Button[] context;
     static Button[] Kickoutbuttons;
     static String winText = "";
-    Button exitButton;
     Boolean[] sequence;
     int mousestep = 0;
     static Button[] resetButton = new Button[1];
-    String desc;
     Action hoverA;
     Character hoverC;
     int transparencyVal = 0;
+    static int crowd = 0;
+    static boolean stage1 = false;
+    static boolean stage2 = false;
+    static boolean stage3 = false;
 
 
 
@@ -75,18 +86,18 @@ public class Map extends JPanel {
             6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6,
             6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6,
             6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6,
-            6, 5, 5, 5, 1, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 2, 5, 5, 5, 6,
-            6, 5, 5, 5, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 7, 5, 5, 5, 6,
-            6, 5, 5, 5, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 7, 5, 5, 5, 6,
-            6, 5, 5, 5, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 7, 5, 5, 5, 6,
-            6, 5, 5, 5, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 7, 5, 5, 5, 6,
-            6, 5, 5, 5, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 7, 5, 5, 5, 6,
-            6, 5, 5, 5, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 7, 5, 5, 5, 6,
-            6, 5, 5, 5, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 7, 5, 5, 5, 6,
-            6, 5, 5, 5, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 7, 5, 5, 5, 6,
-            6, 5, 5, 5, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 7, 5, 5, 5, 6,
-            6, 5, 5, 5, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 7, 5, 5, 5, 6,
-            6, 5, 5, 5, 3, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 4, 5, 5, 5, 6,
+            6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6,
+            6, 5, 5, 5, 5, 1, 7, 7, 7, 7, 7, 7, 7, 7, 2, 5, 5, 5, 5, 6,
+            6, 5, 5, 5, 5, 7, 8, 8, 8, 8, 8, 8, 8, 8, 7, 5, 5, 5, 5, 6,
+            6, 5, 5, 5, 5, 7, 8, 8, 8, 8, 8, 8, 8, 8, 7, 5, 5, 5, 5, 6,
+            6, 5, 5, 5, 5, 7, 8, 8, 8, 8, 8, 8, 8, 8, 7, 5, 5, 5, 5, 6,
+            6, 5, 5, 5, 5, 7, 8, 8, 8, 8, 8, 8, 8, 8, 7, 5, 5, 5, 5, 6,
+            6, 5, 5, 5, 5, 7, 8, 8, 8, 8, 8, 8, 8, 8, 7, 5, 5, 5, 5, 6,
+            6, 5, 5, 5, 5, 7, 8, 8, 8, 8, 8, 8, 8, 8, 7, 5, 5, 5, 5, 6,
+            6, 5, 5, 5, 5, 7, 8, 8, 8, 8, 8, 8, 8, 8, 7, 5, 5, 5, 5, 6,
+            6, 5, 5, 5, 5, 7, 8, 8, 8, 8, 8, 8, 8, 8, 7, 5, 5, 5, 5, 6,
+            6, 5, 5, 5, 5, 3, 7, 7, 7, 7, 7, 7, 7, 7, 4, 5, 5, 5, 5, 6,
+            6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6,
             6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6,
             6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6,
             6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6,
@@ -125,13 +136,27 @@ public class Map extends JPanel {
                     hoverA = hoverbut.action;
                     Selected = null;
                     hoverC = null;
+                    HoverHype = false;
                 }
 
                 if(turn!=null){
                     hoverC = turn.c;
                     Selected = hoverC.CurTile;
                     hoverA = null;
+                    HoverHype = false;
                 }
+
+                if(e.getX() > HypeX &&
+                   e.getX() < HypeX + HypeBarWidth &&
+                   e.getY() > HypeY &&
+                  e.getY() < HypeY + 20){
+
+                    HoverHype = true;
+                    hoverC = null;
+                    hoverA = null;
+                    Selected = null;
+                }
+
             }
         });
         addMouseListener(new MouseListener() {
@@ -140,6 +165,7 @@ public class Map extends JPanel {
 
             @Override
             public void mousePressed(MouseEvent e) {
+
                 Tile TargetTile = FindTile(e.getX(), e.getY());
                 Button button = findButton(e.getX(),e.getY());
                 if(reveal){
@@ -148,59 +174,60 @@ public class Map extends JPanel {
                 }
 
                 if (SwingUtilities.isRightMouseButton(e)){
-                    if(atkPrimed){
-                        switch (mousestep) {
-                            //Target Enemy
-                            case 0 -> {
-                                System.out.println("target enemy");
-                                if (sequence[0] && primedAtk.canHit(TargetTile, distance(TargetTile, CurrentPlayer.CurTile))) {
-                                    primedAtk.addTarget(TargetTile.Occupant());
-                                    primedAtk.setCharMove(TileGrid[CurrentPlayer.CurTile.y + primedAtk.CharMovey][CurrentPlayer.CurTile.x + primedAtk.CharMovex]);
-                                }
+                    if(atkPrimed) {
 
-                                if(primedAtk.name.equals("Climb") && primedAtk.canHit(TargetTile,distance(TargetTile, CurrentPlayer.CurTile))){
-                                    primedAtk.addTarget(TargetTile);
-                                }
+                            switch (mousestep) {
+                                //Target Enemy
+                                case 0 -> {
+                                    System.out.println("target enemy");
 
-                                System.out.println(primedAtk.gotTargets());
+                                    if (sequence[0] && primedAtk.canHit(TargetTile, distance(TargetTile, CurrentPlayer.CurTile))) {
+                                        primedAtk.addTarget(TargetTile.Occupant());
+                                        primedAtk.setCharMove(TileGrid[CurrentPlayer.CurTile.y + primedAtk.CharMovey][CurrentPlayer.CurTile.x + primedAtk.CharMovex]);
+                                    }
 
-                                if (sequence[1] && primedAtk.gotTargets()) {
-                                    mousestep++;
-                                }
-                                else if(sequence[2] && primedAtk.gotTargets()){
-                                    mousestep+=2;
-                                }
-                                else if(primedAtk.gotTargets()){
-                                    ExecuteAttack();
-                                }
+                                    if (primedAtk.name.equals("Climb") && primedAtk.canHit(TargetTile, distance(TargetTile, CurrentPlayer.CurTile))) {
+                                        primedAtk.addTarget(TargetTile);
+                                    }
 
-                            }
-                            //Target Movement
-                            case 1 -> {
-                                System.out.println("target movement");
-                                if (primedAtk.canTargetMove(TargetTile, distance(TargetTile, CurrentPlayer.CurTile))) {
-                                    primedAtk.setTargetMove(TargetTile);
-                                }
+                                    System.out.println(primedAtk.gotTargets());
 
-                                if(sequence[2] && primedAtk.targetMove !=null) {
-                                    mousestep++;
-                                }else if(primedAtk.targetMove !=null){
-                                    ExecuteAttack();
-                                }
-                            }
-                            //Character Movement
-                            case 2 -> {
-                                System.out.println("Character movement");
-                                if(primedAtk.canCharMove(TargetTile)){
-                                    primedAtk.setCharMove(TargetTile);
-                                }
+                                    if (sequence[1] && primedAtk.gotTargets()) {
+                                        mousestep++;
+                                    } else if (sequence[2] && primedAtk.gotTargets()) {
+                                        mousestep += 2;
+                                    } else if (primedAtk.gotTargets()) {
+                                        ExecuteAttack();
+                                    }
 
-                                if(primedAtk.CharMove!=primedAtk.user.CurTile){
-                                    ExecuteAttack();
+                                }
+                                //Target Movement
+                                case 1 -> {
+                                    System.out.println("target movement");
+                                    if (primedAtk.canTargetMove(TargetTile, distance(TargetTile, CurrentPlayer.CurTile))) {
+                                        primedAtk.setTargetMove(TargetTile);
+                                    }
+
+                                    if (sequence[2] && primedAtk.targetMove != null) {
+                                        mousestep++;
+                                    } else if (primedAtk.targetMove != null) {
+                                        ExecuteAttack();
+                                    }
+                                }
+                                //Character Movement
+                                case 2 -> {
+                                    System.out.println("Character movement");
+                                    if (primedAtk.canCharMove(TargetTile)) {
+                                        primedAtk.setCharMove(TargetTile);
+                                    }
+
+                                    if (primedAtk.CharMove != primedAtk.user.CurTile) {
+                                        ExecuteAttack();
+                                    }
                                 }
                             }
                         }
-                    }
+
                     else{
                         if (ValidMove(TargetTile, CurrentPlayer) && CurrentPlayer.state == 0) {
                             charMove(TargetTile);
@@ -240,6 +267,9 @@ public class Map extends JPanel {
                             primedAtk = button.action;
                             atkPrimed = true;
                             sequence = primedAtk.sequence;
+                            if (!sequence[0] && !sequence[1] && !sequence[2]) {
+                                ExecuteAttack();
+                            }
                         }
                     }
                 }
@@ -258,8 +288,80 @@ public class Map extends JPanel {
         loop.start();
     }
 
+    static void ChangeHype(int change){
+       crowd = crowd + change;
+       if(crowd<-MAX_HYPE){
+           crowd = -MAX_HYPE;
+       }
+       if(crowd > MAX_HYPE){
+           crowd = MAX_HYPE;
+       }
+       UpdateCrowd();
+    }
+
+    static void UpdateCrowd(){
+        int posCrowd = Math.abs(crowd);
+
+        if(posCrowd == MAX_HYPE){
+            stage1 = true;
+            stage2 = true;
+            stage3 = true;
+        }
+        else if(posCrowd >= HYPE_STAGE_2){
+            stage1 = true;
+            stage2 = true;
+            stage3 = false;
+        }
+        else if(posCrowd >= HYPE_STAGE_1){
+            stage1 = true;
+            stage2 = false;
+            stage3 = false;
+        }
+        else{
+            stage1 = false;
+            stage2 = false;
+            stage3 = false;
+        }
+        System.out.println("Stage 1 = " +stage1);
+        System.out.println("Stage 2 = " +stage2);
+        System.out.println("Stage 3 = " +stage3);
+
+
+        String crowdFavourite = "";
+        if(crowd < 0){
+            crowdFavourite = "Red";
+        }
+        else if(crowd > 0){
+            crowdFavourite = "Blue";
+        }
+
+            for(Character c: Characters){
+                c.stamregen = c.DEFAULT_MAX_STAMREGEN;
+                c.regen = c.DEFAULT_MAX_HEALTHREGEN;
+                c.MaxMove = c.DEFAULT_MAX_STAMINA;
+                c.MaxHealth = c.DEFAULT_MAX_HEALTH;
+                c.signature = false;
+
+                if(c.teamname.equals(crowdFavourite)){
+                    if(stage1){
+                        c.stamregen = c.DEFAULT_MAX_STAMREGEN + 2;
+                        c.regen = c.DEFAULT_MAX_HEALTHREGEN + 1;
+                    }
+                    if(stage2){
+                        c.MaxMove = c.DEFAULT_MAX_STAMINA + 2;
+                        c.MaxHealth = c.DEFAULT_MAX_HEALTH + 2;
+                    }
+                    if(stage3){
+                        c.signature = true;
+                    }
+                }
+            }
+
+    }
+
     void ExecuteAttack(){
         primedAtk.Execute();
+        ChangeHype(primedAtk.hype);
         mousestep = 0;
         primedAtk = null;
         atkPrimed = false;
@@ -280,36 +382,21 @@ public class Map extends JPanel {
         context = null;
     }
 
-    int moveCost(Tile t){
-        // Calculates the cost of moving from the current player's tile to a given tile
-        int moveCost;
-
-        if(t.x == CurrentPlayer.CurTile.x){
-            moveCost = t.y - CurrentPlayer.CurTile.y;
-        }
-        else if(t.y == CurrentPlayer.CurTile.y){
-            moveCost = t.x - CurrentPlayer.CurTile.x;
-        }
-        else{
-            moveCost = Math.abs(t.x - CurrentPlayer.CurTile.x) + Math.abs(t.y - CurrentPlayer.CurTile.y);
-        }
-        return Math.abs(moveCost);
-    }
-
-
-
     void charMove(Tile t){
         //Moves the current player to their selected tile
-        int cost = moveCost(t);
         CurrentPlayer.selfMove = true;
         Path movepath = t.path;
+        for(Tile f: movepath.Tiles) {
+            System.out.println(f);
+        }
+        System.out.println(movepath.cost);
+
         CurrentPlayer.MovePoints = CurrentPlayer.MovePoints - movepath.cost;
         CurrentPlayer.setTile(t, movepath.Tiles);
         CurrentPlayer.moving = true;
         context = new Button[5];
-        CalculatePaths();
-    }
 
+    }
 
     TurnOrder findturnOrder(int x, int y){
 
@@ -326,6 +413,8 @@ public class Map extends JPanel {
         return turn;
     }
 
+
+
     static int distance(Tile t1, Tile t2){
         return  Math.abs(t1.x-t2.x) + Math.abs(t1.y-t2.y);
     }
@@ -335,40 +424,6 @@ public class Map extends JPanel {
         return t.canMove() &&
                 t.path != null &&
                 t.path.cost <= c.MovePoints;
-
-    }
-
-    boolean checkTiles(Tile start, Tile end, int moves){
-        // Checks if the player has a clear path to the selected tile
-        Tile current = start;
-        Tile closest = start;
-        int points = moves;
-        int i = 0;
-
-        if(start == end){
-            return false;
-        }
-        while(points>0) {
-            int LowDis = 100;
-
-            ArrayList<Tile> neighbours = neighbourTiles(current);
-            for(Tile t:neighbours){
-                if(t == end){
-                    return true;
-                }
-            }
-            neighbours.removeIf(t -> !t.canMove());
-            for(Tile t: neighbours){
-
-                if(distance(t,end) < LowDis){
-                    LowDis = distance(t,end);
-                    closest = t;
-                }
-            }
-            current = closest;
-            points--;
-        }
-        return false;
 
     }
 
@@ -385,7 +440,6 @@ public class Map extends JPanel {
         int MaxSearch = 100;
         c.CurTile.cost = 0;
         Open.add(c.CurTile);
-        Closed.clear();
         t.parent = null;
 
         int depth = 0;
@@ -419,27 +473,32 @@ public class Map extends JPanel {
 
         }
 
+
         if(t.parent==null){
             return null;
-        }
+        }else {
 
-        Path path = new Path(t);
-        path.cost = t.parent.cost + distance(t,t.parent);
-        Tile target = t;
-        while(target!=c.CurTile){
-            path.prependStep(target);
-            target = target.parent;
-        }
-        path.prependStep(c.CurTile);
+            Path path = new Path(t);
+            path.cost = t.parent.cost + distance(t, t.parent);
+            Tile target = t.parent;
+            while (target != c.CurTile) {
+                path.prependStep(target);
+                target = target.parent;
 
-        return path;
+            }
+            path.prependStep(c.CurTile);
+
+            return path;
+        }
 
     }
 
     static void CalculatePaths(){
         for (int r = 0; r < ROWS; r++) {
             for (int c = 0; c < COLS; c++){
-                TileGrid[r][c].path = createPath(TileGrid[r][c],CurrentPlayer);
+
+                    TileGrid[r][c].path = createPath(TileGrid[r][c], CurrentPlayer);
+
             }
         }
     }
@@ -557,12 +616,12 @@ public class Map extends JPanel {
                             i.Update();
                         }
                     }
-                    MoveDelay = 50000;
+                    MoveDelay = 40000;
                 } else {
                     MoveDelay--;
                 }
                 if ((CurrentPlayer.state == 0 && CurrentPlayer.MovePoints == 0) || CurrentPlayer.state == 2 || CurrentPlayer.state == 1) {
-                    if(CurrentPlayer!=null) {
+                    if(CurrentPlayer!=null && !CurrentPlayer.attacking) {
                         changeTurn();
                     }
 
@@ -684,6 +743,7 @@ public class Map extends JPanel {
                 i++;
             }
         }
+        context[i] = new Taunt(CurrentPlayer);
 
 
 
@@ -819,6 +879,7 @@ public class Map extends JPanel {
         Color canHit = new Color(255,0,0, transparency);
         Color canMove = new Color(69, 147, 234, transparency);
         Color infoBox = new Color(64, 64, 64, 129);
+        Color finish = new Color(212, 101, 11);
 
         Tile[] ropeTiles = new Tile[40];
         int ropeindex = 0;
@@ -838,19 +899,19 @@ public class Map extends JPanel {
                 BufferedImage ropes = (BufferedImage) Tile.ROPEFG;
                 BufferedImage rotropes = ropes;
                 if(TileGrid[r][c].type == 7) {
-                    if (c == 15) {
+                    if (c == 14) {
                         rotated = rotateClockwise(TileImage, 1);
                         TileImage = rotated;
                         rotropes = rotateClockwise(ropes,1);
                     }
-                    if(r == 4){
+                    if(r == 5){
                         rotated = rotateClockwise(TileImage,0.5);
                         TileImage = rotated;
                         rotropes = rotateClockwise(ropes,0.5);
 
                     }
 
-                    if(r == 15){
+                    if(r == 14){
                         rotated = rotateClockwise(TileImage,-0.5);
                         TileImage = rotated;
                         rotropes = rotateClockwise(ropes,-0.5);
@@ -996,6 +1057,7 @@ public class Map extends JPanel {
             if(Selected.Occupant()!=null){
                 hoverC = Selected.Occupant();
                 hoverA = null;
+                HoverHype = false;
 
                 int Xhbars = (Selected.CenterX + (TILE_SIZE / 2) - 5) - ((((Selected.Occupant().healthBar.length * 10) + (Selected.Occupant().healthBar.length - 1))/2) - 5)  ;
                 int Yhbars = Selected.CenterY - TILE_SIZE;
@@ -1122,6 +1184,9 @@ public class Map extends JPanel {
         g.setColor(Color.white);
         Font infoFont = new Font("sans-serif", Font.PLAIN,15);
         g.setFont(infoFont);
+
+        //HOVER ACTION
+
         if(hoverA!=null) {
             if (hoverA.range != null) {
                 StringBuilder strb = new StringBuilder();
@@ -1155,6 +1220,11 @@ public class Map extends JPanel {
                 statTextx = statTextx + g.getFontMetrics().stringWidth("Stamina Damage: " + hoverA.stmdmg + 5);
             }
 
+            if(Math.abs(hoverA.hype) > 0){
+                g.drawString("Hype: " + Math.abs(hoverA.hype),statTextx,statTexty);
+                statTextx = statTextx + g.getFontMetrics().stringWidth("Hype: " + hoverA.hype + 5);
+            }
+
             if(hoverA.cost>0){
                 g.drawString("Cost: " + hoverA.cost,statTextx,statTexty);
                 statTextx = statTextx + g.getFontMetrics().stringWidth("Cost: " + hoverA.cost + 5);
@@ -1182,6 +1252,11 @@ public class Map extends JPanel {
                        str.equals("finisher.")){
                         g.setColor(Color.yellow);
                     }
+                    else if(str.equals("Requires") ||
+                            str.equals("level") ||
+                            str.equals("Hype.")){
+                        g.setColor(finish);
+                    }
                     else if(isNumeric(str)){
                         g.setColor(Color.GREEN);
                     }
@@ -1197,21 +1272,119 @@ public class Map extends JPanel {
             }
         }
 
+        if(HoverHype){
+            g.drawString("Hype bar",statTextx,statTexty);
+            if(stage1){
+                g.setColor(Color.yellow);
+            }
+            else{
+                g.setColor(Color.white);
+            }
+            g.drawString("Level 1 (" + HYPE_STAGE_1 + "+)",statTextx + 150,statTexty);
+            if(stage2){
+                g.setColor(Color.yellow);
+            }
+            else{
+                g.setColor(Color.white);
+            }
+            g.drawString("Level 2 (" + HYPE_STAGE_2 + "+)",statTextx + 275,statTexty);
+            if(stage3){
+                g.setColor(finish);
+            }
+            else{
+                g.setColor(Color.white);
+            }
+            g.drawString("Level 3 (" + MAX_HYPE + ")",statTextx + 400,statTexty);
+            statTexty = statTexty + 30;
+            g.setColor(Color.white);
+            g.drawString("Current favourite: ",statTextx,statTexty);
+            if(crowd < 0){
+                g.drawString("Red", statTextx + g.getFontMetrics().stringWidth( "Current favourite: "),statTexty);
+            }
+            else if(crowd > 0){
+                g.drawString("Blue", statTextx + g.getFontMetrics().stringWidth( "Current favourite: "),statTexty);
+            }
+
+            if(stage1){
+                g.setColor(Color.yellow);
+            }
+            else{
+                g.setColor(Color.white);
+            }
+            g.drawString("Stamina regen +2", statTextx + 150,statTexty);
+            g.drawString("Health regen +1",statTextx + 150,statTexty + 20);
+            if(stage2){
+                g.setColor(Color.yellow);
+            }
+            else{
+                g.setColor(Color.white);
+            }
+            g.drawString("Max Health +2",statTextx + 275,statTexty + 20);
+            g.drawString("Max Stamina +2",statTextx + 275,statTexty);
+            if(stage3){
+                g.setColor(finish);
+            }
+            else{
+                g.setColor(Color.white);
+            }
+            g.drawString("Signature",statTextx + 400,statTexty);
+            g.drawString("moves",statTextx + 400,statTexty + 15);
+            g.drawString("unlocked",statTextx + 400,statTexty + 30);
+            g.setColor(Color.white);
+
+            statTexty = statTexty + 30;
+            g.drawString("Crowd Score: ",statTextx,statTexty);
+            if(crowd < 0){
+                g.setColor(Color.red);
+            }
+            else if(crowd > 0){
+                g.setColor(Color.blue);
+            }
+            g.drawString(String.valueOf(Math.abs(crowd)),statTextx + g.getFontMetrics().stringWidth( "Crowd Score: "),statTexty);
+            g.setColor(Color.white);
+
+        }
+
+        //HOVER CHARACTER
+
         if(hoverC!=null){
             g.drawString(hoverC.name + " (" + hoverC.states[hoverC.state] + ")", statTextx,statTexty);
             statTexty = statTexty + 30;
             g.drawString("Health: " + hoverC.Health,statTextx,statTexty);
             statTexty = statTexty + 20;
-            g.drawString("Max Health: " + hoverC.MaxHealth,statTextx,statTexty);
+            g.drawString("Max Health: " + hoverC.DEFAULT_MAX_HEALTH,statTextx,statTexty);
+            if(hoverC.MaxHealth != hoverC.DEFAULT_MAX_HEALTH){
+                g.setColor(Color.yellow);
+                g.drawString("+" + (hoverC.MaxHealth - hoverC.DEFAULT_MAX_HEALTH),statTextx + g.getFontMetrics().stringWidth("Max Health: " + hoverC.MaxHealth),statTexty);
+            }
+            g.setColor(Color.white);
             statTexty = statTexty + 20;
             g.drawString("Stamina: " + hoverC.MovePoints,statTextx,statTexty);
-            statTextx = statTextx + 100;
+            statTextx = statTextx + 125;
             statTexty = infoBoxy + 50;
-            g.drawString("Max Stamina: " + hoverC.MaxMove,statTextx,statTexty);
+            g.drawString("Max Stamina: " + hoverC.DEFAULT_MAX_STAMINA,statTextx,statTexty);
+            if(hoverC.MaxMove != hoverC.DEFAULT_MAX_STAMINA){
+                g.setColor(Color.yellow);
+                g.drawString("+" + (hoverC.MaxMove - hoverC.DEFAULT_MAX_STAMINA),statTextx + g.getFontMetrics().stringWidth("Max Stamina: " + hoverC.DEFAULT_MAX_STAMINA),statTexty);
+            }
+            g.setColor(Color.white);
             statTexty = statTexty + 20;
-            g.drawString("HP regeneration: " + hoverC.regen, statTextx,statTexty);
+            g.drawString("HP regeneration: " + hoverC.DEFAULT_MAX_HEALTHREGEN, statTextx,statTexty);
+            if(hoverC.regen != hoverC.DEFAULT_MAX_HEALTHREGEN){
+                g.setColor(Color.yellow);
+                g.drawString("+" + (hoverC.regen - hoverC.DEFAULT_MAX_HEALTHREGEN),statTextx + g.getFontMetrics().stringWidth("HP regeneration: " + hoverC.DEFAULT_MAX_HEALTHREGEN),statTexty);
+            }
+            g.setColor(Color.white);
             statTexty = statTexty + 20;
-            g.drawString("Stamina regeneration: " + hoverC.stamregen,statTextx,statTexty);
+            g.drawString("Stamina regeneration: " + hoverC.DEFAULT_MAX_STAMREGEN,statTextx,statTexty);
+            if(hoverC.stamregen != hoverC.DEFAULT_MAX_STAMREGEN){
+                g.setColor(Color.yellow);
+                g.drawString("+" + (hoverC.stamregen - hoverC.DEFAULT_MAX_STAMREGEN),statTextx + g.getFontMetrics().stringWidth("Stamina regeneration: " + hoverC.DEFAULT_MAX_STAMREGEN),statTexty);
+            }
+            g.setColor(Color.white);
+            statTexty = statTexty + 20;
+            g.drawString("Moving: " + hoverC.moving,statTextx,statTexty);
+
 
             statTextx = statTextx + 200;
             statTexty = statTexty = infoBoxy;
@@ -1219,10 +1392,14 @@ public class Map extends JPanel {
 
         }
 
+        //KICKOUT BUTTONS
+
         if(Kickoutbuttons!=null) {
             int kowidth = (Kickoutbuttons.length * Kickoutbuttons[0].width) + (30 * (Kickoutbuttons.length - 1));
             drawButtons(g,(getWidth()/2) - (kowidth/2) , getHeight() - 200, Kickoutbuttons);
         }
+
+        //RESET BUTTON
 
         if(resetButton[0]!=null){
             Button reset = resetButton[0];
@@ -1303,12 +1480,57 @@ public class Map extends JPanel {
             }
         }
 
+
+
+
+        Image baseHype = Sprite.HyperBarBase;
+        BufferedImage fillHype = (BufferedImage) Sprite.HyperBarFill;
+        Image HypeInd = Sprite.HyperBarInd;
+
+
+        int HypeWidth = 10;
+        int HypeHeight = 25;
+
+
+
+
+        int IndY = HypeY - 10;
+        int IndX = ((getWidth()/2) - (HypeWidth/2)) + (crowd * (HypeBarWidth/(MAX_HYPE*2)));
+
+        g.drawImage(baseHype,HypeX, HypeY,HypeBarWidth,20,null);
+
+
+        Rectangle rect;
+        if(crowd ==0){
+            rect = new Rectangle(0,0,0,0);
+        }
+        else if(crowd>0){
+            rect = new Rectangle(getWidth()/2,HypeY,(IndX - (getWidth()/2)) + HypeWidth/2,20);
+        }
+        else{
+            rect = new Rectangle((IndX) + HypeWidth/2 ,HypeY,(getWidth()/2) - (IndX + ( HypeWidth/2)),20);
+        }
+
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.setClip(rect);
+        g2d.drawImage(fillHype,HypeX,HypeY,HypeBarWidth,20,null);
+        g2d.setClip(null);
+        g.drawImage(HypeInd,IndX,IndY,HypeWidth,HypeHeight,null);
+
+
+
+
+
+
+
+
     }
 
     private void DrawMenu(Graphics g, int menux, int menuy, Button[] buttons) {
         Graphics2D g2 = (Graphics2D) g;
         g2.setStroke(new BasicStroke(1));
         Color TeamCol;
+        Color finish = new Color(212, 101, 11);
         if(CurrentPlayer.teamname.equals("Blue")){
             TeamCol = Color.blue;
         }
@@ -1322,7 +1544,12 @@ public class Map extends JPanel {
             if(b!=null) {
                 b.active = true;
                 if(b.action.canAfford()){
-                    g.setColor(TeamCol);
+                    if(b.action.type.equals("Signature")){
+                        g.setColor(finish);
+                    }
+                    else {
+                        g.setColor(TeamCol);
+                    }
                 }
                 else{
                     g.setColor(Color.gray);
@@ -1330,7 +1557,7 @@ public class Map extends JPanel {
 
                 b.setX(menux);
                 b.setY(menuy);
-                if (b.action.name.equals("Context")) {
+                if (b.action.name.equals("Misc.")) {
                     if (findContextual()[0] == null) {
                         g.setColor(Color.gray);
                         b.active = false;
@@ -1338,6 +1565,7 @@ public class Map extends JPanel {
                         b.active = true;
                     }
                 }
+
                 g.fillRect(menux, menuy, b.width, b.height);
 
                 String name = b.action.name;

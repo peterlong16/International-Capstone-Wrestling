@@ -10,12 +10,16 @@ public class AxeHandle extends Action{
         range = new int[]{1, 2, 3, 4, 5, 6};
         targets = new Character[1];
         mover = false;
+        hype = 7;
         type = "Dive";
         name = "Axe Handle";
         desc = "Jump from the turnbuckle and deliver a large blow with both hands";
         stmdmg = 0;
         sequence = new Boolean[]{true,false,true};
         img = user.sprites[3];
+        if(user.teamname.equals("Red")){
+            this.hype = this.hype * -1;
+        }
     }
 
     @Override
@@ -43,7 +47,7 @@ public class AxeHandle extends Action{
         Tile[] path = {target.CurTile,CharMove};
         DelayTrigger = target.CurTile;
 
-        user.setTile(CharMove,path);
+        user.setTile(target.CurTile);
         if(target.state==2){
             target.cancelPin(Map.neighbourTiles(target.CurTile), this);
             target.state=0;
@@ -56,6 +60,9 @@ public class AxeHandle extends Action{
 
     @Override
     void DelayAction() {
+        DelayTrigger = null;
+        user.setTile(CharMove);
         user.changeHealth((2 + targets[0].CurTile.SlamEntryModifier) * -1);
+
     }
 }

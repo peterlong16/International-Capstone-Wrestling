@@ -15,8 +15,12 @@ public class Euppercut extends Action{
         type = "Strike";
         desc = "Deliver an uppercut to the target while swivelling around them, moving you to an adjacent tile";
         name = "Euro Uppercut";
+        hype = 6;
         sequence = new Boolean[]{true,false,true};
         img = user.sprites[3];
+        if(user.teamname.equals("Red")){
+            this.hype = this.hype * -1;
+        }
     }
 
     boolean canCharMove(Tile t){

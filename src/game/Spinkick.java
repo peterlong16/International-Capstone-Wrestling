@@ -13,9 +13,13 @@ public class Spinkick extends Action{
         mover = true;
         type = "Strike";
         name = "Spin Kick";
+        hype = 4;
         desc = "Deliver a spinning kick which pushes a target backwards 1 tile";
         sequence = new Boolean[]{true,true,false};
         img = user.sprites[4];
+        if(user.teamname.equals("Red")){
+            this.hype = this.hype * -1;
+        }
     }
 
     boolean canTargetMove(Tile t, int distance){
@@ -58,7 +62,7 @@ public class Spinkick extends Action{
         else{
             target.x++;
         }
-        target = null;
+
 
 
     }

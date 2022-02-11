@@ -15,8 +15,12 @@ public class SBChokeslam extends Action{
         name = "OTR Chokeslam";
         desc = "Grab and slam a target inside the ring from the apron. Targets can be slammed onto the canvas or the outside of the ring.";
         stmdmg = 2;
+        hype = 8;
         sequence = new Boolean[]{true,true,false};
         img = user.sprites[2];
+        if(user.teamname.equals("Red")){
+            this.hype = this.hype * -1;
+        }
     }
 
     boolean canHit(Tile t, int distance) {
@@ -70,6 +74,6 @@ public class SBChokeslam extends Action{
 
         user.changeStam((cost + user.slammod) * -1);
         user.slammod++;
-        targetMove = null;
+
     }
 }

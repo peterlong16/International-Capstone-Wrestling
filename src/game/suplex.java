@@ -16,8 +16,12 @@ public class suplex extends Action{
         name = "Suplex";
         desc = "Pick up a target and slam them towards your back, moving them to the opposite adjacent tile.";
         stmdmg = 0;
+        hype = 6;
         sequence = new Boolean[]{true,true,false};
         img = user.sprites[2];
+        if(user.teamname.equals("Red")){
+            this.hype = this.hype * -1;
+        }
     }
 
     boolean canTargetMove(Tile t, int distance){
@@ -91,7 +95,7 @@ public class suplex extends Action{
 
         user.changeStam((cost + user.slammod) * -1);
         user.slammod++;
-        targetMove = null;
+
     }
 
 }

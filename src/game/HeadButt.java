@@ -13,10 +13,14 @@ public class HeadButt extends Action{
         targets = new Character[1];
         mover = false;
         type = "strike";
+        hype = 2;
         name = "Headbutt";
         desc = "Hit the target with your head. Damaging the stamina and health of the enemy. Deals 2 damage to the user.";
         sequence = new Boolean[]{true,false,false};
         img = user.sprites[5];
+        if(user.teamname.equals("Red")){
+            this.hype = this.hype * -1;
+        }
     }
 
     @Override

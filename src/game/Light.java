@@ -7,17 +7,26 @@ public class Light extends Character {
 
     Light(Tile t, String name, String team, Color colour, int or){
         super(t);
+        DEFAULT_MAX_HEALTH = 10;
+        DEFAULT_MAX_HEALTHREGEN = 2;
+        DEFAULT_MAX_STAMINA = 8;
+        DEFAULT_MAX_STAMREGEN = 5;
+
+        MaxMove = DEFAULT_MAX_STAMINA;
+        MovePoints = MaxMove;
+
+        MaxHealth = DEFAULT_MAX_HEALTH;
+        Health = MaxHealth;
+
+        regen = DEFAULT_MAX_HEALTHREGEN;
+        stamregen = DEFAULT_MAX_STAMREGEN;
+
+        signature = true;
         this.orientation = or;
         this.image = colour;
         this.sprite = new Sprite(this,Constants.TILE_SIZE,Constants.TILE_SIZE);
-        MovePoints = 8;
-        MaxMove = 8;
         this.name = name;
-        MaxHealth = 10;
-        Health = 10;
         this.teamname = team;
-        regen = 2;
-        stamregen = 5;
         painThresh = 4;
         this.healthBar = new boolean[MaxHealth];
         Arrays.fill(healthBar, true);
@@ -33,6 +42,7 @@ public class Light extends Character {
                     Sprite.BlueLGrab,
                     Sprite.BlueLPunch,
                     Sprite.BlueLKick,
+                    Sprite.BlueLTaunt,
                     Sprite.BlueLPin
             };
         }
@@ -43,6 +53,7 @@ public class Light extends Character {
                     Sprite.RedLGrab,
                     Sprite.RedLPunch,
                     Sprite.RedLKick,
+                    Sprite.RedLTaunt,
                     Sprite.RedLPin
             };
         }
@@ -58,8 +69,9 @@ public class Light extends Character {
         slams[0] = new rana(this);
         slams[1] = new Slingblade(this);
 
-        dives = new Action[1];
+        dives = new Action[2];
         dives[0] = new FrogSplash(this);
+        dives[1] = new PhoenixSplash(this);
 
         springs = new Action[1];
         springs[0] = new SBrana(this);

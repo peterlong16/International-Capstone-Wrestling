@@ -13,10 +13,14 @@ public class rana extends Action{
         mover = true;
         type = "Slam";
         name = "Hurricanrana";
+        hype = 10;
         desc = "Use all your body weight to throw the target to your original position and move to a tile adjacent to the targets starting position.";
         stmdmg = 1;
         sequence = new Boolean[]{true,true,true};
         img = user.sprites[2];
+        if(user.teamname.equals("Red")){
+            this.hype = this.hype * -1;
+        }
     }
 
     boolean canTargetMove(Tile t, int distance){
@@ -72,13 +76,13 @@ public class rana extends Action{
         user.orient(user.orientation);
         user.sprite.setImage(user.rotate((BufferedImage) img,user.rot));
         Character target = targets[0];
-        Tile[] path2 = new Tile[user.MaxMove];
+        Tile[] path2 = new Tile[2];
         path2[0] = target.CurTile;
         path2[1] = CharMove;
         DelayTrigger = target.CurTile;
 
         user.setTile(CharMove,path2);
-        user.moving = true;
+
 
 
 
@@ -122,7 +126,5 @@ public class rana extends Action{
             target.x++;
         }
 
-
-        targetMove = null;
     }
 }

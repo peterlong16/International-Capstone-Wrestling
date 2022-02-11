@@ -13,11 +13,15 @@ public class Enzugiri extends Action {
         targets = new Character[1];
         mover = false;
         type = "Strike";
+        hype = 11;
         desc = "Jump and kick the target. Strike combo finisher.";
         name = "Enzugiri";
         finisher = true;
         sequence = new Boolean[]{true,false,false};
         img = user.sprites[4];
+        if(user.teamname.equals("Red")){
+            this.hype = this.hype * -1;
+        }
     }
 
     boolean canHit(Tile t, int distance) {

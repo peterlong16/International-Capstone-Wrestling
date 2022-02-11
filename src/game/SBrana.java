@@ -14,8 +14,12 @@ public class SBrana extends Action{
         name = "SB Hurricanrana";
         desc = "Springboard from the ropes and perform a hurricanrana on the target, throwing the target up to 2 tiles away.";
         stmdmg = 0;
+        hype = 20;
         sequence = new Boolean[]{true,true,true};
         img = user.sprites[2];
+        if(user.teamname.equals("Red")){
+            this.hype = this.hype * -1;
+        }
     }
 
     @Override
@@ -85,7 +89,7 @@ public class SBrana extends Action{
             target.x++;
         }
         target.moving = true;
-        targetMove = null;
+
     }
 
 

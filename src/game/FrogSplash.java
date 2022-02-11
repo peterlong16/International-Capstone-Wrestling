@@ -12,10 +12,14 @@ public class FrogSplash extends Action{
         mover = false;
         type = "Dive";
         name = "Frog Splash";
+        hype = 17;
         desc = "Dive onto the target with all of your body weight.";
         stmdmg = 0;
         sequence = new Boolean[]{true,false,true};
         img = user.sprites[user.sprites.length - 1];
+        if(user.teamname.equals("Red")){
+            this.hype = this.hype * -1;
+        }
     }
 
     boolean canCharMove(Tile t) {
@@ -42,7 +46,7 @@ public class FrogSplash extends Action{
         Tile[] path = {target.CurTile,CharMove};
         DelayTrigger = target.CurTile;
 
-        user.setTile(CharMove, path );
+        user.setTile(target.CurTile);
         if(target.state==2){
             target.cancelPin(Map.neighbourTiles(target.CurTile), this);
             target.state=0;
@@ -55,6 +59,9 @@ public class FrogSplash extends Action{
 
     @Override
     void DelayAction() {
+        DelayTrigger = null;
+        user.setTile(CharMove);
         user.changeHealth((2 + targets[0].CurTile.SlamEntryModifier) * -1);
+
     }
 }

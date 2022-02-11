@@ -18,6 +18,7 @@ public class Sprite {
     public static Image BlueMKick;
     public static Image BlueMDKick;
     public static Image BlueMDown;
+    public static Image BlueMTaunt;
     public static Image BlueMPin;
 
     public static Image RedMIdle;
@@ -26,6 +27,7 @@ public class Sprite {
     public static Image RedMKick;
     public static Image RedMDKick;
     public static Image RedMDown;
+    public static Image RedMTaunt;
     public static Image RedMPin;
 
     public static Image BlueHIdle;
@@ -34,6 +36,7 @@ public class Sprite {
     public static Image BlueHKick;
     public static Image BlueHHbutt;
     public static Image BlueHDown;
+    public static Image BlueHTaunt;
     public static Image BlueHPin;
 
     public static Image RedHIdle;
@@ -42,6 +45,7 @@ public class Sprite {
     public static Image RedHKick;
     public static Image RedHHbutt;
     public static Image RedHDown;
+    public static Image RedHTaunt;
     public static Image RedHPin;
 
     public static Image BlueLIdle;
@@ -49,6 +53,7 @@ public class Sprite {
     public static Image BlueLPunch;
     public static Image BlueLKick;
     public static Image BlueLDown;
+    public static Image BlueLTaunt;
     public static Image BlueLPin;
 
     public static Image RedLIdle;
@@ -56,6 +61,7 @@ public class Sprite {
     public static Image RedLPunch;
     public static Image RedLKick;
     public static Image RedLDown;
+    public static Image RedLTaunt;
     public static Image RedLPin;
 
     public static Image RedTurnOrder;
@@ -67,6 +73,10 @@ public class Sprite {
     public static Image KickoutGuess;
     public static Image KickoutPass;
     public static Image KickoutFail;
+
+    public static Image HyperBarBase;
+    public static Image HyperBarFill;
+    public static Image HyperBarInd;
 
 
 
@@ -103,6 +113,7 @@ public class Sprite {
             BlueMPunch = ImageManager.loadImage("bluemedpunch");
             BlueMKick = ImageManager.loadImage("bluemedkick");
             BlueMDKick = ImageManager.loadImage("bluedropkick");
+            BlueMTaunt = ImageManager.loadImage("bluemedtaunt");
             BlueMDown = ImageManager.loadImage("bluemedlaying");
             BlueMPin = ImageManager.loadImage("bluemedpin");
 
@@ -111,6 +122,7 @@ public class Sprite {
             RedMPunch = ImageManager.loadImage("redmedpunch");
             RedMKick = ImageManager.loadImage("redmedkick");
             RedMDKick = ImageManager.loadImage("reddropkick");
+            RedMTaunt = ImageManager.loadImage("redmedtaunt");
             RedMDown = ImageManager.loadImage("redmedlaying");
             RedMPin = ImageManager.loadImage("redmedpin");
 
@@ -119,6 +131,7 @@ public class Sprite {
             BlueHPunch = ImageManager.loadImage("bluehevpunch");
             BlueHKick = ImageManager.loadImage("bluehevkick");
             BlueHHbutt = ImageManager.loadImage("bluehevheadbutt");
+            BlueHTaunt = ImageManager.loadImage("bluehevtaunt");
             BlueHDown = ImageManager.loadImage("bluehevlaying");
             BlueHPin = ImageManager.loadImage("bluehevpin");
 
@@ -127,6 +140,7 @@ public class Sprite {
             RedHPunch = ImageManager.loadImage("redhevpunch");
             RedHKick = ImageManager.loadImage("redhevkick");
             RedHHbutt = ImageManager.loadImage("redhevheadbutt");
+            RedHTaunt = ImageManager.loadImage("redhevtaunt");
             RedHDown = ImageManager.loadImage("redhevlaying");
             RedHPin = ImageManager.loadImage("redhevpin");
 
@@ -134,6 +148,7 @@ public class Sprite {
             BlueLGrab = ImageManager.loadImage("bluelightslam");
             BlueLPunch = ImageManager.loadImage("bluelightupper");
             BlueLKick = ImageManager.loadImage("bluelightkick");
+            BlueLTaunt = ImageManager.loadImage("bluelighttaunt");
             BlueLDown = ImageManager.loadImage("bluelightlaying");
             BlueLPin = ImageManager.loadImage("bluelightpin");
 
@@ -141,6 +156,7 @@ public class Sprite {
             RedLGrab = ImageManager.loadImage("redlightslam");
             RedLPunch = ImageManager.loadImage("redlightupper");
             RedLKick = ImageManager.loadImage("redlightkick");
+            RedLTaunt = ImageManager.loadImage("redlighttaunt");
             RedLDown = ImageManager.loadImage("redlightlaying");
             RedLPin = ImageManager.loadImage("redlightpin");
 
@@ -153,6 +169,10 @@ public class Sprite {
             KickoutGuess = ImageManager.loadImage("kickoutguess");
             KickoutPass = ImageManager.loadImage("kickoutpass");
             KickoutFail = ImageManager.loadImage("kickoutfail");
+
+            HyperBarBase = ImageManager.loadImage("HypeBarBase");
+            HyperBarFill = ImageManager.loadImage("HypeBarFill");
+            HyperBarInd = ImageManager.loadImage("HypeBarInd");
 
 
 

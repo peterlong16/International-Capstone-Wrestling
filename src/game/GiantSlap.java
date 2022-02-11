@@ -14,10 +14,14 @@ public class GiantSlap extends Action{
         targets = new Character[1];
         mover = true;
         type = "Strike";
+        hype = 4;
         name = "Giant Slap";
         desc = "Slap a neighbouring target with such force they are moved. Can be moved 1 space to a neighbouring tile.";
         sequence = new Boolean[]{true,true,false};
         img = user.sprites[3];
+        if(user.teamname.equals("Red")){
+            this.hype = this.hype * -1;
+        }
     }
 
     @Override

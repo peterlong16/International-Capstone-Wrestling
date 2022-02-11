@@ -13,10 +13,14 @@ public class dropKick extends Action{
         mover = true;
         type = "Strike";
         name = "DropKick";
+        hype = 10;
         desc = "Jump forward 1 space with both legs and kick the target backwards 1 space. Deals 1 damage to the user. Strike combo finisher.";
         sequence = new Boolean[]{true,true,true};
         finisher = true;
         img = user.sprites[5];
+        if(user.teamname.equals("Red")){
+            this.hype = this.hype * -1;
+        }
     }
 
     @Override
@@ -88,33 +92,18 @@ public class dropKick extends Action{
 
         DelayTrigger = CharMove;
 
-
-
         user.changeStam(cost * -1);
         user.changeHealth(-1);
         user.setTile(CharMove);
         user.moving = true;
 
-
-
-
-
-
-
-
-
-
-        CharMovey = 0;
-        CharMovex = 0;
-
-        CharMove = null;
-
     }
 
     void DelayAction(){
+        System.out.println(targetMove);
         Character target = targets[0];
-        Tile[] path = new Tile[target.MaxMove];
-        path[0] = targetMove;
+
+
 
         if(target.state == 2) {
             target.cancelPin(Map.neighbourTiles(target.CurTile), this);
@@ -125,7 +114,7 @@ public class dropKick extends Action{
 
         user.strikemod = 0;
 
-        target.setTile(targetMove,path);
+        target.setTile(targetMove);
 
         target.moving = true;
 
@@ -138,8 +127,7 @@ public class dropKick extends Action{
 
 
 
+        DelayTrigger=null;
 
-        target = null;
-        targetMove = null;
     }
 }

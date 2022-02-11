@@ -13,10 +13,14 @@ public class Slingblade extends Action {
         mover = false;
         type = "Slam";
         name = "Slingblade";
-        desc = "Run through the target, using your momentum to slam them. You move up to 5 spaces in the direction of the target";
+        desc = "Run through the target, using your momentum to slam them. Must have clear path to target. You move up to 5 spaces in the direction of the target";
         stmdmg = 0;
+        hype = 10;
         sequence = new Boolean[]{true,false,true};
         img = user.sprites[2];
+        if(user.teamname.equals("Red")){
+            this.hype = this.hype * -1;
+        }
     }
 
     boolean canHit(Tile t, int distance){
@@ -51,7 +55,7 @@ public class Slingblade extends Action {
         user.orient(user.orientation);
         user.sprite.setImage(user.rotate((BufferedImage) img,user.rot));
         Character target = targets[0];
-        Tile[] path2 = new Tile[user.MaxMove];
+        Tile[] path2 = new Tile[2];
         path2[0] = target.CurTile;
         path2[1] = CharMove;
 
@@ -79,6 +83,6 @@ public class Slingblade extends Action {
         user.changeHealth(-1);
 
 
-        targetMove = null;
+
     }
 }
