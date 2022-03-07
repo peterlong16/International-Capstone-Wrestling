@@ -45,7 +45,8 @@ public abstract class Character {
             "Neutral",
             "Down",
             "Pinning",
-            "Pinned"
+            "Pinned",
+            "Counting"
 
     };
 
@@ -130,6 +131,11 @@ public abstract class Character {
     void updateSBar(){
         int sp = MovePoints;
 
+        if(staminaBar.length != MaxMove){
+            this.staminaBar = new boolean[MaxMove];
+            Arrays.fill(this.staminaBar,false);
+        }
+
         for(int i = 0;i<staminaBar.length;i++){
             staminaBar[i] = sp > 0;
             sp--;
@@ -139,6 +145,14 @@ public abstract class Character {
 
     void updateHBar(){
         int hp = Health;
+
+        if(healthBar.length != MaxHealth){
+
+
+                this.healthBar = new boolean[MaxHealth];
+
+            Arrays.fill(this.healthBar,false);
+        }
 
         for(int i = 0;i<healthBar.length;i++){
             healthBar[i] = hp > 0;

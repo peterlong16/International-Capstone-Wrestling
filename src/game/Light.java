@@ -59,11 +59,12 @@ public class Light extends Character {
         }
         sprite.setImage(sprites[0]);
 
-        strikes = new Action[3];
+        strikes = new Action[4];
 
         strikes[0] = new superkick(this);
         strikes[1] = new Enzugiri(this);
         strikes[2] = new Euppercut(this);
+        strikes[3] = new eyeRake(this);
 
         slams = new Action[2];
         slams[0] = new rana(this);

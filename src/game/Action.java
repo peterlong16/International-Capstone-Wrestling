@@ -46,7 +46,7 @@ public abstract class Action {
         if(c!=null) {
             for (int i = 0; i < targets.length; i++) {
                 if (targets[i] == null) {
-                    if(c.state == 3){
+                    if(c.state == 3 && c!=Map.ref){
                         targets[i] = c.CurTile.Pinner;
                     }
                     else {
@@ -58,22 +58,8 @@ public abstract class Action {
         }
     }
 
-    Tile GetClosest(Tile dest,Tile source){
-        //returns closest tile to source in direction of dest
-        int dist = 100;
-        Tile closest = dest;
-        for(Tile t:Map.neighbourTiles(source)){
-            if(Map.distance(t,dest) < dist){
-                dist = Map.distance(t,dest);
-                closest = t;
-            }
-        }
-
-        return closest;
-    }
-
     boolean spaceBetween(Tile t,Tile t2){
-       Tile cur = GetClosest(t2,t);
+       Tile cur = Map.GetClosest(t2,t);
 
 
        while(cur!=t2){
@@ -83,11 +69,11 @@ public abstract class Action {
            System.out.println( "--------------");
 
            if(cur.canMove() ){
-               cur = GetClosest(t2,cur);
+               cur = Map.GetClosest(t2,cur);
 
            }
            else{
-               //System.out.println(cur);
+
                return false;
            }
        }

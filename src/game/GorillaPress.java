@@ -46,7 +46,7 @@ public class GorillaPress extends Action {
 
         Character target = targets[0];
         user.attacking = true;
-        user.orientation = user.FindDir(GetClosest(targetMove, user.CurTile),user.CurTile);
+        user.orientation = user.FindDir(Map.GetClosest(targetMove, user.CurTile),user.CurTile);
         user.orient(user.orientation);
         target.orientation = target.FindDir(user.CurTile,target.CurTile);
         target.orient(target.orientation);

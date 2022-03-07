@@ -32,5 +32,6 @@ public class Pin extends Action{
         targets[0].state = 3;
         user.state = 2;
         user.setPin(targets[0].CurTile);
+        user.moving = true;
     }
 }

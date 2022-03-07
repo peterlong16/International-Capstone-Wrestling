@@ -38,6 +38,8 @@ public class Map extends JPanel {
     int HypeX = getWidth() + (HypeBarWidth/2);
     int HypeY = 10;
 
+    int refPenalty = 15;
+
 
 
     //0 = none, 1= strikes, 2= slams, 3 = context
@@ -65,6 +67,7 @@ public class Map extends JPanel {
     static Button[] resetButton = new Button[1];
     Action hoverA;
     Character hoverC;
+    static Referee ref;
     int transparencyVal = 0;
     static int crowd = 0;
     static boolean stage1 = false;
@@ -182,7 +185,9 @@ public class Map extends JPanel {
                                     System.out.println("target enemy");
 
                                     if (sequence[0] && primedAtk.canHit(TargetTile, distance(TargetTile, CurrentPlayer.CurTile))) {
+                                        System.out.println("yes");
                                         primedAtk.addTarget(TargetTile.Occupant());
+                                        System.out.println(primedAtk.targets[0]);
                                         primedAtk.setCharMove(TileGrid[CurrentPlayer.CurTile.y + primedAtk.CharMovey][CurrentPlayer.CurTile.x + primedAtk.CharMovex]);
                                     }
 
@@ -190,7 +195,7 @@ public class Map extends JPanel {
                                         primedAtk.addTarget(TargetTile);
                                     }
 
-                                    System.out.println(primedAtk.gotTargets());
+
 
                                     if (sequence[1] && primedAtk.gotTargets()) {
                                         mousestep++;
@@ -336,35 +341,80 @@ public class Map extends JPanel {
         }
 
             for(Character c: Characters){
-                c.stamregen = c.DEFAULT_MAX_STAMREGEN;
-                c.regen = c.DEFAULT_MAX_HEALTHREGEN;
-                c.MaxMove = c.DEFAULT_MAX_STAMINA;
-                c.MaxHealth = c.DEFAULT_MAX_HEALTH;
-                c.signature = false;
 
                 if(c.teamname.equals(crowdFavourite)){
                     if(stage1){
                         c.stamregen = c.DEFAULT_MAX_STAMREGEN + 2;
                         c.regen = c.DEFAULT_MAX_HEALTHREGEN + 1;
                     }
+                    else{
+                        c.stamregen = c.DEFAULT_MAX_STAMREGEN;
+                        c.regen = c.DEFAULT_MAX_HEALTHREGEN;
+                    }
                     if(stage2){
                         c.MaxMove = c.DEFAULT_MAX_STAMINA + 2;
                         c.MaxHealth = c.DEFAULT_MAX_HEALTH + 2;
                     }
+                    else{
+                        c.MaxMove = c.DEFAULT_MAX_STAMINA;
+                        c.MaxHealth = c.DEFAULT_MAX_HEALTH;
+                    }
                     if(stage3){
                         c.signature = true;
                     }
+                    else{
+                        c.signature = false;
+                    }
+                }
+                else{
+                    c.stamregen = c.DEFAULT_MAX_STAMREGEN;
+                    c.regen = c.DEFAULT_MAX_HEALTHREGEN;
+                    c.MaxMove = c.DEFAULT_MAX_STAMINA;
+                    c.MaxHealth = c.DEFAULT_MAX_HEALTH;
+                    c.signature = false;
+                    c.changeHealth(0);
                 }
             }
 
     }
 
+    static Tile GetClosest(Tile dest,Tile source){
+        //returns closest tile to source in direction of dest
+        int dist = 100;
+        Tile closest = dest;
+        for(Tile t:Map.neighbourTiles(source)){
+            if(Map.distance(t,dest) < dist){
+                dist = Map.distance(t,dest);
+                closest = t;
+            }
+        }
+
+        return closest;
+    }
+
     void ExecuteAttack(){
+        boolean refhit=false;
+        for(Character t: primedAtk.targets){
+            if(t==ref){
+                if(primedAtk.hype > 0){
+                    ChangeHype(-refPenalty);
+                }
+                else{
+                    ChangeHype(refPenalty);
+                }
+                refhit = true;
+            };
+        }
         primedAtk.Execute();
-        ChangeHype(primedAtk.hype);
+        if(!refhit) {
+            ChangeHype(primedAtk.hype);
+        }
         mousestep = 0;
         primedAtk = null;
         atkPrimed = false;
+        if(ref.state==0) {
+            ref.TilesinView();
+        }
         CalculatePaths();
     }
 
@@ -386,9 +436,6 @@ public class Map extends JPanel {
         //Moves the current player to their selected tile
         CurrentPlayer.selfMove = true;
         Path movepath = t.path;
-        for(Tile f: movepath.Tiles) {
-            System.out.println(f);
-        }
         System.out.println(movepath.cost);
 
         CurrentPlayer.MovePoints = CurrentPlayer.MovePoints - movepath.cost;
@@ -483,7 +530,9 @@ public class Map extends JPanel {
             Tile target = t.parent;
             while (target != c.CurTile) {
                 path.prependStep(target);
-                target = target.parent;
+                if(target!=null) {
+                    target = target.parent;
+                }
 
             }
             path.prependStep(c.CurTile);
@@ -508,16 +557,35 @@ public class Map extends JPanel {
         //returns a list of tiles surrounding a given tile;
 
         ArrayList<Tile> neighbours = new ArrayList<>();
+        if(t.x!=COLS-1) {
+            neighbours.add(TileGrid[t.y][t.x + 1]);
+        }
 
-        neighbours.add(TileGrid[t.y][t.x+1]);
-        neighbours.add(TileGrid[t.y+1][t.x+1]);
-        neighbours.add(TileGrid[t.y+1][t.x]);
-        neighbours.add(TileGrid[t.y+1][t.x-1]);
-        neighbours.add(TileGrid[t.y][t.x-1]);
+        if(t.x!=COLS-1 && t.y!=ROWS-1) {
+            neighbours.add(TileGrid[t.y + 1][t.x + 1]);
+        }
+
+        if(t.y!=ROWS-1) {
+            neighbours.add(TileGrid[t.y + 1][t.x]);
+        }
+
+        if(t.x!=0 && t.y!=ROWS-1) {
+            neighbours.add(TileGrid[t.y + 1][t.x - 1]);
+        }
+
+        if(t.x!=0) {
+            neighbours.add(TileGrid[t.y][t.x - 1]);
+        }
+
+        if(t.x!=0 && t.y!=0){
+            neighbours.add(TileGrid[t.y - 1][t.x-1]);
+        }
 
         if(t.y != 0){
-            neighbours.add(TileGrid[t.y - 1][t.x-1]);
             neighbours.add(TileGrid[t.y - 1][t.x]);
+        }
+
+        if(t.y!=0 && t.x!=COLS-1){
             neighbours.add(TileGrid[t.y - 1][t.x+1]);
         }
 
@@ -609,12 +677,15 @@ public class Map extends JPanel {
             }
 
 
-            if (CurrentPlayer != null && Characters[0]!=null) {
+            if (CurrentPlayer != null && Characters[0]!=null && ref!=null) {
                 if (MoveDelay == 0) {
                     for (Character i : Characters) {
                         if(i!=null) {
                             i.Update();
                         }
+                    }
+                    if(ref!=null) {
+                        ref.Update();
                     }
                     MoveDelay = 40000;
                 } else {
@@ -626,6 +697,7 @@ public class Map extends JPanel {
                     }
 
                 }
+
             }
         }
     }
@@ -650,9 +722,28 @@ public class Map extends JPanel {
         context = null;
         menu = null;
         createMenu();
+        ref.resetTurn();
+        if(pinning() && ref.state!=1){
+            ref.pin();
+            ref.TilesinView();
+        }
+        else if(!pinning() && ref.state!=1){
+            ref.state=0;
+            ref.changeHealth(0);
+        }
+        if(ref.state == 0) {
+            ref.setTile(ref.findMovement());
+            ref.orientation = ref.TowardMost();
+            ref.orient(ref.orientation);
+            ref.TilesinView();
+            ref.moving = true;
+        }
 
         if(CurrentPlayer!=null) {
-            if ((CurrentPlayer.state == 2 || CurrentPlayer.state == 3) && !ended) {
+            if(ref.state == 1){
+                pinCount = 0;
+            }
+            if ((CurrentPlayer.state == 2 || CurrentPlayer.state == 3) && ref.state!=1 && !ended) {
                 pinCount++;
                 PinCountUpdate = true;
 
@@ -672,8 +763,9 @@ public class Map extends JPanel {
 
                 Characters[TurnCounter].resetTurn();
                 CurrentPlayer = Characters[TurnCounter];
-
-
+                if(ref.state == 0) {
+                    ref.TilesinView();
+                }
                 CalculatePaths();
                 switch (CurrentPlayer.state) {
                     case 0 -> {
@@ -753,7 +845,7 @@ public class Map extends JPanel {
     void createKickout(){
 
         Kickoutbuttons = new Button[CurrentPlayer.MaxHealth - CurrentPlayer.Health];
-        System.out.println(CurrentPlayer);
+
         int randomNum = ThreadLocalRandom.current().nextInt(0, (CurrentPlayer.MaxHealth - CurrentPlayer.Health));
 
 
@@ -880,8 +972,11 @@ public class Map extends JPanel {
         Color canMove = new Color(69, 147, 234, transparency);
         Color infoBox = new Color(64, 64, 64, 129);
         Color finish = new Color(212, 101, 11);
+        Color view = new Color(18, 220, 193, 164);
+        Color purple = new Color(54, 37, 83, 255);
 
         Tile[] ropeTiles = new Tile[40];
+        Tile refPen = null;
         int ropeindex = 0;
         String tileName;
         String tileOccupant;
@@ -925,7 +1020,13 @@ public class Map extends JPanel {
                 g.drawImage(TileImage,x, y, width, height, null);
                 g.setColor(grid);
                 g.drawRect(x,y, width, height);
-                if(CurrentPlayer!=null) {
+                if(ref!=null && hoverC == ref){
+                    if(ref.inView(TileGrid[r][c]) && TileGrid[r][c].type!=6){
+                        g.setColor(view);
+                        g.fillRect(x, y, width, height);
+                    }
+                }
+                else if(CurrentPlayer!=null) {
                     if(!atkPrimed) {
                         if (ValidMove(TileGrid[r][c], CurrentPlayer) && CurrentPlayer.state == 0) {
                             if(TileGrid[r][c].path!=null) {
@@ -955,6 +1056,9 @@ public class Map extends JPanel {
 
                         g.setColor(canHit);
                         g.fillRect(x, y, width, height);
+                        if(TileGrid[r][c].Occupant() == ref){
+                            refPen =  TileGrid[r][c];
+                        }
                     }
 
                     if (mousestep == 1) {
@@ -1005,6 +1109,9 @@ public class Map extends JPanel {
             Characters[5] = SpawnJak(7, 11, "Karl Kobalt","Blue", Color.blue,5);
             turnOrder[5] = new TurnOrder(Characters[5]);
             CurrentPlayer = Characters[0];
+            ref = new Referee(TileGrid[10][10]);
+            ref.orientation =2;
+            ref.TilesinView();
             CalculatePaths();
             for(Character i: Characters){
                 i.orient(i.orientation);
@@ -1044,6 +1151,8 @@ public class Map extends JPanel {
             }
         }
 
+        ref.draw((Graphics2D) g);
+
         //SELECTED TILE
 
         if(Selected!=null){
@@ -1068,7 +1177,12 @@ public class Map extends JPanel {
 
                 for(boolean i:Selected.Occupant().healthBar){
                     if(i && c>=Selected.Occupant().painThresh){
-                        g.setColor(Color.green);
+                        if(c>Selected.Occupant().DEFAULT_MAX_HEALTH - 1){
+                            g.setColor(Color.yellow);
+                        }
+                        else {
+                            g.setColor(Color.green);
+                        }
                     }
                     else if(i){
                         g.setColor(Color.red);
@@ -1084,9 +1198,15 @@ public class Map extends JPanel {
                     Xhbars = Xhbars + 11;
                     c++;
                 }
+                c = 0;
                 for(boolean i:Selected.Occupant().staminaBar){
                     if(i){
-                        g.setColor(Color.blue);
+                        if(c>Selected.Occupant().DEFAULT_MAX_STAMINA-1){
+                            g.setColor(Color.yellow);
+                        }
+                        else {
+                            g.setColor(Color.blue);
+                        }
                     }
                     else{
                         g.setColor(Color.black);
@@ -1095,6 +1215,7 @@ public class Map extends JPanel {
                     g.fillRect(Xsbars,Ysbars,10,5);
 
                     Xsbars = Xsbars + 11;
+                    c++;
                 }
             }
 
@@ -1130,7 +1251,7 @@ public class Map extends JPanel {
 
         if(CurrentPlayer.state == 0) {
             int menux = 10;
-            int menuy = getHeight() - (((menu[0].height) * 4) + 10);
+            int menuy = getHeight() - (((menu[0].height) * menu.length) + 10);
 
 
             DrawMenu(g, menux, menuy, menu);
@@ -1221,7 +1342,12 @@ public class Map extends JPanel {
             }
 
             if(Math.abs(hoverA.hype) > 0){
-                g.drawString("Hype: " + Math.abs(hoverA.hype),statTextx,statTexty);
+                if(hoverA.type.equals("illegal")){
+                    g.drawString("Hype: " + Math.abs(hoverA.hype) * -1,statTextx,statTexty);
+                }
+                else {
+                    g.drawString("Hype: " + Math.abs(hoverA.hype), statTextx, statTexty);
+                }
                 statTextx = statTextx + g.getFontMetrics().stringWidth("Hype: " + hoverA.hype + 5);
             }
 
@@ -1480,6 +1606,13 @@ public class Map extends JPanel {
             }
         }
 
+        if(refPen!=null && atkPrimed){
+            g.setColor(purple);
+            int strwidth = g.getFontMetrics().stringWidth("-" + refPenalty + " Hype");
+            g.setFont(new Font("sans-serif",Font.BOLD,15));
+            g.drawString("-" + refPenalty + " Hype", refPen.CenterX + ((TILE_SIZE/2) - (strwidth/2)),refPen.CenterY +(TILE_SIZE));
+        }
+
 
 
 
@@ -1540,11 +1673,24 @@ public class Map extends JPanel {
 
 
 
+        if(buttons.length > 4){
+            menuy = getHeight() - ((buttons[0].height * buttons.length) + 10);
+        }
+        else{
+            menuy = getHeight() - ((buttons[0].height * 4) + 10);
+        }
+
+
+
+
         for(Button b: buttons){
             if(b!=null) {
                 b.active = true;
                 if(b.action.canAfford()){
-                    if(b.action.type.equals("Signature")){
+                    if(b.action.type.equals("illegal")){
+                        g.setColor(new Color(138,43,226));
+                    }
+                    else if(b.action.type.equals("Signature")){
                         g.setColor(finish);
                     }
                     else {

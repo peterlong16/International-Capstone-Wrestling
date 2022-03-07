@@ -123,6 +123,10 @@ public class Tile implements Comparable<Tile> {
             }
         }
 
+        if(Map.ref.CurTile == this){
+            return Map.ref;
+        }
+
         return null;
     }
 

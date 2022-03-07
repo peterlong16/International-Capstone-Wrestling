@@ -2,8 +2,8 @@ package game;
 
 import java.awt.image.BufferedImage;
 
-public class punch extends Action{
-    punch(Character c) {
+public class lowBlow extends Action{
+    lowBlow(Character c) {
         super(c);
         cost = 1;
         dmg = 8;
@@ -12,16 +12,17 @@ public class punch extends Action{
         range[0] = 1;
         targets = new Character[1];
         mover = false;
-        hype = 2;
-        type = "strike";
-        desc = "Smash the target with your forearm";
-        name = "Forearm Smash";
+        hype = 15;
+        type = "illegal";
+        desc = "Deliver a blow the belt punch to the target. Cannot be performed in view of the referee.";
+        name = "Low Blow";
         sequence = new Boolean[]{true,false,false};
         img = user.sprites[3];
-        if(user.teamname.equals("Red")){
+        if(user.teamname.equals("Blue")){
             this.hype = this.hype * -1;
         }
     }
+
 
     @Override
     boolean canHit(Tile t, int distance) {
@@ -35,10 +36,14 @@ public class punch extends Action{
 
         }
 
+        if(Map.ref.inView(user.CurTile) || Map.ref.inView(t)){
+        canHit = false;
+        }
+
+
         return canHit;
     }
 
-    @Override
     void Execute() {
         user.atk = this;
         user.attacking = true;

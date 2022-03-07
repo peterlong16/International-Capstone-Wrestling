@@ -51,7 +51,7 @@ public class Slingblade extends Action {
     void Execute() {
         user.atk = this;
         user.attacking = true;
-        user.orientation = user.FindDir(GetClosest(targets[0].CurTile, user.CurTile),user.CurTile);
+        user.orientation = user.FindDir(Map.GetClosest(targets[0].CurTile, user.CurTile),user.CurTile);
         user.orient(user.orientation);
         user.sprite.setImage(user.rotate((BufferedImage) img,user.rot));
         Character target = targets[0];

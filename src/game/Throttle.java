@@ -2,23 +2,23 @@ package game;
 
 import java.awt.image.BufferedImage;
 
-public class punch extends Action{
-    punch(Character c) {
+public class Throttle extends Action{
+    Throttle(Character c) {
         super(c);
         cost = 1;
-        dmg = 8;
+        dmg = 4;
         stmdmg = 0;
         range = new int[1];
         range[0] = 1;
         targets = new Character[1];
         mover = false;
-        hype = 2;
-        type = "strike";
-        desc = "Smash the target with your forearm";
-        name = "Forearm Smash";
+        hype = 20;
+        type = "illegal";
+        desc = "Strangle the target, fully depleting their stamina. Cannot be performed in view of the referee.";
+        name = "Throttle";
         sequence = new Boolean[]{true,false,false};
-        img = user.sprites[3];
-        if(user.teamname.equals("Red")){
+        img = user.sprites[2];
+        if(user.teamname.equals("Blue")){
             this.hype = this.hype * -1;
         }
     }
@@ -35,17 +35,22 @@ public class punch extends Action{
 
         }
 
+        if(Map.ref.inView(user.CurTile) || Map.ref.inView(t)){
+            canHit = false;
+        }
+
+
         return canHit;
     }
 
-    @Override
     void Execute() {
         user.atk = this;
         user.attacking = true;
+        this.stmdmg = targets[0].MovePoints;
         user.orientation = user.FindDir(targets[0].CurTile,user.CurTile);
         user.orient(user.orientation);
         user.sprite.setImage(user.rotate((BufferedImage) img,user.rot));
-        user.strikemod++;
+        user.slammod++;
         for(Character i:targets){
             if(i.state==2 && i!=Map.ref){
                 i.cancelPin(Map.neighbourTiles(i.CurTile), this);
@@ -53,6 +58,7 @@ public class punch extends Action{
             i.changeHealth(dmg * -1);
         }
         user.changeStam(cost * -1);
+        targets[0].changeStam(stmdmg * -1);
 
     }
 }

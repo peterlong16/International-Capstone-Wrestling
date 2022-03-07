@@ -66,10 +66,11 @@ public class Heavy extends Character {
         strikes[1] = new HeadButt(this);
         strikes[2] = new Bigboot(this);
 
-        slams = new Action[3];
+        slams = new Action[4];
         slams[0] = new Powerbomb(this);
         slams[1] = new SpineBuster(this);
         slams[2] = new GorillaPress(this);
+        slams[3] = new Throttle(this);
 
         dives = new Action[1];
         dives[0] = new AxeHandle(this);

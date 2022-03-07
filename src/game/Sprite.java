@@ -78,6 +78,9 @@ public class Sprite {
     public static Image HyperBarFill;
     public static Image HyperBarInd;
 
+    public static Image RefIdle;
+    public static Image RefDown;
+    public static Image RefPin;
 
 
 
@@ -173,6 +176,10 @@ public class Sprite {
             HyperBarBase = ImageManager.loadImage("HypeBarBase");
             HyperBarFill = ImageManager.loadImage("HypeBarFill");
             HyperBarInd = ImageManager.loadImage("HypeBarInd");
+
+            RefIdle = ImageManager.loadImage("refidle");
+            RefDown = ImageManager.loadImage("reflaying");
+            RefPin = ImageManager.loadImage("refpin");
 
 
 
