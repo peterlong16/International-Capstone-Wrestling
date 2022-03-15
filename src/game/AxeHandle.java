@@ -60,6 +60,8 @@ public class AxeHandle extends Action{
 
     @Override
     void DelayAction() {
+        Map.impactSounds.change(1);
+        Map.impactSounds.play();
         DelayTrigger = null;
         user.setTile(CharMove);
         user.changeHealth((2 + targets[0].CurTile.SlamEntryModifier) * -1);

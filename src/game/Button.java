@@ -9,7 +9,9 @@ public class Button {
     Action action;
     boolean active;
 
-
+    Button(Action action) {
+        this.action = action;
+    }
 
     Button(Action action, int height, int width) {
         this.height = height;
@@ -26,6 +28,7 @@ public class Button {
         this.width = width;
         this.action = action;
     }
+
 
     void setX(int x){
         this.x1 = x;

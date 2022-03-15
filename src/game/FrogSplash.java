@@ -62,6 +62,8 @@ public class FrogSplash extends Action{
         DelayTrigger = null;
         user.setTile(CharMove);
         user.changeHealth((2 + targets[0].CurTile.SlamEntryModifier) * -1);
+        Map.impactSounds.change(1);
+        Map.impactSounds.play();
 
     }
 }

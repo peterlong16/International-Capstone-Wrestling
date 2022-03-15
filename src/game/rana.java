@@ -125,6 +125,8 @@ public class rana extends Action{
         else{
             target.x++;
         }
+        Map.impactSounds.change(1);
+        Map.impactSounds.play();
 
     }
 }

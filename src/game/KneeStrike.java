@@ -58,6 +58,7 @@ public class KneeStrike extends Action{
         Character target = targets[0];
         user.changeStam(cost * -1);
         Tile[] path = new Tile[]{targets[0].CurTile,CharMove};
+        DelayTrigger = CharMove;
 
         if(target.state == 2) {
             target.cancelPin(Map.neighbourTiles(target.CurTile), this);
@@ -70,5 +71,12 @@ public class KneeStrike extends Action{
         user.Dive();
 
 
+    }
+
+    @Override
+    void DelayAction() {
+        DelayTrigger = null;
+        Map.impactSounds.change(0);
+        Map.impactSounds.play();
     }
 }

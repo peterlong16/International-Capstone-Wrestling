@@ -76,6 +76,8 @@ public class superkick extends Action {
 
         }
         user.moving = true;
+        Map.impactSounds.change(0);
+        Map.impactSounds.play();
 
     }
 }

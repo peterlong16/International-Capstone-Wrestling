@@ -65,6 +65,9 @@ public class SBforearm extends Action {
 
     @Override
     void DelayAction() {
+        DelayTrigger = null;
         user.changeHealth((1 + targetMove.SlamEntryModifier) * -1);
+        Map.impactSounds.change(1);
+        Map.impactSounds.play();
     }
 }

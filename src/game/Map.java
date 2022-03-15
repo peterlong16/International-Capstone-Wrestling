@@ -1,6 +1,7 @@
 package game;
 import Utilities.ImageManager;
 import Utilities.SortedList;
+import org.w3c.dom.Text;
 
 import javax.swing.*;
 import java.awt.*;
@@ -33,6 +34,10 @@ public class Map extends JPanel {
     static boolean ended = false;
     static int MenuSelect = 0;
     static boolean reveal;
+    static boolean settingsMenu = false;
+    static boolean howToPlay = false;
+    static boolean muted = false;
+    TextBox[] helps;
 
     int HypeBarWidth = 400;
     int HypeX = getWidth() + (HypeBarWidth/2);
@@ -65,6 +70,9 @@ public class Map extends JPanel {
     Boolean[] sequence;
     int mousestep = 0;
     static Button[] resetButton = new Button[1];
+    static Button[] settingsButton = new Button[1];
+    static Button[] SMenuButtons = new Button[4];
+    static Button[] closeHelp = new Button[1];
     Action hoverA;
     Character hoverC;
     static Referee ref;
@@ -73,6 +81,10 @@ public class Map extends JPanel {
     static boolean stage1 = false;
     static boolean stage2 = false;
     static boolean stage3 = false;
+    static ambientCrowd crowdSounds;
+    static Impacts impactSounds;
+    static miscSounds otherSounds;
+
 
 
 
@@ -115,6 +127,7 @@ public class Map extends JPanel {
         * Map constructor assigns each tile it's place in the grid alongside its type.
         * */
         int i = 0;
+
         for (int r = 0; r < ROWS; r++){
             for (int c = 0; c < COLS; c++){
                 TileGrid[r][c] = new Tile(TileArray[i]);
@@ -123,6 +136,8 @@ public class Map extends JPanel {
         }
         int GridWidth = COLS * TILE_SIZE;
         int GridHeight = ROWS * TILE_SIZE;
+
+
         setPreferredSize(new Dimension(GridWidth,GridHeight));
         addMouseMotionListener(new MouseMotionListener() {
             @Override
@@ -135,7 +150,7 @@ public class Map extends JPanel {
                 Button hoverbut = findButton(e.getX(),e.getY());
                 TurnOrder turn = findturnOrder(e.getX(),e.getY());
 
-                if(hoverbut!=null && hoverbut.action!=null){
+                if(hoverbut!=null && hoverbut.action!=null && hoverbut.active){
                     hoverA = hoverbut.action;
                     Selected = null;
                     hoverC = null;
@@ -171,6 +186,7 @@ public class Map extends JPanel {
 
                 Tile TargetTile = FindTile(e.getX(), e.getY());
                 Button button = findButton(e.getX(),e.getY());
+
                 if(reveal){
                     reveal = false;
                     Kickoutbuttons = null;
@@ -185,7 +201,6 @@ public class Map extends JPanel {
                                     System.out.println("target enemy");
 
                                     if (sequence[0] && primedAtk.canHit(TargetTile, distance(TargetTile, CurrentPlayer.CurTile))) {
-                                        System.out.println("yes");
                                         primedAtk.addTarget(TargetTile.Occupant());
                                         System.out.println(primedAtk.targets[0]);
                                         primedAtk.setCharMove(TileGrid[CurrentPlayer.CurTile.y + primedAtk.CharMovey][CurrentPlayer.CurTile.x + primedAtk.CharMovex]);
@@ -289,6 +304,10 @@ public class Map extends JPanel {
             public void mouseExited(MouseEvent e) {}
         });
 
+        crowdSounds = new ambientCrowd();
+        impactSounds = new Impacts();
+        otherSounds = new miscSounds();
+        crowdSounds.play();
         Thread loop = new Thread(this::loop, "loop");
         loop.start();
     }
@@ -327,9 +346,24 @@ public class Map extends JPanel {
             stage2 = false;
             stage3 = false;
         }
-        System.out.println("Stage 1 = " +stage1);
-        System.out.println("Stage 2 = " +stage2);
-        System.out.println("Stage 3 = " +stage3);
+
+        if(stage3){
+            System.out.println("3");
+            crowdSounds.change(3);
+        }
+        else if(stage2){
+            System.out.println("2");
+            crowdSounds.change(2);
+        }
+        else if(stage1){
+            System.out.println("1");
+            crowdSounds.change(1);
+        }
+        else{
+            crowdSounds.change(0);
+        }
+
+        crowdSounds.play();
 
 
         String crowdFavourite = "";
@@ -430,6 +464,8 @@ public class Map extends JPanel {
         strikes = null;
         slams = null;
         context = null;
+        crowd = 0;
+
     }
 
     void charMove(Tile t){
@@ -459,8 +495,6 @@ public class Map extends JPanel {
 
         return turn;
     }
-
-
 
     static int distance(Tile t1, Tile t2){
         return  Math.abs(t1.x-t2.x) + Math.abs(t1.y-t2.y);
@@ -641,6 +675,9 @@ public class Map extends JPanel {
         button = getButton(x,y,button,context);
         button = getButton(x, y, button, Kickoutbuttons);
         button = getButton(x,y,button,resetButton);
+        button = getButton(x,y,button,settingsButton);
+        button = getButton(x,y,button,SMenuButtons);
+        button = getButton(x,y,button,closeHelp);
 
 
 
@@ -668,6 +705,20 @@ public class Map extends JPanel {
         return button;
     }
 
+    static public void MuteAudio(){
+        crowdSounds.setVolume(0);
+        impactSounds.setVolume(0);
+        otherSounds.setVolume(0);
+        muted = true;
+    }
+
+    static public void UnMuteAudio(){
+        crowdSounds.setVolume(1);
+        impactSounds.setVolume(1);
+        otherSounds.setVolume(1);
+        muted = false;
+    }
+
     void update(){
         if(running) {
             repaint();
@@ -677,27 +728,29 @@ public class Map extends JPanel {
             }
 
 
-            if (CurrentPlayer != null && Characters[0]!=null && ref!=null) {
-                if (MoveDelay == 0) {
-                    for (Character i : Characters) {
-                        if(i!=null) {
-                            i.Update();
+            if(!ended) {
+                if (CurrentPlayer != null && Characters[0] != null && ref != null) {
+                    if (MoveDelay == 0) {
+                        for (Character i : Characters) {
+                            if (i != null) {
+                                i.Update();
+                            }
                         }
+                        if (ref != null) {
+                            ref.Update();
+                        }
+                        MoveDelay = 40000;
+                    } else {
+                        MoveDelay--;
                     }
-                    if(ref!=null) {
-                        ref.Update();
-                    }
-                    MoveDelay = 40000;
-                } else {
-                    MoveDelay--;
-                }
-                if ((CurrentPlayer.state == 0 && CurrentPlayer.MovePoints == 0) || CurrentPlayer.state == 2 || CurrentPlayer.state == 1) {
-                    if(CurrentPlayer!=null && !CurrentPlayer.attacking) {
-                        changeTurn();
+                    if ((CurrentPlayer.state == 0 && CurrentPlayer.MovePoints == 0) || CurrentPlayer.state == 2 || CurrentPlayer.state == 1) {
+                        if (CurrentPlayer != null && !CurrentPlayer.attacking) {
+                            changeTurn();
+                        }
+
                     }
 
                 }
-
             }
         }
     }
@@ -750,19 +803,26 @@ public class Map extends JPanel {
             }
 
             if (pinCount >= 3) {
+                otherSounds.change(1);
+                otherSounds.play();
                 endGame();
                 return;
             }
             if (!ended) {
                 TurnCounter++;
+
                 if (TurnCounter == Characters.length) {
 
                     TurnCounter = 0;
+                    Characters[TurnCounter].resetTurn();
+                    CurrentPlayer = Characters[TurnCounter];
+                }
+                else{
+                    Characters[TurnCounter].resetTurn();
                     CurrentPlayer = Characters[TurnCounter];
                 }
 
-                Characters[TurnCounter].resetTurn();
-                CurrentPlayer = Characters[TurnCounter];
+
                 if(ref.state == 0) {
                     ref.TilesinView();
                 }
@@ -927,6 +987,18 @@ public class Map extends JPanel {
         }
 
         return downed;
+    }
+
+    public static void ToggleSettings(){
+        settingsMenu = !settingsMenu;
+        for(Button b:SMenuButtons){
+            if(settingsMenu){
+                b.active =  true;
+            }
+            else{
+                b.active = false;
+            }
+        }
     }
 
     void rotateOrder(){
@@ -1109,6 +1181,17 @@ public class Map extends JPanel {
             Characters[5] = SpawnJak(7, 11, "Karl Kobalt","Blue", Color.blue,5);
             turnOrder[5] = new TurnOrder(Characters[5]);
             CurrentPlayer = Characters[0];
+            settingsButton[0] = new Button(new Settings(CurrentPlayer),30,30,getWidth() - 50,20);
+            settingsButton[0].active = true;
+            SMenuButtons = new Button[]{new Button(new Settings(CurrentPlayer),50,200),new Button(new HowToPlay(CurrentPlayer),50,200),new Button(new Mute(CurrentPlayer),50,200),new Button(new Quitgame(CurrentPlayer),50,200)};
+            int smenux = (getWidth()/2) - (SMenuButtons[0].width/2);
+            int smenuy = (getHeight()/2) - ((SMenuButtons.length * SMenuButtons[0].height + 40) / 2);
+            for(Button b: SMenuButtons){
+                b.setX(smenux);
+                b.setY(smenuy);
+
+                smenuy += SMenuButtons[0].height + 10;
+            }
             ref = new Referee(TileGrid[10][10]);
             ref.orientation =2;
             ref.TilesinView();
@@ -1123,6 +1206,61 @@ public class Map extends JPanel {
             start = false;
             TurnCounter = 0;
             rotateOrder();
+            TextBox hypeHelp = new TextBox(getWidth()/2 - 200,50,400,110);
+            hypeHelp.setHeader("Crowd status");
+            hypeHelp.setText("Performing actions will generate a certain amount of hype which will get the crowd on your " +
+                    "teams side. Getting the crowd on your side will earn your team different bonuses. Crowd bonuses are separated" +
+                    " into three categories depending on how much hype your team generates. Hover over the crowd indicator for more information on bonuses.");
+            hypeHelp.draw(g);
+
+            TextBox actionHelp = new TextBox(10,(getHeight()/2) + 40,250,280);
+            actionHelp.setHeader("Actions");
+            actionHelp.setText("The actions menu is separated into 3 categories. Strikes, Slams and misc. consecutive strikes increase the damage of strike combo finishers. " +
+                    "slam attacks will increase the stamina cost of subsequent slams in the same turn. misc. moves are contextual and will change depending on the context the menu is opened in. " +
+                    "misc. actions include pinning, climbing and taunting. You can keep performing actions in a single turn until your stamina runs out. Most action will require you to designate " +
+                    "target tiles. Actions are primed with left click, and Target tiles can be selected with the right click. Performing a left click with an action primed will cancel the action.");
+            actionHelp.draw(g);
+
+            TextBox infoBoxHelp = new TextBox(270, getHeight() - 205,450,80);
+            infoBoxHelp.setHeader("Information Box");
+            infoBoxHelp.setText("The information box will display information about actions, characters and the crowd score. Selecting a tile will display information about the character in the selected" +
+                    "tile. hovering the mouse over an action or the crowd indicator will display the relevant information.");
+            infoBoxHelp.draw(g);
+
+            TextBox turnOrderHelp = new TextBox(getWidth() - 250,getHeight()/4,200,290);
+            turnOrderHelp.setHeader("Turn Order");
+            turnOrderHelp.setText("Players take turns to control a wrestler on their team. The medium characters go first, then the light characters, and then the heavy characters." +
+                    " The Referee will move in between each character turn. The turn order indicator can be used to see which character will be able to act next. If a character is down, pinned or pinning" +
+                    " another character they will miss a turn. The current wrestler can be identified with a green circle and arrow. At the start of each characters turn, they will recover some health and " +
+                    "stamina based on their regeneration stats.");
+
+            TextBox moveHelp = new TextBox(10,getHeight()/4 + 50,250,190);
+            moveHelp.setHeader("Movement");
+            moveHelp.setText("Characters can be moved using the right mouse button. Tiles are colour coded depending on how much stamina it would cost to move to that tile. " +
+                    "Green tiles indicate the cost for movement to that tile is less than half of the characters remaining stamina. Yellow indicates the movement will cost over half of " +
+                    "the character's remaining stamina. Red indicates the movement will cost all of the characters remaining stamina.");
+
+            TextBox aimHelp = new TextBox(10,10,150,230);
+            aimHelp.setHeader("Aim of the Game");
+            aimHelp.setText("This game is for 2 local players. One player will control the blue team and the other will control the red team. To win the game, one wrestler must " +
+                    "successfully pin an opposing team's wrestler for a three count. you must use your character's actions to weaken the enemy to achieve this.");
+
+            TextBox refHelp = new TextBox(infoBoxHelp.x1,infoBoxHelp.y1 - 100,450,95);
+            refHelp.setHeader("Referee");
+            refHelp.setText("The referee will count pins and look out for any foul play. if the referee is downed during a pin, the pin count will stop and be reset when the referee has recovered. " +
+                    "Characters outside of the referee's vision cone (visible when the referee is selected) will be able to perform illegal moves, which are more effective but greatly reduce" +
+                    " your crowd score.");
+
+            TextBox pinHelp = new TextBox(infoBoxHelp.x1, refHelp.y1 - 290,270,280);
+            pinHelp.setHeader("Pinning");
+            pinHelp.setText("When a character's health drops past the pain threshold (indicated by the red health pips) the character will be downed. While downed they may be pinned using the misc. action menu. " +
+                    "while a pin is active, the pin count will increase on both the pinners turn and the character being pinned. Once the pin count reaches 3 the game ends. on the turn of a character" +
+                    " being pinned, they will have the opportunity to kickout. The pinned player will need to pick a square from a selection. If they successfully select the kickout square, they will kickout. " +
+                    "Otherwise, the pincount will increase and they will miss their turn. The number of squares increases with the amount of health missing from the pinned character.");
+
+            helps = new TextBox[]{hypeHelp,actionHelp,aimHelp,refHelp,pinHelp,moveHelp,turnOrderHelp,infoBoxHelp};
+            closeHelp = new Button[]{new Button(new closeHelp(CurrentPlayer),50,200,getWidth()/2 - 100,pinHelp.y1 - 100)};
+
         }
 
         Character[] downed = findDowned();
@@ -1282,7 +1420,7 @@ public class Map extends JPanel {
                 case 3 -> {
                     strikes = null;
                     slams = null;
-                    if (context != null) {
+                    if (context != null && context[0] !=null) {
                         DrawMenu(g, subMenux, subMenuy, context);
                     }
                 }
@@ -1649,6 +1787,50 @@ public class Map extends JPanel {
         g2d.drawImage(fillHype,HypeX,HypeY,HypeBarWidth,20,null);
         g2d.setClip(null);
         g.drawImage(HypeInd,IndX,IndY,HypeWidth,HypeHeight,null);
+
+        g2d.drawImage(Sprite.Cog,settingsButton[0].x1,settingsButton[0].y1,settingsButton[0].width,settingsButton[0].height,null);
+
+        if(settingsMenu){
+            String title = "International Capstone Wrestling";
+            g.setFont(new Font("sans-serif",Font.BOLD,25));
+            int titlex = (getWidth()/2) - (g.getFontMetrics().stringWidth(title)/2);
+            int titley = SMenuButtons[0].y1 - 30;
+            g.drawString(title,titlex,titley);
+            g.setFont(new Font("sans-serif",Font.BOLD,15));
+            for(Button b:SMenuButtons){
+                g.setColor(Color.black);
+                g.fillRect(b.x1,b.y1,b.width,b.height);
+                g.setColor(Color.white);
+                int x = (b.x2 - (b.width/2)) - (g.getFontMetrics().stringWidth(b.action.name)/2);
+                int y = (b.y2 - (b.height/2)) + (g.getFontMetrics().getHeight()/4);
+                g.drawString(b.action.name, x,y);
+            }
+            String credit = "Created by Peter Long";
+            g.drawString(credit,(getWidth()/2) - (g.getFontMetrics().stringWidth(credit)/2), SMenuButtons[3].y2 + 20);
+        }
+
+        if(howToPlay){
+            for(TextBox t:helps){
+                t.draw(g);
+            }
+            g.setColor(Color.black);
+            g.fillRect(closeHelp[0].x1, closeHelp[0].y1,closeHelp[0].width,closeHelp[0].height);
+            g.setColor(Color.white);
+            g.setFont(new Font("sans-serif",Font.BOLD,15));
+            int x = ( closeHelp[0].x2 - ( closeHelp[0].width/2)) - (g.getFontMetrics().stringWidth( closeHelp[0].action.name)/2);
+            int y = ( closeHelp[0].y2 - ( closeHelp[0].height/2)) + (g.getFontMetrics().getHeight()/4);
+            g.drawString( closeHelp[0].action.name, x,y);
+
+            closeHelp[0].active = true;
+        }
+        else{
+            if(closeHelp[0]!=null) {
+                closeHelp[0].active = false;
+            }
+        }
+
+
+
 
 
 

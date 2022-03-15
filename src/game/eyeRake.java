@@ -82,6 +82,8 @@ public class eyeRake extends Action {
         else{
             target.x++;
         }
+        Map.otherSounds.change(0);
+        Map.otherSounds.play();
 
 
 

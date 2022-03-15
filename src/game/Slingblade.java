@@ -81,6 +81,8 @@ public class Slingblade extends Action {
         user.changeStam((cost + user.slammod) * -1);
         user.slammod++;
         user.changeHealth(-1);
+        Map.impactSounds.change(1);
+        Map.impactSounds.play();
 
 
 

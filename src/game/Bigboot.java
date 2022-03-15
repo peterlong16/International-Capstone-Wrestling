@@ -63,6 +63,8 @@ public class Bigboot extends Action {
         }
 
         target.changeHealth((dmg + user.strikemod) * -1);
+        Map.impactSounds.change(0);
+        Map.impactSounds.play();
 
         user.strikemod = 0;
 

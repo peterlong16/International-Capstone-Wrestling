@@ -62,6 +62,8 @@ public class Euppercut extends Action{
         }
 
         target.changeHealth(dmg * -1);
+        Map.impactSounds.change(0);
+        Map.impactSounds.play();
 
         user.moving = true;
 

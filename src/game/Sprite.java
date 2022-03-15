@@ -82,6 +82,8 @@ public class Sprite {
     public static Image RefDown;
     public static Image RefPin;
 
+    public static Image Cog;
+
 
 
     public Image image;
@@ -180,6 +182,10 @@ public class Sprite {
             RefIdle = ImageManager.loadImage("refidle");
             RefDown = ImageManager.loadImage("reflaying");
             RefPin = ImageManager.loadImage("refpin");
+
+            Cog = ImageManager.loadImage("settings");
+
+
 
 
 

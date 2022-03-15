@@ -89,7 +89,8 @@ public class SBrana extends Action{
             target.x++;
         }
         target.moving = true;
-
+        Map.impactSounds.change(1);
+        Map.impactSounds.play();
     }
 
 

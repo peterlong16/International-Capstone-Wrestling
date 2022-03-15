@@ -46,6 +46,8 @@ public class Enzugiri extends Action {
             target.cancelPin(Map.neighbourTiles(target.CurTile), this);
             target.state = 0;
         }
+        Map.impactSounds.change(0);
+        Map.impactSounds.play();
 
         target.changeHealth((dmg + user.strikemod) * -1);
         user.strikemod = 0;

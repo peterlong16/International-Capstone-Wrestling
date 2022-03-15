@@ -59,6 +59,8 @@ public class Throttle extends Action{
         }
         user.changeStam(cost * -1);
         targets[0].changeStam(stmdmg * -1);
+        Map.otherSounds.change(0);
+        Map.otherSounds.play();
 
     }
 }

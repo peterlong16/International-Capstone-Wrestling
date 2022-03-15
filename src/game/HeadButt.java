@@ -43,6 +43,8 @@ public class HeadButt extends Action{
         target.changeHealth(dmg * -1);
         target.changeStam(stmdmg * -1);
         target = null;
+        Map.impactSounds.change(0);
+        Map.impactSounds.play();
 
 
     }

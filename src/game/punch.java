@@ -54,5 +54,8 @@ public class punch extends Action{
         }
         user.changeStam(cost * -1);
 
+        Map.impactSounds.change(0);
+        Map.impactSounds.play();
+
     }
 }

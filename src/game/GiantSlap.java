@@ -73,6 +73,8 @@ public class GiantSlap extends Action{
         else{
             target.x++;
         }
+        Map.impactSounds.change(0);
+        Map.impactSounds.play();
 
 
 

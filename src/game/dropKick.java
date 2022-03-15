@@ -97,6 +97,7 @@ public class dropKick extends Action{
         user.setTile(CharMove);
         user.moving = true;
 
+
     }
 
     void DelayAction(){
@@ -111,6 +112,8 @@ public class dropKick extends Action{
         }
 
         target.changeHealth((dmg + user.strikemod + SlamExit(targetMove,target.CurTile)) * -1);
+        Map.impactSounds.change(1);
+        Map.impactSounds.play();
 
         user.strikemod = 0;
 

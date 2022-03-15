@@ -82,6 +82,8 @@ public class SpineBuster extends Action{
 
         user.changeStam((cost + user.slammod) * -1);
         user.slammod++;
+        Map.impactSounds.change(1);
+        Map.impactSounds.play();
 
     }
 }

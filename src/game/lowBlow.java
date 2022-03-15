@@ -57,6 +57,10 @@ public class lowBlow extends Action{
             }
             i.changeHealth(dmg * -1);
         }
+        Map.otherSounds.change(0);
+        Map.otherSounds.play();
+        Map.impactSounds.change(0);
+        Map.impactSounds.play();
         user.changeStam(cost * -1);
 
     }
