@@ -27,7 +27,9 @@ public class SpineBuster extends Action{
 
     boolean canTargetMove(Tile t, int distance){
 
-        return distance==1 && (t.canMove() || t.Occupant() == targets[0]);
+        return distance==1 &&
+                t.type != 6 &&
+                (!t.Occupied() || t.Occupant() == targets[0]);
     }
 
     boolean gotTargets(){
@@ -54,7 +56,7 @@ public class SpineBuster extends Action{
     void Execute() {
         user.atk = this;
         user.attacking = true;
-        user.orientation = user.FindDir(targets[0].CurTile,user.CurTile);
+        user.orientation = user.FindDir(targetMove,user.CurTile);
         user.orient(user.orientation);
         user.sprite.setImage(user.rotate((BufferedImage) img,user.rot));
         Character target = targets[0];

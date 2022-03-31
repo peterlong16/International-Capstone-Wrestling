@@ -8,10 +8,10 @@ public class Heavy extends Character {
     Heavy(Tile t, String name, String team, Color colour,int or){
         super(t);
 
-        DEFAULT_MAX_HEALTH = 10;
-        DEFAULT_MAX_HEALTHREGEN = 2;
-        DEFAULT_MAX_STAMINA = 8;
-        DEFAULT_MAX_STAMREGEN = 5;
+        DEFAULT_MAX_HEALTH = 15;
+        DEFAULT_MAX_HEALTHREGEN = 1;
+        DEFAULT_MAX_STAMINA = 6;
+        DEFAULT_MAX_STAMREGEN = 3;
 
         MaxMove = DEFAULT_MAX_STAMINA;
         MovePoints = MaxMove;

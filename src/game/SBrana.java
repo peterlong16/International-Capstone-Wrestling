@@ -39,7 +39,8 @@ public class SBrana extends Action{
 
     boolean canTargetMove(Tile t, int distance){
         return Map.distance(t,targets[0].CurTile) < 3 &&
-                t.canMove();
+                t.type != 6 &&
+                !t.Occupied();
     }
 
     @Override
@@ -71,6 +72,7 @@ public class SBrana extends Action{
     }
 
     void DelayAction(){
+        DelayTrigger = null;
         Character target = targets[0];
         if(target.state==2){
             target.cancelPin(Map.neighbourTiles(target.CurTile), this);

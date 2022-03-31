@@ -6,7 +6,7 @@ public class punch extends Action{
     punch(Character c) {
         super(c);
         cost = 1;
-        dmg = 8;
+        dmg = 2;
         stmdmg = 0;
         range = new int[1];
         range[0] = 1;

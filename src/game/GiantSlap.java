@@ -39,7 +39,8 @@ public class GiantSlap extends Action{
         ArrayList<Tile> neighbours = Map.neighbourTiles(user.CurTile);
         for(Tile i: neighbours){
             if(i == t){
-                return Map.distance(t,targets[0].CurTile) == 1 && !t.Occupied();
+                return Map.distance(t,targets[0].CurTile) == 1 &&
+                        t.type != 6 && !t.Occupied();
             }
         }
         return false;

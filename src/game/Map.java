@@ -5,9 +5,7 @@ import org.w3c.dom.Text;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
+import java.awt.event.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -37,6 +35,7 @@ public class Map extends JPanel {
     static boolean settingsMenu = false;
     static boolean howToPlay = false;
     static boolean muted = false;
+    static boolean debug = false;
     TextBox[] helps;
 
     int HypeBarWidth = 400;
@@ -139,6 +138,25 @@ public class Map extends JPanel {
 
 
         setPreferredSize(new Dimension(GridWidth,GridHeight));
+        addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if(e.getKeyCode() == KeyEvent.VK_Q){
+                    debug = !debug;
+
+                }
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+
+            }
+        });
         addMouseMotionListener(new MouseMotionListener() {
             @Override
             public void mouseDragged(MouseEvent e) {
@@ -198,11 +216,11 @@ public class Map extends JPanel {
                             switch (mousestep) {
                                 //Target Enemy
                                 case 0 -> {
-                                    System.out.println("target enemy");
+
 
                                     if (sequence[0] && primedAtk.canHit(TargetTile, distance(TargetTile, CurrentPlayer.CurTile))) {
                                         primedAtk.addTarget(TargetTile.Occupant());
-                                        System.out.println(primedAtk.targets[0]);
+
                                         primedAtk.setCharMove(TileGrid[CurrentPlayer.CurTile.y + primedAtk.CharMovey][CurrentPlayer.CurTile.x + primedAtk.CharMovex]);
                                     }
 
@@ -223,7 +241,7 @@ public class Map extends JPanel {
                                 }
                                 //Target Movement
                                 case 1 -> {
-                                    System.out.println("target movement");
+
                                     if (primedAtk.canTargetMove(TargetTile, distance(TargetTile, CurrentPlayer.CurTile))) {
                                         primedAtk.setTargetMove(TargetTile);
                                     }
@@ -236,7 +254,7 @@ public class Map extends JPanel {
                                 }
                                 //Character Movement
                                 case 2 -> {
-                                    System.out.println("Character movement");
+
                                     if (primedAtk.canCharMove(TargetTile)) {
                                         primedAtk.setCharMove(TargetTile);
                                     }
@@ -310,23 +328,18 @@ public class Map extends JPanel {
         crowdSounds.play();
         Thread loop = new Thread(this::loop, "loop");
         loop.start();
+        howToPlay = true;
     }
 
     static void ChangeHype(int change){
        crowd = crowd + change;
-       if(crowd<-MAX_HYPE){
-           crowd = -MAX_HYPE;
-       }
-       if(crowd > MAX_HYPE){
-           crowd = MAX_HYPE;
-       }
        UpdateCrowd();
     }
 
     static void UpdateCrowd(){
         int posCrowd = Math.abs(crowd);
 
-        if(posCrowd == MAX_HYPE){
+        if(posCrowd >= MAX_HYPE){
             stage1 = true;
             stage2 = true;
             stage3 = true;
@@ -348,15 +361,15 @@ public class Map extends JPanel {
         }
 
         if(stage3){
-            System.out.println("3");
+
             crowdSounds.change(3);
         }
         else if(stage2){
-            System.out.println("2");
+
             crowdSounds.change(2);
         }
         else if(stage1){
-            System.out.println("1");
+
             crowdSounds.change(1);
         }
         else{
@@ -449,6 +462,7 @@ public class Map extends JPanel {
         if(ref.state==0) {
             ref.TilesinView();
         }
+        context = null;
         CalculatePaths();
     }
 
@@ -465,6 +479,8 @@ public class Map extends JPanel {
         slams = null;
         context = null;
         crowd = 0;
+        settingsMenu = false;
+        crowdSounds.change(0);
 
     }
 
@@ -472,7 +488,7 @@ public class Map extends JPanel {
         //Moves the current player to their selected tile
         CurrentPlayer.selfMove = true;
         Path movepath = t.path;
-        System.out.println(movepath.cost);
+
 
         CurrentPlayer.MovePoints = CurrentPlayer.MovePoints - movepath.cost;
         CurrentPlayer.setTile(t, movepath.Tiles);
@@ -674,10 +690,10 @@ public class Map extends JPanel {
         button = getButton(x, y, button, slams);
         button = getButton(x,y,button,context);
         button = getButton(x, y, button, Kickoutbuttons);
-        button = getButton(x,y,button,resetButton);
         button = getButton(x,y,button,settingsButton);
         button = getButton(x,y,button,SMenuButtons);
         button = getButton(x,y,button,closeHelp);
+        button = getButton(x,y,button,resetButton);
 
 
 
@@ -713,9 +729,9 @@ public class Map extends JPanel {
     }
 
     static public void UnMuteAudio(){
-        crowdSounds.setVolume(1);
-        impactSounds.setVolume(1);
-        otherSounds.setVolume(1);
+        crowdSounds.setVolume(0.1f);
+        impactSounds.setVolume(0.2f);
+        otherSounds.setVolume(0.2f);
         muted = false;
     }
 
@@ -823,6 +839,7 @@ public class Map extends JPanel {
                 }
 
 
+
                 if(ref.state == 0) {
                     ref.TilesinView();
                 }
@@ -903,23 +920,27 @@ public class Map extends JPanel {
     }
 
     void createKickout(){
+        int amount = CurrentPlayer.MaxHealth - CurrentPlayer.Health;
+        int size = 50;
+        if(amount == 0){
+            amount = 1;
+        }
+        if(amount >= 10){
+            size = 25;
+        }
+        Kickoutbuttons = new Button[amount];
 
-        Kickoutbuttons = new Button[CurrentPlayer.MaxHealth - CurrentPlayer.Health];
-
-        int randomNum = ThreadLocalRandom.current().nextInt(0, (CurrentPlayer.MaxHealth - CurrentPlayer.Health));
+        int randomNum = ThreadLocalRandom.current().nextInt(0, (amount));
 
 
-
-        System.out.println("Kickout: " + randomNum);
-        for(int i = 0;i<CurrentPlayer.MaxHealth - CurrentPlayer.Health;i++){
+        for(int i = 0;i<amount;i++){
             if(i == randomNum){
-                Kickoutbuttons[i] = new Button(new Kickout(CurrentPlayer), 50,50);
-                Kickoutbuttons[i].active = true;
+                Kickoutbuttons[i] = new Button(new Kickout(CurrentPlayer), size,size);
             }
            else{
-                Kickoutbuttons[i] = new Button(new KickoutFail(CurrentPlayer), 50,50);
-                Kickoutbuttons[i].active = true;
+                Kickoutbuttons[i] = new Button(new KickoutFail(CurrentPlayer), size,size);
             }
+            Kickoutbuttons[i].active = true;
         }
 
 
@@ -1168,22 +1189,22 @@ public class Map extends JPanel {
         }
 
         if(start){
-            Characters[0] = SpawnJay(8, 10, "Texas Redd","Red", Color.red, 1);
+            Characters[0] = SpawnJay(6, 8, "Texas Redd","Red", Color.red, 1);
             turnOrder[0] = new TurnOrder(Characters[0]);
-            Characters[1] = SpawnJay(10, 11, "Tommy Bluford","Blue", Color.blue, 5);
+            Characters[1] = SpawnJay(13, 11, "Tommy Bluford","Blue", Color.blue, 5);
             turnOrder[1] = new TurnOrder(Characters[1]);
-            Characters[2] = SpawnJon(8,11,"Crimson Lightning","Red", Color.red,1);
+            Characters[2] = SpawnJon(8,6,"Crimson Lightning","Red", Color.red,1);
             turnOrder[2] = new TurnOrder(Characters[2]);
-            Characters[3] = SpawnJon(9, 11, "El Mono Azul", "Blue", Color.blue,5);
+            Characters[3] = SpawnJon(11, 13, "El Mono Azul", "Blue", Color.blue,5);
             turnOrder[3] = new TurnOrder(Characters[3]);
-            Characters[4] = SpawnJak(6, 11, "Brock Redstone","Red", Color.red,1);
+            Characters[4] = SpawnJak(7, 7, "Brock Redstone","Red", Color.red,1);
             turnOrder[4] = new TurnOrder(Characters[4]);
-            Characters[5] = SpawnJak(7, 11, "Karl Kobalt","Blue", Color.blue,5);
+            Characters[5] = SpawnJak(12, 12, "Karl Kobalt","Blue", Color.blue,5);
             turnOrder[5] = new TurnOrder(Characters[5]);
             CurrentPlayer = Characters[0];
             settingsButton[0] = new Button(new Settings(CurrentPlayer),30,30,getWidth() - 50,20);
             settingsButton[0].active = true;
-            SMenuButtons = new Button[]{new Button(new Settings(CurrentPlayer),50,200),new Button(new HowToPlay(CurrentPlayer),50,200),new Button(new Mute(CurrentPlayer),50,200),new Button(new Quitgame(CurrentPlayer),50,200)};
+            SMenuButtons = new Button[]{new Button(new Settings(CurrentPlayer),50,200),new Button(new resetGame(CurrentPlayer),50,200),new Button(new HowToPlay(CurrentPlayer),50,200),new Button(new Mute(CurrentPlayer),50,200),new Button(new Quitgame(CurrentPlayer),50,200)};
             int smenux = (getWidth()/2) - (SMenuButtons[0].width/2);
             int smenuy = (getHeight()/2) - ((SMenuButtons.length * SMenuButtons[0].height + 40) / 2);
             for(Button b: SMenuButtons){
@@ -1192,8 +1213,9 @@ public class Map extends JPanel {
 
                 smenuy += SMenuButtons[0].height + 10;
             }
-            ref = new Referee(TileGrid[10][10]);
-            ref.orientation =2;
+            ref = new Referee(TileGrid[13][6]);
+            ref.orientation = 7;
+            ref.orient(ref.orientation);
             ref.TilesinView();
             CalculatePaths();
             for(Character i: Characters){
@@ -1766,7 +1788,18 @@ public class Map extends JPanel {
 
 
         int IndY = HypeY - 10;
-        int IndX = ((getWidth()/2) - (HypeWidth/2)) + (crowd * (HypeBarWidth/(MAX_HYPE*2)));
+        int IndX;
+        if(crowd > MAX_HYPE){
+            IndX = ((getWidth()/2) - (HypeWidth/2)) + (MAX_HYPE * (HypeBarWidth/(MAX_HYPE*2)));
+        }
+        else if(crowd < (MAX_HYPE * -1)){
+            IndX = ((getWidth()/2) - (HypeWidth/2)) + ((MAX_HYPE * -1) * (HypeBarWidth/(MAX_HYPE*2)));
+        }
+        else{
+            IndX = ((getWidth()/2) - (HypeWidth/2)) + (crowd * (HypeBarWidth/(MAX_HYPE*2)));
+        }
+
+
 
         g.drawImage(baseHype,HypeX, HypeY,HypeBarWidth,20,null);
 
@@ -1806,7 +1839,7 @@ public class Map extends JPanel {
                 g.drawString(b.action.name, x,y);
             }
             String credit = "Created by Peter Long";
-            g.drawString(credit,(getWidth()/2) - (g.getFontMetrics().stringWidth(credit)/2), SMenuButtons[3].y2 + 20);
+            g.drawString(credit,(getWidth()/2) - (g.getFontMetrics().stringWidth(credit)/2), SMenuButtons[4].y2 + 20);
         }
 
         if(howToPlay){
@@ -1827,6 +1860,23 @@ public class Map extends JPanel {
             if(closeHelp[0]!=null) {
                 closeHelp[0].active = false;
             }
+        }
+
+        if(debug){
+            g.setFont(new Font("sans-serif",Font.PLAIN,9));
+            g.drawString("Current Player = " + CurrentPlayer,0,14);
+            g.drawString("Pinning = " + pinning(),0,30);
+            int y = 45;
+            for(Character c: Characters){
+                g.drawString(c.toString(),0,y);
+                y = y + 15;
+            }
+            if(primedAtk !=null) {
+                g.drawString("Primed Attack = " + primedAtk, 0, y);
+                y += 15;
+                g.drawString("Attack target = " + primedAtk.targets[0], 0, y);
+            }
+
         }
 
 

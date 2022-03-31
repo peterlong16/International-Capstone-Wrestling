@@ -10,7 +10,7 @@ import java.util.Map;
 import javax.imageio.ImageIO;
 
 public class ImageManager {
-    public static final String path = "src/Sprites/";
+    public static final String path = "/Sprites/";
     public static final String ext = ".png";
     public static Map<String, Image> images = new HashMap();
 
@@ -23,7 +23,7 @@ public class ImageManager {
 
     public static Image loadImage(String fname) throws IOException {
         BufferedImage img = null;
-        img = ImageIO.read(new File(path + fname + ".png"));
+        img = ImageIO.read(ImageManager.class.getResource(path + fname + ext));
         images.put(fname, img);
         return img;
     }

@@ -6,7 +6,7 @@ public class SBforearm extends Action {
     SBforearm(Character c) {
         super(c);
         cost = 3;
-        dmg = 4;
+        dmg = 6;
         range = new int[]{3, 4, 5};
         targets = new Character[1];
         mover = false;
@@ -14,7 +14,7 @@ public class SBforearm extends Action {
         name = "SB Forearm";
         desc = "Springboard from the ropes and deliver a flying forearm smash";
         stmdmg = 0;
-        hype = 12;
+        hype = 20;
         sequence = new Boolean[]{true,false,true};
         img = user.sprites[3];
         if(user.teamname.equals("Red")){
@@ -66,7 +66,8 @@ public class SBforearm extends Action {
     @Override
     void DelayAction() {
         DelayTrigger = null;
-        user.changeHealth((1 + targetMove.SlamEntryModifier) * -1);
+        System.out.println(user.atk);
+        user.changeHealth((1 + targets[0].CurTile.SlamEntryModifier) * -1);
         Map.impactSounds.change(1);
         Map.impactSounds.play();
     }

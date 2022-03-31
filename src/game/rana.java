@@ -66,7 +66,7 @@ public class rana extends Action{
     boolean canCharMove(Tile t){
         Tile target = targets[0].CurTile;
 
-        return Map.distance(t, target) == 1 && t.canMove();
+        return Map.distance(t, target) == 1 && !t.Occupied();
     }
 
     void Execute() {
@@ -127,6 +127,7 @@ public class rana extends Action{
         }
         Map.impactSounds.change(1);
         Map.impactSounds.play();
+        user.changeHealth(0);
 
     }
 }

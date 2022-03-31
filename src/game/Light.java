@@ -9,8 +9,8 @@ public class Light extends Character {
         super(t);
         DEFAULT_MAX_HEALTH = 10;
         DEFAULT_MAX_HEALTHREGEN = 2;
-        DEFAULT_MAX_STAMINA = 8;
-        DEFAULT_MAX_STAMREGEN = 5;
+        DEFAULT_MAX_STAMINA = 10;
+        DEFAULT_MAX_STAMREGEN = 4;
 
         MaxMove = DEFAULT_MAX_STAMINA;
         MovePoints = MaxMove;

@@ -22,6 +22,7 @@ public class GorillaPress extends Action {
     boolean canTargetMove(Tile t,int distance){
         return (Map.distance(t,user.CurTile) > 1 && Map.distance(t,user.CurTile) < 6) &&
                 (!t.Occupied() || t==targets[0].CurTile) &&
+                t.type != 6 &&
                 (t.x == user.CurTile.x || t.y == user.CurTile.y );
 
     }
@@ -79,6 +80,8 @@ public class GorillaPress extends Action {
 
         user.changeStam((cost + user.slammod) * -1);
         user.slammod++;
+        Map.impactSounds.change(1);
+        Map.impactSounds.play();
 
 
 

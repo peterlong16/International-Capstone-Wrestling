@@ -45,6 +45,7 @@ public class eyeRake extends Action {
     boolean canTargetMove(Tile t, int distance){
         return Map.distance(t,targets[0].CurTile) == 1 &&
                 t!=user.CurTile &&
+                t.type != 6 &&
                 (t.x == user.CurTile.x || t.y == user.CurTile.y);
     }
 

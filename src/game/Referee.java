@@ -127,7 +127,7 @@ public class Referee extends Character{
         }
         else if(lowdis>MaxDistToChars){
             for(int i = 0;i<8;i++){
-                    if(Map.neighbourTiles(this.CurTile).get(i).canMove() && !Map.neighbourTiles(this.CurTile).get(i).Occupied()){
+                    if(!Map.neighbourTiles(this.CurTile).get(i).Occupied()){
                         NeighbourScores[i][0] = Map.distance(Map.neighbourTiles(this.CurTile).get(i), closest.CurTile) * -1;
                     }
                     else{
@@ -233,7 +233,6 @@ public class Referee extends Character{
             else{
                 angleval = angle - cur;
             }
-            System.out.println("angle = " + angleval);
 
             allPoints.addAll(LinePoints(angleval));
         }

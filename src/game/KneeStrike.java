@@ -6,7 +6,7 @@ public class KneeStrike extends Action{
     KneeStrike(Character c) {
         super(c);
         cost = 2;
-        dmg = 2;
+        dmg = 8;
         range = new int[]{3, 4, 5};
         targets = new Character[1];
         mover = true;
@@ -21,7 +21,7 @@ public class KneeStrike extends Action{
     boolean canCharMove(Tile t) {
         for(Tile i: Map.neighbourTiles(targets[0].CurTile)){
             if(t == i){
-                return t.canMove();
+                return !t.Occupied() && t.type!=6;
             }
         }
         return false;

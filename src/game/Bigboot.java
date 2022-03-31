@@ -30,7 +30,7 @@ public class Bigboot extends Action {
             if (neighbours.get(i).Occupant() == user) {
                 for (int x = 0; x < neighbours.size(); x++){
                     if(neighbours.get(x) == t){
-                        return Math.abs(i - x) == 4;
+                        return Math.abs(i - x) == 4 && !t.Occupied();
                     }
                 }
             }

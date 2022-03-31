@@ -6,13 +6,13 @@ public class FrogSplash extends Action{
     FrogSplash(Character c) {
         super(c);
         cost = 3;
-        dmg = 4;
-        range = new int[]{1,2,3,4,5,6,7,8,9,10};
+        dmg = 6;
+        range = new int[]{1,2,3,4,5,6,7,8,9,10,11,12,13,14};
         targets = new Character[1];
         mover = false;
         type = "Dive";
         name = "Frog Splash";
-        hype = 17;
+        hype = 20;
         desc = "Dive onto the target with all of your body weight.";
         stmdmg = 0;
         sequence = new Boolean[]{true,false,true};
@@ -54,12 +54,13 @@ public class FrogSplash extends Action{
 
         user.moving = true;
         user.Dive();
-        target.changeHealth((dmg + target.CurTile.SlamEntryModifier) * -1);
+
     }
 
     @Override
     void DelayAction() {
         DelayTrigger = null;
+        targets[0].changeHealth((dmg + targets[0].CurTile.SlamEntryModifier) * -1);
         user.setTile(CharMove);
         user.changeHealth((2 + targets[0].CurTile.SlamEntryModifier) * -1);
         Map.impactSounds.change(1);

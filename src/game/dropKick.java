@@ -32,18 +32,21 @@ public class dropKick extends Action{
     boolean canTargetMove(Tile t, int distance){
         if(targets[0].CurTile.x == user.CurTile.x){
             if(targets[0].CurTile.y > user.CurTile.y){
-                return distance == 3 && t.canMove() && t.y == (targets[0].CurTile.y + 1);
+                return distance == 3 &&
+                        t.type != 6 && t.y == (targets[0].CurTile.y + 1) && !t.Occupied();
             }
             else{
-                return distance == 3 && t.canMove() && t.y == (targets[0].CurTile.y - 1);
+                return distance == 3 &&
+                        t.type != 6 && t.y == (targets[0].CurTile.y - 1) && !t.Occupied();
             }
         }
         else if(targets[0].CurTile.y == user.CurTile.y){
             if(targets[0].CurTile.x > user.CurTile.x){
-                return  distance == 3 &&t.canMove() && t.x == (targets[0].CurTile.x + 1);
+                return  distance == 3 &&
+                        t.type != 6 &&t.x == (targets[0].CurTile.x + 1) && !t.Occupied();
             }
             else{
-                return distance == 3 && t.canMove() && t.x == (targets[0].CurTile.x - 1);
+                return distance == 3 && t.type != 6 && t.x == (targets[0].CurTile.x - 1) && !t.Occupied();
             }
         }
         return false;

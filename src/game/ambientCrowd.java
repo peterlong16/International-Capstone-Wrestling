@@ -9,6 +9,7 @@ public class ambientCrowd extends Sounds{
     ambientCrowd(){
         clips = new Clip[]{SoundManager.crowd1, SoundManager.crowd2, SoundManager.crowd3,SoundManager.crowd4};
         current = clips[0];
+        setVolume(0.1f);
     }
 
     @Override

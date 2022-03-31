@@ -29,6 +29,7 @@ public class Uranage extends Action{
 
         return Map.distance(t,user.CurTile)==1 && !t.Occupied()  &&
                 t.x!=targets[0].CurTile.x &&
+                t.type != 6 &&
                 t.y!=targets[0].CurTile.y;
     }
 

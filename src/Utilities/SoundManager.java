@@ -21,7 +21,7 @@ public class SoundManager {
         Clip clip = null;
         try{
             clip = AudioSystem.getClip();
-            AudioInputStream sample = AudioSystem.getAudioInputStream(new File("src/Sounds/" + filename + ".wav"));
+            AudioInputStream sample = AudioSystem.getAudioInputStream(SoundManager.class.getResource("/Sounds/" + filename + ".wav"));
             clip.open(sample);
 
         } catch (Exception e) {

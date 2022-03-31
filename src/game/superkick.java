@@ -15,7 +15,7 @@ public class superkick extends Action {
         name = "Superkick";
         hype = 10;
         desc = "Take a stride forwards and deliver a big kick to a target";
-        sequence = new Boolean[]{true,false,false};
+        sequence = new Boolean[]{true,false,true};
         img = user.sprites[4];
         if(user.teamname.equals("Red")){
             this.hype = this.hype * -1;
@@ -26,18 +26,12 @@ public class superkick extends Action {
     void addTarget(Character c) {
         super.addTarget(c);
 
-        if(c!=null) {
 
-            if (c.CurTile.x > user.CurTile.x) {
-                this.CharMovex = 1;
-            } else if (c.CurTile.x < user.CurTile.x) {
-                this.CharMovex = -1;
-            } else if (c.CurTile.y > user.CurTile.y) {
-                this.CharMovey = 1;
-            } else if (c.CurTile.y < user.CurTile.y) {
-                this.CharMovey = -1;
-            }
-        }
+    }
+
+    @Override
+    boolean canCharMove(Tile t) {
+        return !t.Occupied() && t.canMove() && Map.distance(t,user.CurTile) == 1 && Map.distance(t,targets[0].CurTile) == 1;
     }
 
     @Override

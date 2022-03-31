@@ -6,12 +6,12 @@ public class ElbowDrop extends Action{
     ElbowDrop(Character c) {
         super(c);
         cost = 3;
-        dmg = 4;
-        range = new int[]{1, 2, 3, 4, 5, 6, 7, 8,9,10,11,12,13,14};
+        dmg = 8;
+        range = new int[]{1, 2, 3, 4, 5, 6, 7, 8,9,10};
         targets = new Character[1];
         mover = false;
         type = "Dive";
-        hype = 12;
+        hype = 17;
         name = "Elbow Drop";
         desc = "Drive your elbow into the target from the turnbuckle";
         stmdmg = 0;

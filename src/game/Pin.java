@@ -30,8 +30,8 @@ public class Pin extends Action{
         user.orient(user.orientation);
         user.sprite.setImage(user.rotate((BufferedImage) img,user.rot));
         targets[0].state = 3;
-        user.state = 2;
         user.setPin(targets[0].CurTile);
         user.moving = true;
+        System.out.println("PIN EXECUTED");
     }
 }

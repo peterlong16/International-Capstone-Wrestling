@@ -10,7 +10,7 @@ public class Climb extends Action{
         super(c);
         type = "Context";
         name = "Climb";
-        cost = 3;
+        cost = 2;
         mover = false;
         desc = "Climb onto the apron or onto a ringpost";
         sequence = new Boolean[]{true,false,false};
@@ -22,7 +22,7 @@ public class Climb extends Action{
     boolean canHit(Tile t, int distance) {
         for(Tile x: Map.neighbourTiles(user.CurTile)){
             if(x == t){
-                return t.type < 5 || t.type == 7;
+                return (t.type < 5 || t.type == 7) && !t.Occupied();
             }
         }
 
@@ -51,5 +51,6 @@ public class Climb extends Action{
         user.sprite.setImage(user.rotate((BufferedImage)user.sprites[0], user.rot));
         user.setTile(targetTile);
         user.moving = true;
+        user.changeStam(cost * -1);
     }
 }

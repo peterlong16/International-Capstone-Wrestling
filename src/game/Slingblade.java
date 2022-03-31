@@ -41,10 +41,11 @@ public class Slingblade extends Action {
         return Map.distance(t,user.CurTile) > Map.distance(user.CurTile,targets[0].CurTile)  &&
                 Map.distance(t, user.CurTile) < 6 &&
                 spaceBetween(t,targets[0].CurTile) &&
+                Map.distance(t,targets[0].CurTile) < 6 &&
                 !t.Occupied() &&
                 t.canMove() &&
                 t.type.equals(user.CurTile.type) &&
-                (t.x == user.CurTile.x || t.y == user.CurTile.y);
+                ((t.x == user.CurTile.x && t.x == targets[0].CurTile.x) || (t.y == user.CurTile.y && t.y == targets[0].CurTile.y));
 
     }
 
@@ -73,18 +74,11 @@ public class Slingblade extends Action {
 
         target.changeHealth((dmg + target.CurTile.SlamEntryModifier)* -1);
         target.changeStam(stmdmg * -1);
-
-
-
-
-
         user.changeStam((cost + user.slammod) * -1);
         user.slammod++;
         user.changeHealth(-1);
         Map.impactSounds.change(1);
         Map.impactSounds.play();
-
-
 
     }
 }

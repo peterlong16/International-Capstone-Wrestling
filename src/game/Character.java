@@ -113,12 +113,18 @@ public abstract class Character {
                 sprite.setImage(rotate((BufferedImage) sprites[0], rot));
             }
         }
+        if(state == 2){
+            sprite.setImage(rotate((BufferedImage) sprites[sprites.length-1], rot));
+        }
     }
 
     void changeStam(int change){
         this.MovePoints += change;
         if(this.MovePoints > this.MaxMove){
            this.MovePoints = this.MaxMove;
+        }
+        if(this.MovePoints < 0){
+            this.MovePoints = 0;
         }
     }
 
@@ -190,7 +196,7 @@ public abstract class Character {
         if(!a.mover) {
 
             for (Tile t : adj) {
-                if (t.canMove()) {
+                if (!t.Occupied()) {
                     vacant[i] = t;
                     i++;
                 }
@@ -202,8 +208,11 @@ public abstract class Character {
             this.moving = true;
         }
         this.state = 0;
+        this.pinning = false;
 
         Map.pinCount = 0;
+        Map.ref.state = 0;
+        Map.ref.changeHealth(0);
 
     }
 
@@ -263,8 +272,19 @@ public abstract class Character {
             move();
         }
         if(attacking){
+            System.out.println("MOVING = " + moving);
+            System.out.println("PINNING = " + pinning);
+            System.out.println("DELAY = " + atk.DelayTrigger);
+            System.out.println("TARGET = " + atk.targets[0]);
+            System.out.println("ENEMY ARRIVED = " + atk.targets[0].Arrived(atk.targets[0].CurTile));
+            System.out.println("ARRIVED = " + this.Arrived(this.CurTile));
 
-                if (!moving && !pinning && atk.DelayTrigger==null && (atk.targets[0]==null || atk.targets[0].Arrived(atk.targets[0].CurTile)) && this.Arrived(this.CurTile)) {
+
+
+
+
+
+            if (!moving && !pinning && atk.DelayTrigger==null && (atk.targets[0]==null || atk.targets[0].Arrived(atk.targets[0].CurTile)) && this.Arrived(this.CurTile)) {
 
                         try{
                             Thread.sleep(500);
@@ -318,8 +338,7 @@ public abstract class Character {
             atk.DelayAction();
         }
 
-
-         if(Arrived(CurTile) && (movePath == null || pathpos >= movePath.length -1)){
+         if(Arrived(CurTile) && (movePath == null ||  pathpos >= movePath.length -1 || movePath[pathpos] == null )){
              selfMove = false;
              moving = false;
              if (movePath != null) {
@@ -328,7 +347,7 @@ public abstract class Character {
              pathpos = 0;
              flying = false;
          }
-         if ( movePath==null || movePath.length == 0 || movePath[pathpos] == null) {
+         if ( movePath==null || movePath.length == 0 || pathpos >= movePath.length || movePath[pathpos] == null) {
 
 
             if (x != CurTile.CenterX || y != CurTile.CenterY) {
@@ -411,7 +430,7 @@ public abstract class Character {
             atk.DelayAction();
         }
 
-        if(Arrived(CurTile) && (movePath == null || pathpos >= movePath.length -1)){
+        if(Arrived(CurTile) && (movePath == null || pathpos >= movePath.length -1 || movePath[pathpos] == null)){
             x = CurTile.CenterX;
             y = CurTile.CenterY;
             flying = false;
@@ -421,11 +440,11 @@ public abstract class Character {
         }
         else {
             if(movePath!=null && movePath[pathpos] != null) {
+                dx = movePath[pathpos].CenterX - x;
+                dy = movePath[pathpos].CenterY - y;
                 if(Arrived(movePath[pathpos])){
                     pathpos++;
                 }
-                dx = movePath[pathpos].CenterX - x;
-                dy = movePath[pathpos].CenterY - y;
             }
             else {
                 dx = CurTile.CenterX - x;
@@ -497,6 +516,12 @@ public abstract class Character {
                 ", state=" + state +
                 ", name='" + name + '\'' +
                 ", orientation=" + orientation +
+                ", moving=" + moving +
+                ", pinning=" + pinning+
+                ", attacking=" + attacking +
+                ", flying =" + flying +
+                ", x = " + x +
+                ", y = " + y +
                 '}';
     }
 }

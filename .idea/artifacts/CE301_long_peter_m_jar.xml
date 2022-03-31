@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="CE301_long_peter_m:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/CE301_long_peter_m_jar</output-path>
+    <root id="archive" name="CE301_long_peter_m.jar">
+      <element id="module-output" name="CE301_long_peter_m" />
+    </root>
+  </artifact>
+</component>

@@ -27,6 +27,7 @@ public class Powerbomb extends Action{
     boolean canTargetMove(Tile t,int distance){
         return (Map.distance(t,targets[0].CurTile) == 0 || Map.distance(t,targets[0].CurTile) == 1) &&
                 (!t.Occupied() || t==targets[0].CurTile) &&
+                t.type != 6 && (!t.Occupied() || t.Occupant() == targets[0]) &&
                 (t.x == user.CurTile.x || t.y == user.CurTile.y );
 
     }

@@ -33,7 +33,7 @@ public class TurnOrder {
         if(c.state==3){
             g.drawImage(pin,(x + (this.width/6)),y + (this.height/6), 30,30,null);
         }
-        else if(c.Health < c.painThresh){
+        else if(c.Health + c.regen <= c.painThresh){
             g.drawImage(inactive,(x + (this.width/6)),y + (this.height/6), 30,30,null);
         }
         else if(c.state==2){

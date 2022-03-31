@@ -9,10 +9,10 @@ public class Medium extends Character{
     Medium(Tile t, String name, String team, Color colour, int or){
         super(t);
 
-        DEFAULT_MAX_HEALTH = 8;
+        DEFAULT_MAX_HEALTH = 12;
         DEFAULT_MAX_HEALTHREGEN = 2;
         DEFAULT_MAX_STAMINA = 8;
-        DEFAULT_MAX_STAMREGEN = 5;
+        DEFAULT_MAX_STAMREGEN = 4;
 
         MaxMove = DEFAULT_MAX_STAMINA;
         MovePoints = MaxMove;
