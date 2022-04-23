@@ -1,0 +1,1 @@
+The game should be able to run through the executable JAR file. If the game does not run, you may need to update Java to the most recent version (Available at https://www.oracle.com/java/technologies/downloads/)
