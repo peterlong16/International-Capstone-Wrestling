@@ -23,7 +23,6 @@ public class Medium extends Character{
         regen = DEFAULT_MAX_HEALTHREGEN;
         stamregen = DEFAULT_MAX_STAMREGEN;
 
-        this.image = colour;
         this.orientation = or;
         this.sprite = new Sprite(this,Constants.TILE_SIZE,Constants.TILE_SIZE);
         this.name = name;

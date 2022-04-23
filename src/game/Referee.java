@@ -14,7 +14,6 @@ public class Referee extends Character{
     private final int MaxDistToChars;
     public final int ViewDistance;
     public final float FOV;
-    Character[] CharView;
     ArrayList<Tile> ViewTiles;
 
 
@@ -249,6 +248,7 @@ public class Referee extends Character{
 
 
 
+
         for (int r = 0; r < ROWS; r++) {
             for (int c = 0; c < COLS; c++) {
                 Tile t = Map.TileGrid[r][c];
@@ -332,12 +332,6 @@ public class Referee extends Character{
        return points;
     }
 
-
-    void swap(double x1, double x2){
-
-    }
-
-
     boolean inView(Tile t){
 
 
@@ -349,19 +343,6 @@ public class Referee extends Character{
         }
 
         return false;
-    }
-
-    void checkView(){
-        CharView = new Character[6];
-        int i = 0;
-
-        for(Character c: Map.Characters){
-            if(inView(c.CurTile)){
-                CharView[i] = c;
-                i++;
-            }
-        }
-
     }
 
     public void draw(Graphics2D g){

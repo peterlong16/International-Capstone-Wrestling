@@ -23,7 +23,6 @@ public class Light extends Character {
 
         signature = true;
         this.orientation = or;
-        this.image = colour;
         this.sprite = new Sprite(this,Constants.TILE_SIZE,Constants.TILE_SIZE);
         this.name = name;
         this.teamname = team;

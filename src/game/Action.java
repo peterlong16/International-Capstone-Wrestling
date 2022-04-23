@@ -25,8 +25,7 @@ public abstract class Action {
     Tile CharMove;
     Tile targetTile;
     Tile DelayTrigger;
-    int CharMovex;
-    int CharMovey;
+
 
 
     Tile targetMove;
@@ -36,8 +35,7 @@ public abstract class Action {
 
     Action(Character c){
         this.user = c;
-        this.CharMovex = 0;
-        this.CharMovey = 0;
+
     }
 
 

@@ -24,7 +24,6 @@ public class Heavy extends Character {
 
 
         this.orientation = or;
-        this.image = colour;
         this.sprite = new Sprite(this,Constants.TILE_SIZE,Constants.TILE_SIZE);
 
         this.name = name;

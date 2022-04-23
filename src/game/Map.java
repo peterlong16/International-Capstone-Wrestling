@@ -1,17 +1,10 @@
 package game;
-import Utilities.ImageManager;
 import Utilities.SortedList;
-import org.w3c.dom.Text;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.PriorityQueue;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static game.Constants.*;
@@ -220,8 +213,6 @@ public class Map extends JPanel {
 
                                     if (sequence[0] && primedAtk.canHit(TargetTile, distance(TargetTile, CurrentPlayer.CurTile))) {
                                         primedAtk.addTarget(TargetTile.Occupant());
-
-                                        primedAtk.setCharMove(TileGrid[CurrentPlayer.CurTile.y + primedAtk.CharMovey][CurrentPlayer.CurTile.x + primedAtk.CharMovex]);
                                     }
 
                                     if (primedAtk.name.equals("Climb") && primedAtk.canHit(TargetTile, distance(TargetTile, CurrentPlayer.CurTile))) {
@@ -1669,7 +1660,7 @@ public class Map extends JPanel {
             }
             g.setColor(Color.white);
             statTexty = statTexty + 20;
-            g.drawString("Moving: " + hoverC.moving,statTextx,statTexty);
+
 
 
             statTextx = statTextx + 200;

@@ -4,8 +4,6 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 
@@ -20,7 +18,6 @@ public abstract class Character {
 
     Tile CurTile;
     Tile PrevTile;
-    Color image;
     int MovePoints;
     int MaxMove;
     int Health;
@@ -36,8 +33,7 @@ public abstract class Character {
     double rot;
     Image[] sprites;
     Sprite sprite;
-    int diveint = 7;
-    int interv = diveint;
+
 
 
     // 0 = neutral , 1 = down 2 = pinning 3 = pinned
@@ -215,8 +211,6 @@ public abstract class Character {
         Map.ref.changeHealth(0);
 
     }
-
-
 
     void setTile(Tile t) {
         this.PrevTile = CurTile;

@@ -31,8 +31,7 @@ public class rana extends Action{
     void addTarget(Character c) {
         super.addTarget(c);
 
-        CharMovex = 0;
-        CharMovey = 0;
+
     }
 
 
